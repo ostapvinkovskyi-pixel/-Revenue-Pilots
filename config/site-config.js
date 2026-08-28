@@ -19,12 +19,12 @@ window.RP_CONFIG = {
       pitch: "A low-risk way to test Revenue Pilots without starting a subscription.",
       features: [
         "3 custom vertical video ads",
-        "2 bonus video variations",
+        "2 custom preview videos available before purchase",
+        "Approved previews count toward your 3-video pack",
         "3 hooks / creative angles",
         "Your branding + CTA copy",
         "Social-ready 9:16 exports",
-        "One-time payment",
-        "No subscription required"
+        "One-time payment — no subscription"
       ]
     },
     {
@@ -34,12 +34,12 @@ window.RP_CONFIG = {
       pitch: "More creative to test several directions in one campaign.",
       features: [
         "6 custom vertical video ads",
-        "2 bonus video variations",
+        "2 custom preview videos available before purchase",
+        "Approved previews count toward your 6-video pack",
         "Multiple hooks, offers and creative directions",
         "Custom CTA copy + branding",
         "1 revision round",
-        "Social-ready 9:16 exports",
-        "No subscription required"
+        "Social-ready 9:16 exports"
       ]
     }
   ];
@@ -55,11 +55,11 @@ window.RP_CONFIG = {
       pitchAnnual: "Same monthly creative, with 2 months free on yearly billing.",
       features: [
         "3 fresh custom vertical ads every month",
-        "First month launch bonus: +2 video variations",
+        "2 custom preview videos available before you commit",
+        "Approved previews count toward month one",
         "3 new hooks / creative angles",
         "Your branding + CTA copy",
         "Social-ready 9:16 exports",
-        "Monthly delivery",
         "Monthly plan can be canceled before renewal"
       ]
     },
@@ -73,12 +73,12 @@ window.RP_CONFIG = {
       pitchAnnual: "Six fresh ads every month, with 2 months free on yearly billing.",
       features: [
         "6 fresh custom vertical ads every month",
-        "First month launch bonus: +2 video variations",
+        "2 custom preview videos available before you commit",
+        "Approved previews count toward month one",
         "Multiple hooks, offers and creative directions",
         "Custom CTA copy + branding",
         "1 revision round each month",
-        "Social-ready 9:16 exports",
-        "Monthly plan can be canceled before renewal"
+        "Social-ready 9:16 exports"
       ]
     },
     {
@@ -91,12 +91,13 @@ window.RP_CONFIG = {
       pitchAnnual: "Weekly creative delivery, with 2 months free on yearly billing.",
       features: [
         "10 fresh custom vertical ads every month",
+        "2 custom preview videos available before you commit",
+        "Approved previews count toward month one",
         "Fresh creative delivered weekly",
         "New hooks, angles and offer concepts",
         "Creative planning around your current campaigns",
         "2 revision rounds each month",
-        "Priority production queue",
-        "Monthly plan can be canceled before renewal"
+        "Priority production queue"
       ]
     }
   ];
@@ -126,15 +127,15 @@ window.RP_CONFIG = {
   document.title = "Revenue Pilots | Video Ad Packs & Ongoing Creative";
   upsertMeta('meta[name="description"]', {
     name: "description",
-    content: "Custom short-form video ad creative for home services, restaurants, ecommerce and product brands. Buy a one-time pack from $249 or choose monthly and yearly plans."
+    content: "Custom short-form video ad creative for home services, restaurants, ecommerce and product brands. See two custom previews before you buy, then choose a one-time pack or ongoing plan."
   });
   upsertMeta('meta[property="og:title"]', {
     property: "og:title",
-    content: "Revenue Pilots — Buy a Pack or Keep Creative Rolling"
+    content: "Revenue Pilots — See Your Creative Before You Commit"
   });
   upsertMeta('meta[property="og:description"]', {
     property: "og:description",
-    content: "Start with a one-time video ad pack from $249. Monthly and yearly creative subscriptions are available when you want ongoing production."
+    content: "Get two custom preview videos for your business before choosing a one-time pack, monthly plan or yearly plan."
   });
   upsertMeta('meta[property="og:url"]', { property: "og:url", content: `${SITE}/` });
   upsertMeta('meta[property="og:image"]', {
@@ -214,6 +215,7 @@ window.RP_CONFIG = {
       .rp-billing-detail{color:rgba(255,255,255,.48);font-size:.82rem;text-align:center}
       .price-annual-note{display:block;margin-top:.28rem;color:rgba(255,255,255,.48);font-size:.78rem;line-height:1.35}
       .price-grid.rp-two-cards{grid-template-columns:repeat(2,minmax(0,1fr));max-width:920px;margin-left:auto;margin-right:auto}
+      .price-card[hidden]{display:none!important}
       @media(max-width:760px){.rp-launch-grid{grid-template-columns:1fr}.rp-category-grid{grid-template-columns:1fr}.price-grid.rp-two-cards{grid-template-columns:1fr}.rp-billing-btn{padding:.68rem .9rem;font-size:.9rem}}
     `;
     if (!document.getElementById(style.id)) document.head.appendChild(style);
@@ -223,26 +225,27 @@ window.RP_CONFIG = {
 
     const heroSub = document.querySelector('.hero-sub');
     if (heroSub) {
-      heroSub.innerHTML = 'Start with a <strong>one-time pack from $249</strong> — or keep fresh creative coming monthly.<br class="br-md">Yearly plans include 2 months free.';
+      heroSub.innerHTML = '<strong>See 2 custom video previews for your business before you commit.</strong><br class="br-md">If you continue, they become part of your pack or first subscription month.';
     }
 
     const heroMicro = document.querySelector('.hero-micro');
-    if (heroMicro) heroMicro.textContent = 'One-time packs require no subscription. Ad spend separate.';
+    if (heroMicro) heroMicro.textContent = 'Preview versions are not final deliverables. Ad spend separate.';
 
     const contactSub = document.querySelector('.contact-pitch .section-sub');
-    if (contactSub) contactSub.textContent = 'Choose a one-time pack or an ongoing creative plan.';
+    if (contactSub) contactSub.textContent = 'Request two custom previews, then choose a one-time pack or ongoing creative plan.';
     const contactMicro = document.querySelector('.contact-pitch .hero-micro');
-    if (contactMicro) contactMicro.textContent = 'One-time packs do not renew. Ad spend separate.';
+    if (contactMicro) contactMicro.textContent = 'If you continue, approved previews count toward your purchase. Ad spend separate.';
 
     document.querySelectorAll('.hero [data-plan="starter"], .header-actions [data-plan="starter"], .contact-ctas [data-plan="starter"]').forEach((btn) => {
       btn.removeAttribute('data-plan');
       btn.textContent = btn.classList.contains('header-cta')
-        ? 'See pricing'
+        ? 'Get 2 previews'
         : btn.closest('.contact-ctas')
-          ? 'Buy pack or subscribe'
-          : 'See pricing options';
+          ? 'Get 2 custom previews'
+          : 'Get 2 custom previews';
       btn.addEventListener('click', () => {
-        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.setTimeout(() => document.getElementById('lf-name')?.focus({ preventScroll: true }), 350);
       });
     });
 
@@ -254,14 +257,14 @@ window.RP_CONFIG = {
             <div class="rp-launch-card reveal">
               <div class="rp-launch-grid">
                 <div>
-                  <p class="eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>Start your way</p>
-                  <h2 class="rp-launch-title" id="launch-offer-title">Buy one pack. Subscribe only when it makes sense.</h2>
-                  <p class="rp-launch-copy">Start with <strong>3 custom ads + 2 bonus videos for $249 one-time</strong>. No contract or subscription required. If you want fresh creative every month after that, switch to a monthly or yearly plan whenever you're ready.</p>
-                  <p class="rp-launch-note">Bonus videos are additional cutdowns or variations built from the approved direction. Qualified businesses can still request one short concept sample before purchasing. No advertising result is guaranteed.</p>
+                  <p class="eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>See it before you buy it</p>
+                  <h2 class="rp-launch-title" id="launch-offer-title">Get 2 custom video previews for your business before you commit.</h2>
+                  <p class="rp-launch-copy">Send us your business, offer and current assets. For qualified businesses, we'll build <strong>2 custom preview videos around your actual brand</strong> so you can see our direction before choosing a pack or subscription. If you decide to continue, those approved videos are finalized and <strong>count toward the videos you already purchased</strong> — they are not two extra ads added on top.</p>
+                  <p class="rp-launch-note">Preview versions are watermarked / review-only and are not final social-ready deliverables. If you continue, we finalize them as part of your selected pack or first subscription month. No advertising result is guaranteed.</p>
                 </div>
                 <div class="rp-launch-actions">
-                  <a class="btn btn-gold btn-lg" href="#pricing">See purchase options</a>
-                  <a class="btn btn-ghost btn-lg" href="#contact" data-free-concept>Request a free concept</a>
+                  <a class="btn btn-gold btn-lg" href="#contact" data-free-concept>Get 2 custom previews</a>
+                  <a class="btn btn-ghost btn-lg" href="#pricing">See pricing</a>
                 </div>
               </div>
             </div>
@@ -297,8 +300,8 @@ window.RP_CONFIG = {
             <button type="button" class="rp-billing-btn" data-billing="monthly">Monthly</button>
             <button type="button" class="rp-billing-btn" data-billing="annual">Yearly</button>
           </div>
-          <div class="rp-billing-save" id="rp-billing-save">No subscription required</div>
-          <div class="rp-billing-detail" id="rp-billing-detail">Pay once. Get the creative pack. Subscribe later only if you want ongoing production.</div>
+          <div class="rp-billing-save" id="rp-billing-save">One-time purchase — no subscription</div>
+          <div class="rp-billing-detail" id="rp-billing-detail">Starter and Growth are one-time packs. If you requested previews first, approved previews count toward the pack.</div>
         </div>`);
     }
 
@@ -326,17 +329,19 @@ window.RP_CONFIG = {
       const save = document.getElementById('rp-billing-save');
 
       if (term === 'pack') {
-        if (save) save.textContent = 'No subscription required';
-        if (detail) detail.textContent = 'Pay once. Get the creative pack. Subscribe later only if you want ongoing production.';
+        if (save) save.textContent = 'One-time purchase — no subscription';
+        if (detail) detail.textContent = 'Starter and Growth are one-time packs. If you requested previews first, approved previews count toward the pack.';
         priceGrid?.classList.add('rp-two-cards');
 
         cards.forEach((card, index) => {
           const pack = PACKS[index];
           if (!pack) {
             card.hidden = true;
+            card.style.display = 'none';
             return;
           }
           card.hidden = false;
+          card.style.removeProperty('display');
           const name = card.querySelector('.price-name');
           const amount = card.querySelector('.price-amount');
           const pitch = card.querySelector('.price-pitch');
@@ -363,6 +368,7 @@ window.RP_CONFIG = {
         const plan = PLANS[index];
         if (!plan) return;
         card.hidden = false;
+        card.style.removeProperty('display');
 
         const name = card.querySelector('.price-name');
         const amount = card.querySelector('.price-amount');
@@ -402,8 +408,8 @@ window.RP_CONFIG = {
 
     const priceHead = pricing?.querySelector('.section-head .section-title');
     const priceSub = pricing?.querySelector('.section-head .section-sub');
-    if (priceHead) priceHead.textContent = 'Choose how you want to buy.';
-    if (priceSub) priceSub.textContent = 'Buy a one-time pack, subscribe month to month, or save two months with yearly billing.';
+    if (priceHead) priceHead.textContent = 'Choose how you want to continue.';
+    if (priceSub) priceSub.textContent = 'Start with two custom previews, then buy a one-time pack, subscribe month to month, or save two months with yearly billing.';
 
     const priceFoot = pricing?.querySelector('.price-foot');
     if (priceFoot) priceFoot.textContent = 'Secure checkout is handled by Stripe. One-time packs do not renew. Monthly plans renew monthly; yearly plans are billed upfront. Ad spend is separate.';
@@ -413,7 +419,7 @@ window.RP_CONFIG = {
         window.setTimeout(() => {
           const message = document.getElementById('lf-message');
           const pkg = document.getElementById('lf-package');
-          if (message && !message.value) message.value = "I'd like to request a free short concept sample for my business before choosing a pack or subscription.";
+          if (message && !message.value) message.value = "I'd like to request 2 custom preview videos for my business before choosing a pack or subscription.";
           if (pkg) pkg.value = 'not_sure';
           document.getElementById('lf-name')?.focus({ preventScroll: true });
         }, 250);
