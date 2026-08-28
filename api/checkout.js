@@ -16,6 +16,14 @@ const PLANS = {
     annualAmount: 449000,
     oneTimeDescription: "One-time growth pack: 6 custom vertical video ads plus 2 bonus video variations, multiple creative angles, and 1 revision round. No subscription required.",
     subscriptionDescription: "6 fresh custom vertical video ads per month with multiple creative angles and 1 revision round. First month includes 2 bonus video variations."
+  },
+  weekly: {
+    name: "Revenue Pilots — Scale",
+    oneTimeAmount: null,
+    monthlyAmount: 69900,
+    annualAmount: 699000,
+    oneTimeDescription: "",
+    subscriptionDescription: "10 fresh custom vertical video ads per month with weekly delivery, ongoing hooks and angles, and 2 revision rounds."
   }
 };
 

@@ -23,11 +23,13 @@
 
   var PLAN_KEYS = {
     starter: "STRIPE_STARTER_URL",
-    growth: "STRIPE_GROWTH_URL"
+    growth: "STRIPE_GROWTH_URL",
+    weekly: "STRIPE_WEEKLY_URL"
   };
   var PLAN_LABELS = {
     starter: "Starter ($249)",
-    growth: "Growth ($499)"
+    growth: "Growth ($499)",
+    weekly: "Weekly Ad Engine ($999/mo)"
   };
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
