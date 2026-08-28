@@ -1,12 +1,13 @@
 import Stripe from "stripe";
 
+const DEFAULT_MAKE_WEBHOOK_URL = "https://hook.us2.make.com/qbvey2ub4psm3u7gg1mswes2g2hog19h";
+
 function safe(value) {
   return value == null ? "" : String(value);
 }
 
 async function notifyMake(payload) {
-  const makeUrl = process.env.MAKE_WEBHOOK_URL;
-  if (!makeUrl) throw new Error("MAKE_WEBHOOK_URL is missing");
+  const makeUrl = process.env.MAKE_WEBHOOK_URL || DEFAULT_MAKE_WEBHOOK_URL;
 
   const response = await fetch(makeUrl, {
     method: "POST",
@@ -85,7 +86,6 @@ export default {
       }
     } catch (error) {
       console.error("Webhook processing error", error);
-      // Return 500 so Stripe retries a temporary downstream failure.
       return new Response("Webhook processing failed", { status: 500 });
     }
 
