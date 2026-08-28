@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Local/server secrets — never commit real values
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+
+# Keep the safe template
+!.env.example
+
+# Public front-end config is intentionally committed.
+# It contains only same-origin /api routes and a public contact email.
