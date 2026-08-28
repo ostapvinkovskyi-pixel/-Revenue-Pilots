@@ -102,8 +102,6 @@ window.RP_CONFIG = {
     }
   ];
 
-  let billingTerm = "pack";
-
   const upsertMeta = (selector, attrs) => {
     let el = document.head.querySelector(selector);
     if (!el) {
@@ -319,7 +317,6 @@ window.RP_CONFIG = {
     }
 
     function renderPricing(term) {
-      billingTerm = term;
       window.RP_BILLING_TERM = term;
 
       document.querySelectorAll('.rp-billing-btn').forEach((btn) => {
@@ -389,7 +386,6 @@ window.RP_CONFIG = {
         }
 
         if (list) list.innerHTML = plan.features.map((feature) => `<li>${feature}</li>`).join('');
-
         wireButton(
           button,
           plan.key,
@@ -435,17 +431,20 @@ window.RP_CONFIG = {
   }
 })();
 
-/* Desktop portfolio behavior: exactly three visible cards, one-card gestures,
-   30-second auto advance, and a seamless five-card loop. Mobile stays under
-   the existing carousel code and is intentionally untouched. */
+/* Desktop portfolio v3
+   Three visible cards, five real items, one-card movement, transform-based
+   animation (not native smooth scrolling) so loop resets happen on visually
+   identical clone windows. The progress rail keeps a fixed width so it never
+   jumps when the active state changes. Mobile remains owned by main.js. */
 (() => {
   const desktopMQ = window.matchMedia('(min-width: 1024px)');
   const reduceMotionMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const TRANSITION_MS = 620;
 
-  const installDesktopStyles = () => {
-    if (document.getElementById('rp-desktop-carousel-v2')) return;
+  const installStyles = () => {
+    if (document.getElementById('rp-desktop-carousel-v3')) return;
     const style = document.createElement('style');
-    style.id = 'rp-desktop-carousel-v2';
+    style.id = 'rp-desktop-carousel-v3';
     style.textContent = `
       @media (min-width:1024px){
         #work .work-track{
@@ -454,50 +453,88 @@ window.RP_CONFIG = {
           max-width:var(--shell);
           box-sizing:border-box;
           padding-inline:var(--pad);
-          scroll-padding-inline-start:var(--pad);
-          overflow-x:auto;
-          scroll-snap-type:x mandatory;
+          overflow:hidden!important;
+          scroll-snap-type:none!important;
+          scroll-behavior:auto!important;
+          cursor:grab;
+          touch-action:pan-y;
         }
-        #work .work-grid{display:flex;flex-wrap:nowrap;gap:var(--work-gap);}
+        #work .work-track.is-dragging{cursor:grabbing;}
+        #work .work-grid{
+          width:100%;
+          display:flex;
+          flex-wrap:nowrap;
+          gap:var(--work-gap);
+          will-change:transform;
+          transform:translate3d(0,0,0);
+          transition:transform ${TRANSITION_MS}ms cubic-bezier(.22,.61,.36,1);
+        }
         #work .work-card{
-          flex:0 0 var(--card-w);
-          width:var(--card-w);
-          scroll-snap-align:start;
-          opacity:1;
+          flex:0 0 var(--card-w)!important;
+          width:var(--card-w)!important;
+          opacity:1!important;
+          scroll-snap-align:none!important;
         }
         #work .work-card.is-loop-clone{display:flex;}
-        #work .work-rail{display:flex!important;}
+        #work .work-rail{
+          display:flex!important;
+          min-height:4px;
+          align-items:center;
+          gap:7px;
+        }
+        #work .work-rail span,
+        #work .work-rail span.is-on{
+          width:30px!important;
+          height:2px;
+          background:var(--line-2);
+          transform:scaleX(.46);
+          transform-origin:center;
+          opacity:.7;
+          transition:transform 420ms cubic-bezier(.22,.61,.36,1),background 420ms ease,opacity 420ms ease;
+        }
+        #work .work-rail span.is-on{
+          width:30px!important;
+          background:var(--gold);
+          transform:scaleX(1);
+          opacity:1;
+        }
       }
     `;
     document.head.appendChild(style);
   };
 
-  const initDesktopCarousel = () => {
-    installDesktopStyles();
+  const init = () => {
+    installStyles();
     if (!desktopMQ.matches || reduceMotionMQ.matches) return;
 
-    let track = document.getElementById('workTrack');
-    if (!track || track.dataset.rpDesktopLoop === 'true') return;
+    let oldTrack = document.getElementById('workTrack');
+    if (!oldTrack || oldTrack.dataset.rpSmoothLoop === 'true') return;
 
-    /* main.js has already initialized by window.load. Replacing this one
-       scroll region removes only its old carousel listeners so the two
-       carousel controllers never fight each other. */
-    const freshTrack = track.cloneNode(true);
-    track.replaceWith(freshTrack);
-    track = freshTrack;
-    track.dataset.rpDesktopLoop = 'true';
+    const oldGrid = oldTrack.querySelector('#workGrid');
+    if (!oldGrid) return;
 
-    const grid = track.querySelector('#workGrid');
-    const rail = document.getElementById('workRail');
-    if (!grid) return;
+    /* Clone only real cards. Replacing the track also removes the native
+       scroll listeners installed by main.js so two carousel engines cannot
+       fight each other. */
+    const sourceCards = Array.from(oldGrid.children).filter((card) => !card.classList.contains('is-loop-clone'));
+    if (sourceCards.length < 4) return;
 
-    const realCards = Array.from(grid.querySelectorAll('.work-card'));
-    if (realCards.length < 4) return;
+    const track = oldTrack.cloneNode(false);
+    const grid = oldGrid.cloneNode(false);
+    track.dataset.rpSmoothLoop = 'true';
+    track.classList.remove('is-dragging');
 
-    realCards.forEach((card, index) => {
-      card.dataset.rpRealIndex = String(index);
-      card.classList.add('is-visible');
+    const realCards = sourceCards.map((card, index) => {
+      const clean = card.cloneNode(true);
+      clean.classList.remove('is-loop-clone', 'is-active');
+      clean.classList.add('is-visible');
+      clean.dataset.rpRealIndex = String(index);
+      return clean;
     });
+
+    realCards.forEach((card) => grid.appendChild(card));
+    track.appendChild(grid);
+    oldTrack.replaceWith(track);
 
     const makeClone = (card) => {
       const clone = card.cloneNode(true);
@@ -508,115 +545,100 @@ window.RP_CONFIG = {
       return clone;
     };
 
-    const before = realCards.slice(-2).map(makeClone);
-    const after = realCards.slice(0, 2).map(makeClone);
-    grid.prepend(...before);
-    grid.append(...after);
+    grid.prepend(makeClone(realCards[realCards.length - 2]), makeClone(realCards[realCards.length - 1]));
+    grid.append(makeClone(realCards[0]), makeClone(realCards[1]));
 
-    const items = Array.from(grid.querySelectorAll('.work-card'));
-    const realCount = realCards.length;
-    const firstRealPos = 2;
-    const lastLoopPos = firstRealPos + realCount - 1;
-    let currentPos = firstRealPos;
-    let lastSettledPos = firstRealPos;
-    let settleTimer = 0;
-    let autoTimer = 0;
-    let resumeTimer = 0;
-    let wheelLocked = false;
-    let dragging = false;
-    let dragStartX = 0;
-    let dragStartPos = firstRealPos;
-    let dragPointerId = null;
-    let sectionVisible = true;
-
+    const items = Array.from(grid.children);
+    const rail = document.getElementById('workRail');
     if (rail) {
       rail.innerHTML = '';
       realCards.forEach(() => rail.appendChild(document.createElement('span')));
     }
     const dots = rail ? Array.from(rail.children) : [];
 
-    const paddingLeft = () => parseFloat(getComputedStyle(track).paddingLeft || '0') || 0;
+    let position = 2; // 1,2,3 are visible first
+    let animating = false;
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartPosition = position;
+    let pointerId = null;
+    let autoTimer = 0;
+    let resumeTimer = 0;
+    let sectionVisible = true;
 
-    const leftFor = (pos) => {
+    const gap = () => parseFloat(getComputedStyle(grid).columnGap || getComputedStyle(grid).gap || '0') || 0;
+    const step = () => {
+      const first = items[0];
+      return first ? first.getBoundingClientRect().width + gap() : 0;
+    };
+    const xFor = (pos) => -(pos * step());
+
+    const realIndexAt = (pos) => {
       const item = items[pos];
-      if (!item) return track.scrollLeft;
-      const tr = track.getBoundingClientRect();
-      const ir = item.getBoundingClientRect();
-      return track.scrollLeft + ir.left - tr.left - paddingLeft();
+      const value = item ? Number(item.dataset.rpRealIndex) : 0;
+      return Number.isFinite(value) ? value : 0;
     };
 
-    const nearestPos = () => {
-      const tr = track.getBoundingClientRect();
-      const anchor = tr.left + paddingLeft();
-      let best = 0;
-      let bestDistance = Infinity;
-      items.forEach((item, index) => {
-        const distance = Math.abs(item.getBoundingClientRect().left - anchor);
-        if (distance < bestDistance) {
-          bestDistance = distance;
-          best = index;
-        }
-      });
-      return best;
+    const updateDots = (pos) => {
+      const active = realIndexAt(pos);
+      dots.forEach((dot, index) => dot.classList.toggle('is-on', index === active));
     };
 
-    const jumpTo = (pos) => {
-      const previous = track.style.scrollBehavior;
-      track.style.scrollBehavior = 'auto';
-      track.scrollLeft = leftFor(pos);
-      currentPos = pos;
-      window.requestAnimationFrame(() => { track.style.scrollBehavior = previous; });
-    };
-
-    const scrollToPos = (pos, behavior = 'smooth') => {
-      if (!items[pos]) return;
-      currentPos = pos;
-      track.scrollTo({ left: leftFor(pos), behavior });
-    };
-
-    const realIndexForPos = (pos) => {
-      const item = items[pos];
-      return item ? Number(item.dataset.rpRealIndex || 0) : 0;
-    };
-
-    const syncUI = (pos) => {
-      const realIndex = realIndexForPos(pos);
-      dots.forEach((dot, index) => dot.classList.toggle('is-on', index === realIndex));
-
+    const syncPlayback = (pos) => {
       items.forEach((card, index) => {
-        card.classList.toggle('is-active', index >= pos && index < pos + 3);
+        const visible = index >= pos && index < pos + 3;
+        card.classList.toggle('is-active', visible);
         const video = card.querySelector('.work-video');
         if (!video) return;
-        if (sectionVisible && index >= pos && index < pos + 3) {
-          const p = video.play();
-          if (p && typeof p.catch === 'function') p.catch(() => {});
+        if (sectionVisible && visible) {
+          const promise = video.play();
+          if (promise && typeof promise.catch === 'function') promise.catch(() => {});
         } else if (!video.paused) {
           video.pause();
         }
       });
     };
 
-    const normalizeAfterSettle = () => {
-      let pos = nearestPos();
-      const direction = pos - lastSettledPos;
-
-      /* Equivalent clone windows let the next gesture continue in the same
-         direction instead of visibly rewinding from card 5 back to card 1. */
-      if (pos >= lastLoopPos && direction > 0) {
-        jumpTo(1); // [5,1,2] clone window -> identical left-side window
-        pos = 1;
-      } else if (pos <= 1 && direction < 0) {
-        jumpTo(lastLoopPos); // [5,1,2] left clone -> identical right-side window
-        pos = lastLoopPos;
-      } else if (pos === 0 && direction < 0) {
-        jumpTo(lastLoopPos - 1); // [4,5,1] -> identical real/right clone window
-        pos = lastLoopPos - 1;
-      }
-
-      currentPos = pos;
-      lastSettledPos = pos;
-      syncUI(pos);
+    const setTransform = (pos, animate) => {
+      grid.style.transition = animate
+        ? `transform ${TRANSITION_MS}ms cubic-bezier(.22,.61,.36,1)`
+        : 'none';
+      grid.style.transform = `translate3d(${xFor(pos)}px,0,0)`;
     };
+
+    const normalize = () => {
+      /* Both resets land on an identical three-card window, so the DOM moves
+         but the pixels on screen do not. */
+      if (position === 6) {
+        position = 1; // [5,1,2] -> identical [5,1,2]
+        setTransform(position, false);
+      } else if (position === 0) {
+        position = 5; // [4,5,1] -> identical [4,5,1]
+        setTransform(position, false);
+      }
+      // Force the no-transition reset to commit before restoring animation.
+      grid.getBoundingClientRect();
+      grid.style.transition = `transform ${TRANSITION_MS}ms cubic-bezier(.22,.61,.36,1)`;
+      animating = false;
+      updateDots(position);
+      syncPlayback(position);
+    };
+
+    const move = (direction) => {
+      if (animating || dragging) return;
+      const target = position + direction;
+      if (target < 0 || target > 6) return;
+      animating = true;
+      position = target;
+      updateDots(position);
+      syncPlayback(position);
+      setTransform(position, true);
+    };
+
+    grid.addEventListener('transitionend', (event) => {
+      if (event.propertyName !== 'transform' || !animating) return;
+      normalize();
+    });
 
     const stopAuto = () => {
       if (autoTimer) window.clearInterval(autoTimer);
@@ -626,7 +648,7 @@ window.RP_CONFIG = {
     const startAuto = () => {
       stopAuto();
       if (!sectionVisible) return;
-      autoTimer = window.setInterval(() => advance(1), 30000);
+      autoTimer = window.setInterval(() => move(1), 30000);
     };
 
     const pauseAuto = (resumeAfter = 4500) => {
@@ -635,90 +657,67 @@ window.RP_CONFIG = {
       resumeTimer = window.setTimeout(startAuto, resumeAfter);
     };
 
-    const advance = (direction) => {
-      let pos = nearestPos();
-      if (direction > 0 && pos >= lastLoopPos) {
-        jumpTo(1);
-        pos = 1;
-      } else if (direction < 0 && pos <= 1) {
-        jumpTo(lastLoopPos);
-        pos = lastLoopPos;
-      }
-      scrollToPos(pos + direction);
-    };
-
-    track.addEventListener('scroll', () => {
-      window.clearTimeout(settleTimer);
-      settleTimer = window.setTimeout(normalizeAfterSettle, 140);
-      syncUI(nearestPos());
-    }, { passive: true });
-
-    /* Mac trackpad: one horizontal two-finger gesture = exactly one card. */
     track.addEventListener('wheel', (event) => {
-      if (Math.abs(event.deltaX) < 8 || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      const horizontal = Math.abs(event.deltaX) > 7 && Math.abs(event.deltaX) > Math.abs(event.deltaY) * .7;
+      if (!horizontal) return;
       event.preventDefault();
       pauseAuto();
-      if (wheelLocked) return;
-      wheelLocked = true;
-      advance(event.deltaX > 0 ? 1 : -1);
-      window.setTimeout(() => { wheelLocked = false; }, 620);
+      if (!animating) move(event.deltaX > 0 ? 1 : -1);
     }, { passive: false });
 
     track.addEventListener('pointerdown', (event) => {
-      if (event.pointerType === 'touch' || event.button !== 0) return;
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      if (animating) return;
       dragging = true;
       dragStartX = event.clientX;
-      dragStartPos = nearestPos();
-      dragPointerId = event.pointerId;
+      dragStartPosition = position;
+      pointerId = event.pointerId;
       track.classList.add('is-dragging');
+      grid.style.transition = 'none';
       pauseAuto();
       if (track.setPointerCapture) {
-        try { track.setPointerCapture(dragPointerId); } catch (_) {}
+        try { track.setPointerCapture(pointerId); } catch (_) {}
       }
     });
 
     track.addEventListener('pointermove', (event) => {
       if (!dragging) return;
       const dx = event.clientX - dragStartX;
-      track.scrollLeft = leftFor(dragStartPos) - dx;
-      event.preventDefault();
+      grid.style.transform = `translate3d(${xFor(dragStartPosition) + dx}px,0,0)`;
+      if (Math.abs(dx) > 6) event.preventDefault();
     });
 
     const endDrag = (event) => {
       if (!dragging) return;
       dragging = false;
       track.classList.remove('is-dragging');
-      if (track.releasePointerCapture && dragPointerId !== null) {
-        try { track.releasePointerCapture(dragPointerId); } catch (_) {}
+      if (track.releasePointerCapture && pointerId !== null) {
+        try { track.releasePointerCapture(pointerId); } catch (_) {}
       }
-      const dx = (event?.clientX ?? dragStartX) - dragStartX;
-      dragPointerId = null;
-      if (Math.abs(dx) >= 28) {
-        let target = dragStartPos + (dx < 0 ? 1 : -1);
-        if (target > lastLoopPos) {
-          jumpTo(1);
-          target = 2;
-        } else if (target < 1) {
-          jumpTo(lastLoopPos);
-          target = lastLoopPos - 1;
-        }
-        scrollToPos(target);
+      const endX = typeof event.clientX === 'number' ? event.clientX : dragStartX;
+      const dx = endX - dragStartX;
+      pointerId = null;
+
+      if (Math.abs(dx) >= 42) {
+        grid.style.transition = `transform ${TRANSITION_MS}ms cubic-bezier(.22,.61,.36,1)`;
+        move(dx < 0 ? 1 : -1);
       } else {
-        scrollToPos(dragStartPos);
+        animating = true;
+        setTransform(position, true);
       }
     };
 
-    ['pointerup','pointercancel','pointerleave'].forEach((type) => track.addEventListener(type, endDrag));
+    ['pointerup','pointercancel'].forEach((type) => track.addEventListener(type, endDrag));
 
     track.addEventListener('keydown', (event) => {
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
       event.preventDefault();
       pauseAuto();
-      advance(event.key === 'ArrowRight' ? 1 : -1);
+      move(event.key === 'ArrowRight' ? 1 : -1);
     });
 
     track.addEventListener('mouseenter', stopAuto);
-    track.addEventListener('mouseleave', () => pauseAuto(1600));
+    track.addEventListener('mouseleave', () => pauseAuto(1800));
     track.addEventListener('focusin', stopAuto);
     track.addEventListener('focusout', () => pauseAuto(2500));
 
@@ -726,29 +725,41 @@ window.RP_CONFIG = {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           sectionVisible = entry.isIntersecting;
+          syncPlayback(position);
           if (sectionVisible) startAuto(); else stopAuto();
-          syncUI(nearestPos());
         });
       }, { rootMargin: '100px 0px', threshold: .12 });
       observer.observe(track);
     }
 
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        setTransform(position, false);
+        grid.getBoundingClientRect();
+        grid.style.transition = `transform ${TRANSITION_MS}ms cubic-bezier(.22,.61,.36,1)`;
+      }, 100);
+    });
+
     window.requestAnimationFrame(() => {
-      jumpTo(firstRealPos);
-      lastSettledPos = firstRealPos;
-      syncUI(firstRealPos);
+      setTransform(position, false);
+      updateDots(position);
+      syncPlayback(position);
+      grid.getBoundingClientRect();
+      grid.style.transition = `transform ${TRANSITION_MS}ms cubic-bezier(.22,.61,.36,1)`;
       startAuto();
     });
   };
 
   if (document.readyState === 'complete') {
-    window.setTimeout(initDesktopCarousel, 0);
+    window.setTimeout(init, 0);
   } else {
-    window.addEventListener('load', initDesktopCarousel, { once: true });
+    window.addEventListener('load', init, { once: true });
   }
 
   desktopMQ.addEventListener?.('change', (event) => {
-    if (event.matches) initDesktopCarousel();
-    else if (document.getElementById('workTrack')?.dataset.rpDesktopLoop === 'true') window.location.reload();
+    if (event.matches) init();
+    else if (document.getElementById('workTrack')?.dataset.rpSmoothLoop === 'true') window.location.reload();
   });
 })();
