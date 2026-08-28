@@ -3,13 +3,13 @@ import Stripe from "stripe";
 const PLANS = {
   starter: {
     name: "Revenue Pilots — Starter",
-    description: "3 custom vertical video ads",
+    description: "3 custom vertical video ads + 2 launch-bonus video variations",
     amount: 24900,
     mode: "payment"
   },
   growth: {
     name: "Revenue Pilots — Growth",
-    description: "6 custom vertical video ads with 1 revision round",
+    description: "6 custom vertical video ads + 2 launch-bonus video variations + 1 revision round",
     amount: 49900,
     mode: "payment"
   },
@@ -69,7 +69,8 @@ export default {
       billing_address_collection: "auto",
       metadata: {
         plan: planKey,
-        source: "revenue-pilots-website"
+        source: "revenue-pilots-website",
+        launch_bonus: planKey === "starter" || planKey === "growth" ? "2-video-variations" : "none"
       }
     };
 
