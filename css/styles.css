@@ -566,18 +566,108 @@ a{color:inherit;}
     var(--bg);
 }
 
-.work-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:clamp(18px,2.2vw,30px);
-  align-items:start;
+/* --- portfolio carousel -------------------------------------------------
+   One horizontal track at every width. Gesture-first: native overflow gives
+   touch swipe and Mac two-finger scroll for free, JS adds pointer drag on
+   top. Cards snap to CENTRE (not start) — that is what makes the active card
+   read as the hero with balanced peeks either side, instead of a card plus a
+   slice of the next one.
+   `--card-w` drives both the card width and the track padding that lets the
+   first and last cards reach the centre, so the two always stay in sync.
+   ------------------------------------------------------------------------ */
+.work-track{
+  --card-w:clamp(240px,22vw,272px);
+  --work-gap:clamp(14px,1.6vw,22px);
+  max-width:var(--shell);
+  margin-inline:auto;
+  padding-inline:var(--pad);
+  /* headroom for the hover lift and the card shadow */
+  padding-block:6px 14px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  scroll-padding-inline-start:var(--pad);
+  cursor:grab;
 }
-/* editorial stagger — desktop only */
-@media (min-width:1024px){
-  .work-grid > .work-card:nth-child(2){transform:translateY(38px);}
+.work-track::-webkit-scrollbar{display:none;}
+.work-track:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:2px;
+  border-radius:var(--radius);
+}
+/* while dragging, snapping and smooth-scroll would fight the pointer */
+.work-track.is-dragging{
+  cursor:grabbing;
+  scroll-snap-type:none;
+  scroll-behavior:auto;
+}
+.work-track.is-dragging .work-card{pointer-events:none;}
+
+.work-grid{
+  display:flex;
+  align-items:flex-start;
+  gap:var(--work-gap);
+  margin:0;
+  padding:0;
+  list-style:none;
 }
 
-.work-card{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.work-card{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  flex:0 0 auto;
+  width:var(--card-w);
+  /* desktop reads as a ROW, so cards snap to the start edge and card one
+     stays reachable. Below 1024px it becomes a hero carousel and switches
+     to centre snapping — see the responsive block. */
+  scroll-snap-align:start;
+}
+
+/* all five sit in one clean row once there is room for them */
+@media (min-width:1400px){
+  .work-track{
+    --card-w:calc((100% - 4 * var(--work-gap)) / 5);
+    max-width:1500px;
+  }
+}
+
+/* --- "in production" placeholder cards --- */
+.soon-art{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:14px;
+  padding:22px;
+}
+.soon-art--clothing{
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 8%, rgba(196,201,209,.10), transparent 70%),
+    linear-gradient(170deg, #12161C 0%, #0A0D12 100%);
+}
+.soon-art--spa{
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 8%, rgba(197,154,60,.12), transparent 70%),
+    linear-gradient(170deg, #151109 0%, #0A0C10 100%);
+}
+.soon-rule{width:40px;height:2px;background:var(--gold);border-radius:2px;}
+.soon-idea{
+  font-family:var(--font-serif);
+  font-size:clamp(23px,2.2vw,27px);
+  line-height:1.18;
+  letter-spacing:-.01em;
+  color:var(--text);
+}
+.spec-chip--soon{
+  color:var(--gold-hi);
+  border-color:var(--gold-tint-2);
+}
 
 .video-frame{
   position:relative;
@@ -654,6 +744,24 @@ a{color:inherit;}
   line-height:1.25;
   color:var(--text);
 }
+
+/* scroll-position rail — an orientation cue, not arrow chrome */
+.work-rail{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  margin-top:26px;
+}
+.work-rail span{
+  width:24px;
+  height:2px;
+  border-radius:2px;
+  background:var(--line-2);
+  transition:background var(--t) var(--ease), width var(--t) var(--ease);
+}
+.work-rail span.is-on{background:var(--gold);width:34px;}
+/* once every card is in view at once the rail has nothing left to say */
+@media (min-width:1400px){.work-rail{display:none;}}
 
 .work-disclosure{
   margin-top:clamp(34px,4.5vw,54px);
@@ -833,6 +941,37 @@ a{color:inherit;}
   top:-1px;left:0;
   width:34px;height:1px;
   background:var(--gold);
+}
+@media (hover:hover) and (pointer:fine){
+  .step{transition:transform 320ms var(--ease);}
+  .step:hover{transform:translateY(-3px);}
+  .step:hover .step-icon::before{opacity:1;}
+  .step:hover .step-icon img{transform:scale(1.14);}
+}
+/* small premium visual — screen blend drops the icon's black background
+   into the page background, leaving only the gold glow visible */
+.step-icon{
+  position:relative;
+  display:block;
+  width:58px;height:58px;
+  margin-bottom:18px;
+}
+.step-icon::before{
+  content:"";
+  position:absolute;inset:-16px;
+  background:radial-gradient(circle, rgba(197,154,60,.38), transparent 70%);
+  opacity:0;
+  transition:opacity 320ms var(--ease);
+  pointer-events:none;
+}
+.step-icon img{
+  position:relative;z-index:1;
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+  border-radius:10px;
+  mix-blend-mode:screen;
+  transition:transform 320ms var(--ease);
 }
 .step-num{
   display:block;
@@ -1129,31 +1268,35 @@ a{color:inherit;}
   .contact-pitch{max-width:620px;}
 }
 
-/* --- work section: horizontal snap carousel below desktop --- */
+/* --- work carousel: one centred card with peeks below desktop ---
+   The track pads by half the leftover width so the FIRST and LAST cards can
+   still reach the centre of the scrollport — without this, scroll-snap-align
+   :center silently fails at both ends and the carousel feels broken. --- */
+/* tablets keep the desktop row — the brief calls for a clean row on
+   "desktop / wide tablet", and centring a single card here would strand a
+   ~290px empty gutter beside it. Only phones become the hero carousel. */
 @media (max-width:1023px){
-  .work-grid{
-    display:grid;
-    grid-auto-flow:column;
-    grid-auto-columns:min(74vw,330px);
-    grid-template-columns:none;
-    gap:16px;
-    overflow-x:auto;
-    overflow-y:hidden;
-    scroll-snap-type:x mandatory;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
-    /* bleed to the viewport edges so cards feel intentional, not cramped */
-    margin-inline:calc(var(--pad) * -1);
-    padding-inline:var(--pad);
-    padding-bottom:8px;
-    /* keep the gutter when a card snaps, instead of snapping flush to the edge */
-    scroll-padding-inline:var(--pad);
+  .work-track{max-width:none;}
+}
+
+@media (max-width:640px){
+  .work-track{
+    --card-w:min(80vw,330px);
+    /* half the leftover width either side, so card one and card five can
+       still land dead centre instead of jamming against an edge */
+    padding-inline:calc((100% - var(--card-w)) / 2);
+    scroll-padding-inline-start:0;
   }
-  .work-grid::-webkit-scrollbar{display:none;}
-  .work-card{scroll-snap-align:start;}
-  .work-card:last-child{
-    /* trailing gutter so the final card can snap flush */
-    margin-right:var(--pad);
+  /* the centre card is the one that matters; neighbours recede */
+  .work-card{
+    scroll-snap-align:center;
+    opacity:.45;
+    transition:opacity 260ms var(--ease);
+  }
+  .work-card.is-active{opacity:1;}
+  .work-card.is-active .video-frame{
+    border-color:var(--gold-tint-2);
+    box-shadow:0 28px 70px -30px rgba(0,0,0,1), 0 0 0 1px var(--gold-tint);
   }
 }
 
@@ -1169,7 +1312,7 @@ a{color:inherit;}
   .hero-ctas{gap:10px;}
   .hero-ctas .btn{width:100%;}
 
-  .work-grid{grid-auto-columns:min(80vw,300px);}
+  .work-track{--card-w:min(80vw,330px);}
 
   .price-card{padding:28px 22px;}
   .price-grid{max-width:none;}
@@ -1199,7 +1342,8 @@ a{color:inherit;}
     transition-duration:.001ms !important;
   }
   .reveal{opacity:1;transform:none;}
-  .btn:hover,.work-card:hover .video-frame,.price-card:hover{transform:none;}
+  .btn:hover,.work-card:hover .video-frame,.price-card:hover,.step:hover,.step:hover .step-icon img{transform:none;}
+  .step:hover .step-icon::before{opacity:0;}
   /* hold the composition still, but keep its layout transforms intact */
   .art-card-a,.art-card-b,.art-card-c{animation:none;}
   .art-frame-wrap{animation:none !important;transform:translateY(-50%);}

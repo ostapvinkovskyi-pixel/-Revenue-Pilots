@@ -102,13 +102,29 @@ reaching a success URL.
 
 | Path | Notes |
 |---|---|
-| `assets/videos/*.mp4` | The three supplied 9:16 spec-ad demos, 720×1280, silent. Do not replace with larger originals. |
+| `assets/videos/*.mp4` | The three original 9:16 spec-ad demos, 1080×1920, silent. Kept as masters — nothing on the page links to these directly. |
+| `assets/videos/card/*.mp4` | The same three demos, re-encoded to 720×1280 at a much lower bitrate for the portfolio carousel (~85% smaller, audio stripped since they're always muted). This is what the site actually serves. |
 | `assets/posters/*.jpg` | Frames pulled at 0.6s from each video so cards paint instantly and never shift. |
+| `assets/steps/step-*.jpg` | Small gold-glow visuals for the "Four steps" section, downscaled from 1254×1254 originals to 480×480. Rendered with `mix-blend-mode:screen` so the black background disappears into the page — do not add a white/light background behind them. |
 | `assets/brand/revenue-pilots-monogram-logo.png` | The supplied logo, untouched. Used for social/OG. |
 | `assets/brand/rp-monogram.png` | The monogram cropped from that logo for the header badge. Not redrawn — a crop and a downscale only. |
 
 The logo's navy would disappear against the near-black header, so the monogram sits in a small
 light badge (option 1 in the design system brief).
+
+### The two "in production" portfolio cards
+
+The Clothing/Product and Spa/Salon cards in the portfolio carousel don't have video yet — that's
+deliberate. Producing that footage is a separate video-creation task; this repo only prepares the
+website side. Each placeholder (`.work-card--soon` in `index.html`) is a hand-built CSS/SVG-free
+gradient card, not a photo, so nothing needed generating to ship it.
+
+To swap in the real thing once footage exists, replace one `<li class="work-card work-card--soon">`
+block with the same markup pattern the first three cards use (`<video>` + `poster` + `spec-chip`),
+pointing at a new `assets/videos/card/04-clothing-product.mp4` (or `05-spa-salon.mp4`) and a matching
+poster. No JS or CSS changes are needed — `initWorkCarousel()` in `js/main.js` reads `.work-card`
+generically by position, and `.video-frame` styling already applies to any card that contains a
+`<video>`.
 
 ---
 

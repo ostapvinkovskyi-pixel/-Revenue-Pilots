@@ -141,41 +141,266 @@
       }
     }
 
-    if (videos.length) {
-      if (reduceMotion) {
-        videos.forEach(function (video) {
-          video.removeAttribute("autoplay");
-          video.pause();
+    if (videos.length && reduceMotion) {
+      videos.forEach(function (video) {
+        video.removeAttribute("autoplay");
+        video.pause();
 
-          var toggle = video.closest(".video-frame").querySelector(".video-toggle");
-          if (!toggle) return;
-          toggle.hidden = false;
-          toggle.addEventListener("click", function () {
-            if (video.paused) {
-              safePlay(video);
-              toggle.textContent = "Pause";
-            } else {
-              video.pause();
-              toggle.textContent = "Play";
-            }
-          });
-          video.addEventListener("ended", function () { toggle.textContent = "Play"; });
+        var toggle = video.closest(".video-frame").querySelector(".video-toggle");
+        if (!toggle) return;
+        toggle.hidden = false;
+        toggle.addEventListener("click", function () {
+          if (video.paused) {
+            safePlay(video);
+            toggle.textContent = "Pause";
+          } else {
+            video.pause();
+            toggle.textContent = "Play";
+          }
         });
-      } else if ("IntersectionObserver" in window) {
-        var videoObserver = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            var video = entry.target;
-            if (entry.isIntersecting) {
-              safePlay(video);
-            } else if (!video.paused) {
-              video.pause();
-            }
-          });
-        }, { rootMargin: "150px 0px", threshold: 0.15 });
-
-        videos.forEach(function (video) { videoObserver.observe(video); });
-      }
+        video.addEventListener("ended", function () { toggle.textContent = "Play"; });
+      });
     }
+
+    /* -------------------------------------------------------------------
+       Portfolio carousel
+       One horizontal track at every width, gesture-first and dependency-free.
+       Touch swipe and Mac two-finger scroll come free from native
+       overflow-x; this adds pointer drag, keyboard, a centre-card notion,
+       and a gentle auto-advance on top of it.
+
+       Playback is owned here rather than by a per-video observer: when the
+       track scrolls, only the centre card plays. Five simultaneous video
+       decodes is the kind of thing that makes a premium page feel cheap.
+       When every card already fits on screen, they all play.
+       ------------------------------------------------------------------- */
+    (function initWorkCarousel() {
+      var track = document.getElementById("workTrack");
+      var grid = document.getElementById("workGrid");
+      var rail = document.getElementById("workRail");
+      if (!track || !grid) return;
+
+      var cards = Array.prototype.slice.call(grid.querySelectorAll(".work-card"));
+      if (!cards.length) return;
+
+      var activeIndex = -1;
+      var sectionVisible = true;
+      var autoTimer = null;
+      var resumeTimer = null;
+
+      if (rail) {
+        cards.forEach(function () { rail.appendChild(document.createElement("span")); });
+      }
+      var dots = rail ? Array.prototype.slice.call(rail.children) : [];
+
+      function isScrollable() {
+        return track.scrollWidth - track.clientWidth > 4;
+      }
+
+      /* Geometry via getBoundingClientRect rather than offsetLeft: the track
+         is not a positioned ancestor, so offsetParent is not dependable. */
+      function trackCentre() {
+        var r = track.getBoundingClientRect();
+        return r.left + r.width / 2;
+      }
+
+      /* The indicator has to agree with however the CSS is snapping, or it
+         reads as wrong: desktop snaps cards to the start edge, the mobile
+         carousel centres them. Ask the stylesheet rather than duplicating
+         the breakpoint here. */
+      function snapsToCentre() {
+        return getComputedStyle(cards[0]).scrollSnapAlign.indexOf("center") !== -1;
+      }
+
+      function centreIndex() {
+        var centred = snapsToCentre();
+        var tr = track.getBoundingClientRect();
+        var anchor = centred ? trackCentre() : tr.left + parseFloat(getComputedStyle(track).paddingLeft || 0);
+        var best = 0;
+        var bestDist = Infinity;
+        for (var i = 0; i < cards.length; i++) {
+          var r = cards[i].getBoundingClientRect();
+          var point = centred ? r.left + r.width / 2 : r.left;
+          var d = Math.abs(point - anchor);
+          if (d < bestDist) { bestDist = d; best = i; }
+        }
+        return best;
+      }
+
+      function scrollToCard(i, behavior) {
+        var card = cards[i];
+        if (!card) return;
+        var r = card.getBoundingClientRect();
+        var tr = track.getBoundingClientRect();
+        var delta = snapsToCentre()
+          ? r.left + r.width / 2 - trackCentre()
+          : r.left - (tr.left + parseFloat(getComputedStyle(track).paddingLeft || 0));
+        if (track.scrollTo) {
+          track.scrollTo({ left: track.scrollLeft + delta, behavior: behavior || "smooth" });
+        } else {
+          track.scrollLeft += delta;
+        }
+      }
+
+      function syncPlayback() {
+        if (reduceMotion) return;
+        var playAll = !isScrollable();
+        cards.forEach(function (card, n) {
+          var video = card.querySelector(".work-video");
+          if (!video) return;
+          if (sectionVisible && (playAll || n === activeIndex)) {
+            safePlay(video);
+          } else if (!video.paused) {
+            video.pause();
+          }
+        });
+      }
+
+      function setActive(i) {
+        if (i === activeIndex) return;
+        activeIndex = i;
+        cards.forEach(function (card, n) { card.classList.toggle("is-active", n === i); });
+        dots.forEach(function (dot, n) { dot.classList.toggle("is-on", n === i); });
+        syncPlayback();
+      }
+
+      /* --- gentle auto-advance: pauses on any input, resumes when idle --- */
+      function autoAllowed() {
+        return !reduceMotion && sectionVisible && isScrollable();
+      }
+
+      function stopAuto() {
+        if (autoTimer) { window.clearInterval(autoTimer); autoTimer = null; }
+      }
+
+      function startAuto() {
+        stopAuto();
+        if (!autoAllowed()) return;
+        autoTimer = window.setInterval(function () {
+          if (!autoAllowed()) { stopAuto(); return; }
+          var next = activeIndex + 1;
+          scrollToCard(next >= cards.length ? 0 : next);
+        }, 5200);
+      }
+
+      function pauseAuto(resumeAfter) {
+        stopAuto();
+        if (resumeTimer) window.clearTimeout(resumeTimer);
+        resumeTimer = window.setTimeout(startAuto, resumeAfter || 6000);
+      }
+
+      /* --- scroll tracking --- */
+      var ticking = false;
+      track.addEventListener("scroll", function () {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(function () {
+          ticking = false;
+          setActive(centreIndex());
+        });
+      }, { passive: true });
+
+      /* --- pointer drag (mouse / pen); touch keeps native momentum --- */
+      var dragging = false;
+      var startX = 0;
+      var startScroll = 0;
+      var moved = 0;
+      var pointerId = null;
+
+      track.addEventListener("pointerdown", function (e) {
+        if (e.pointerType === "touch" || e.button !== 0) return;
+        dragging = true;
+        moved = 0;
+        startX = e.clientX;
+        startScroll = track.scrollLeft;
+        pointerId = e.pointerId;
+        pauseAuto();
+      });
+
+      track.addEventListener("pointermove", function (e) {
+        if (!dragging) return;
+        var dx = e.clientX - startX;
+        if (!track.classList.contains("is-dragging")) {
+          // below the threshold this is still a click, not a drag
+          if (Math.abs(dx) < 6) return;
+          track.classList.add("is-dragging");
+          if (track.setPointerCapture) {
+            try { track.setPointerCapture(pointerId); } catch (err) {}
+          }
+        }
+        moved = Math.abs(dx);
+        track.scrollLeft = startScroll - dx;
+        e.preventDefault();
+      });
+
+      function endDrag() {
+        if (!dragging) return;
+        dragging = false;
+        if (track.classList.contains("is-dragging")) {
+          track.classList.remove("is-dragging");
+          if (track.releasePointerCapture && pointerId !== null) {
+            try { track.releasePointerCapture(pointerId); } catch (err) {}
+          }
+          scrollToCard(centreIndex());
+        }
+        pointerId = null;
+      }
+
+      ["pointerup", "pointercancel", "pointerleave"].forEach(function (type) {
+        track.addEventListener(type, endDrag);
+      });
+
+      // swallow the click that a drag would otherwise fire on release
+      track.addEventListener("click", function (e) {
+        if (moved > 6) {
+          e.preventDefault();
+          e.stopPropagation();
+          moved = 0;
+        }
+      }, true);
+
+      /* --- keyboard: the track is a focusable scroll region --- */
+      track.addEventListener("keydown", function (e) {
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+        e.preventDefault();
+        pauseAuto();
+        var next = activeIndex + (e.key === "ArrowRight" ? 1 : -1);
+        scrollToCard(Math.max(0, Math.min(cards.length - 1, next)));
+      });
+
+      ["wheel", "touchstart"].forEach(function (type) {
+        track.addEventListener(type, function () { pauseAuto(); }, { passive: true });
+      });
+      track.addEventListener("mouseenter", stopAuto);
+      track.addEventListener("mouseleave", function () { pauseAuto(1200); });
+      track.addEventListener("focusin", stopAuto);
+
+      /* --- pause everything while the section is off screen --- */
+      if ("IntersectionObserver" in window) {
+        var sectionObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            sectionVisible = entry.isIntersecting;
+            syncPlayback();
+            if (sectionVisible) { startAuto(); } else { stopAuto(); }
+          });
+        }, { rootMargin: "120px 0px", threshold: 0.15 });
+        sectionObserver.observe(track);
+      }
+
+      var resizeTimer = null;
+      window.addEventListener("resize", function () {
+        if (resizeTimer) window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(function () {
+          activeIndex = -1;            // widths changed; re-derive from scratch
+          setActive(centreIndex());
+          startAuto();
+        }, 180);
+      });
+
+      setActive(centreIndex());
+      syncPlayback();
+      startAuto();
+    })();
 
     /* -------------------------------------------------------------------
        "How it works" background beams
