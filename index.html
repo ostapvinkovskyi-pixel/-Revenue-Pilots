@@ -20,6 +20,128 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap">
 
 <link rel="stylesheet" href="css/styles.css">
+<style id="how-steps-v2">
+/* Four Steps v2 — larger integrated visuals instead of tiny floating icons. */
+#how .steps{
+  gap:clamp(14px,1.8vw,22px);
+  align-items:stretch;
+}
+#how .step{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  padding:16px 16px 24px;
+  border:1px solid rgba(255,255,255,.085);
+  border-radius:20px;
+  background:
+    radial-gradient(120% 90% at 50% 0%,rgba(197,154,60,.075),transparent 58%),
+    linear-gradient(180deg,rgba(255,255,255,.027),rgba(255,255,255,.008));
+  overflow:hidden;
+  box-shadow:0 24px 54px -44px rgba(0,0,0,.95);
+  transition:transform 360ms var(--ease),border-color 360ms var(--ease),box-shadow 360ms var(--ease),background 360ms var(--ease);
+}
+#how .step::after{
+  top:0;
+  left:16px;
+  width:42px;
+  height:1px;
+  background:linear-gradient(90deg,var(--gold),rgba(197,154,60,0));
+}
+#how .step-icon{
+  position:relative;
+  display:block;
+  width:100%;
+  height:clamp(132px,11vw,168px);
+  margin:0 0 22px;
+  border-radius:15px;
+  overflow:hidden;
+  isolation:isolate;
+  border:1px solid rgba(226,189,100,.14);
+  background:
+    radial-gradient(circle at 50% 58%,rgba(197,154,60,.16),transparent 43%),
+    linear-gradient(155deg,#101217,#080A0D 68%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 16px 35px -28px rgba(197,154,60,.55);
+}
+#how .step-icon::before{
+  inset:auto 12% -50% 12%;
+  height:80%;
+  opacity:.48;
+  background:radial-gradient(ellipse,rgba(197,154,60,.28),transparent 66%);
+  filter:blur(10px);
+}
+#how .step-icon::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),transparent 34%,rgba(0,0,0,.12));
+}
+#how .step-icon img{
+  position:absolute;
+  z-index:1;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center;
+  border-radius:0;
+  mix-blend-mode:normal;
+  filter:brightness(1.08) contrast(1.06) saturate(.96);
+  transform:scale(1.16);
+  transition:transform 520ms var(--ease),filter 520ms var(--ease);
+}
+#how .step-num{
+  margin:0 0 12px;
+  font-size:11px;
+  letter-spacing:.16em;
+}
+#how .step-title{
+  margin-bottom:8px;
+  font-size:clamp(18px,1.45vw,20px);
+}
+#how .step-body{
+  margin-top:auto;
+  padding-top:0;
+  font-size:14.5px;
+  line-height:1.55;
+}
+@media (hover:hover) and (pointer:fine){
+  #how .step:hover{
+    transform:translateY(-7px);
+    border-color:rgba(226,189,100,.28);
+    background:
+      radial-gradient(120% 90% at 50% 0%,rgba(197,154,60,.115),transparent 60%),
+      linear-gradient(180deg,rgba(255,255,255,.037),rgba(255,255,255,.01));
+    box-shadow:0 30px 64px -40px rgba(0,0,0,1),0 0 0 1px rgba(197,154,60,.055);
+  }
+  #how .step:hover .step-icon{
+    border-color:rgba(226,189,100,.26);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 24px 46px -28px rgba(197,154,60,.72);
+  }
+  #how .step:hover .step-icon img{
+    transform:scale(1.24);
+    filter:brightness(1.16) contrast(1.08) saturate(1.02);
+  }
+  #how .step:hover .step-icon::before{opacity:.82;}
+}
+@media (max-width:1024px){
+  #how .step{padding:15px 15px 22px;}
+  #how .step-icon{height:154px;}
+}
+@media (max-width:640px){
+  #how .steps{gap:16px;}
+  #how .step{padding:16px 16px 22px;border-radius:18px;}
+  #how .step-icon{height:190px;margin-bottom:20px;}
+  #how .step-body{margin-top:0;}
+}
+@media (prefers-reduced-motion:reduce){
+  #how .step,#how .step-icon img{transition:none!important;}
+  #how .step:hover,#how .step:hover .step-icon img{transform:none!important;}
+}
+</style>
 
 <script src="config/site-config.js" defer></script>
 <script src="js/main.js" defer></script>
