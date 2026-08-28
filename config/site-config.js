@@ -4,8 +4,7 @@ window.RP_CONFIG = {
   CONTACT_EMAIL: "ostapvinkovskyi@gmail.com",
   LEAD_WEBHOOK_URL: "/api/lead",
   STRIPE_STARTER_URL: "/api/checkout?plan=starter&term=monthly",
-  STRIPE_GROWTH_URL: "/api/checkout?plan=growth&term=monthly",
-  STRIPE_WEEKLY_URL: "/api/checkout?plan=weekly&term=monthly"
+  STRIPE_GROWTH_URL: "/api/checkout?plan=growth&term=monthly"
 };
 
 (() => {
@@ -79,25 +78,6 @@ window.RP_CONFIG = {
         "Custom CTA copy + branding",
         "1 revision round each month",
         "Social-ready 9:16 exports"
-      ]
-    },
-    {
-      key: "weekly",
-      name: "Scale",
-      monthly: 699,
-      annualTotal: 6990,
-      annualMonthly: 583,
-      pitchMonthly: "An ongoing creative engine for businesses actively spending on ads.",
-      pitchAnnual: "Weekly creative delivery, with 2 months free on yearly billing.",
-      features: [
-        "10 fresh custom vertical ads every month",
-        "2 custom preview videos available before you commit",
-        "Approved previews count toward month one",
-        "Fresh creative delivered weekly",
-        "New hooks, angles and offer concepts",
-        "Creative planning around your current campaigns",
-        "2 revision rounds each month",
-        "Priority production queue"
       ]
     }
   ];
@@ -179,8 +159,7 @@ window.RP_CONFIG = {
             { "@type": "Offer", "name": "Starter Pack one-time", "price": "249", "priceCurrency": "USD", "url": `${SITE}/#pricing` },
             { "@type": "Offer", "name": "Growth Pack one-time", "price": "499", "priceCurrency": "USD", "url": `${SITE}/#pricing` },
             { "@type": "Offer", "name": "Starter monthly", "price": "249", "priceCurrency": "USD", "url": `${SITE}/#pricing` },
-            { "@type": "Offer", "name": "Growth monthly", "price": "449", "priceCurrency": "USD", "url": `${SITE}/#pricing` },
-            { "@type": "Offer", "name": "Scale monthly", "price": "699", "priceCurrency": "USD", "url": `${SITE}/#pricing` }
+            { "@type": "Offer", "name": "Growth monthly", "price": "449", "priceCurrency": "USD", "url": `${SITE}/#pricing` }
           ]
         }
       ]
