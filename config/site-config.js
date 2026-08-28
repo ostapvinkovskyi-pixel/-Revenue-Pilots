@@ -113,7 +113,7 @@ window.RP_CONFIG = {
       .rp-launch-card{position:relative;overflow:hidden;border:1px solid rgba(226,189,100,.32);border-radius:28px;padding:clamp(1.4rem,4vw,2.6rem);background:linear-gradient(135deg,rgba(197,154,60,.13),rgba(255,255,255,.025));box-shadow:0 24px 80px rgba(0,0,0,.28)}
       .rp-launch-card:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-90px;top:-120px;background:rgba(197,154,60,.12);filter:blur(8px);pointer-events:none}
       .rp-launch-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(230px,.7fr);gap:2rem;align-items:center}
-      .rp-launch-title{font-family:"Instrument Serif",serif;font-size:clamp(2rem,4.5vw,3.6rem);line-height:.98;margin:.65rem 0 1rem;color:#fff;font-weight:400}
+      .rp-launch-title{font-family:var(--font);font-weight:800;letter-spacing:-.022em;text-wrap:balance;font-size:clamp(1.9rem,3.6vw,2.7rem);line-height:1.05;margin:.65rem 0 1rem;color:#fff}
       .rp-launch-copy{max-width:760px;color:rgba(255,255,255,.72);font-size:1rem;line-height:1.7}
       .rp-launch-copy strong{color:#E2BD64}
       .rp-launch-actions{display:flex;flex-direction:column;gap:.8rem;align-items:stretch}
