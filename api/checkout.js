@@ -3,21 +3,21 @@ import Stripe from "stripe";
 const PLANS = {
   starter: {
     name: "Revenue Pilots — Starter",
-    description: "3 custom vertical video ads + 2 launch-bonus video variations",
-    amount: 24900,
-    mode: "payment"
+    monthlyAmount: 24900,
+    annualAmount: 249000,
+    description: "3 fresh custom vertical video ads per month. First month includes 2 bonus video variations."
   },
   growth: {
     name: "Revenue Pilots — Growth",
-    description: "6 custom vertical video ads + 2 launch-bonus video variations + 1 revision round",
-    amount: 49900,
-    mode: "payment"
+    monthlyAmount: 44900,
+    annualAmount: 449000,
+    description: "6 fresh custom vertical video ads per month with multiple creative angles and 1 revision round. First month includes 2 bonus video variations."
   },
   weekly: {
-    name: "Revenue Pilots — Weekly Ad Engine",
-    description: "12 video ads per month with fresh creatives weekly",
-    amount: 99900,
-    mode: "subscription"
+    name: "Revenue Pilots — Scale",
+    monthlyAmount: 69900,
+    annualAmount: 699000,
+    description: "10 fresh custom vertical video ads per month with weekly delivery, ongoing hooks and angles, and 2 revision rounds."
   }
 };
 
@@ -39,6 +39,7 @@ export default {
     const stripe = new Stripe(secret);
     const url = new URL(request.url);
     const planKey = url.searchParams.get("plan");
+    const term = url.searchParams.get("term") === "annual" ? "annual" : "monthly";
     const plan = PLANS[planKey];
 
     if (!plan) {
@@ -46,22 +47,20 @@ export default {
     }
 
     const origin = process.env.PUBLIC_SITE_URL || url.origin;
+    const annual = term === "annual";
 
     const priceData = {
       currency: "usd",
-      unit_amount: plan.amount,
+      unit_amount: annual ? plan.annualAmount : plan.monthlyAmount,
+      recurring: { interval: annual ? "year" : "month" },
       product_data: {
         name: plan.name,
-        description: plan.description
+        description: `${plan.description} ${annual ? "Annual plan: pay for 10 months and receive 12 months of service." : "Monthly plan: cancel anytime before the next renewal."}`
       }
     };
 
-    if (plan.mode === "subscription") {
-      priceData.recurring = { interval: "month" };
-    }
-
     const params = {
-      mode: plan.mode,
+      mode: "subscription",
       line_items: [{ price_data: priceData, quantity: 1 }],
       success_url: `${origin}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/#pricing`,
@@ -69,21 +68,18 @@ export default {
       billing_address_collection: "auto",
       metadata: {
         plan: planKey,
+        billing_term: term,
         source: "revenue-pilots-website",
-        launch_bonus: planKey === "starter" || planKey === "growth" ? "2-video-variations" : "none"
-      }
-    };
-
-    if (plan.mode === "payment") {
-      params.customer_creation = "always";
-    } else {
-      params.subscription_data = {
+        launch_bonus: planKey === "starter" || planKey === "growth" ? "first-month-2-video-variations" : "none"
+      },
+      subscription_data: {
         metadata: {
           plan: planKey,
+          billing_term: term,
           source: "revenue-pilots-website"
         }
-      };
-    }
+      }
+    };
 
     try {
       const session = await stripe.checkout.sessions.create(params);
