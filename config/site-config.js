@@ -11,6 +11,39 @@ window.RP_CONFIG = {
 (() => {
   const SITE = "https://www.revenuepilot.company";
 
+  const PACKS = [
+    {
+      key: "starter",
+      name: "Starter Pack",
+      amount: 249,
+      pitch: "A low-risk way to test Revenue Pilots without starting a subscription.",
+      features: [
+        "3 custom vertical video ads",
+        "2 bonus video variations",
+        "3 hooks / creative angles",
+        "Your branding + CTA copy",
+        "Social-ready 9:16 exports",
+        "One-time payment",
+        "No subscription required"
+      ]
+    },
+    {
+      key: "growth",
+      name: "Growth Pack",
+      amount: 499,
+      pitch: "More creative to test several directions in one campaign.",
+      features: [
+        "6 custom vertical video ads",
+        "2 bonus video variations",
+        "Multiple hooks, offers and creative directions",
+        "Custom CTA copy + branding",
+        "1 revision round",
+        "Social-ready 9:16 exports",
+        "No subscription required"
+      ]
+    }
+  ];
+
   const PLANS = [
     {
       key: "starter",
@@ -19,7 +52,7 @@ window.RP_CONFIG = {
       annualTotal: 2490,
       annualMonthly: 208,
       pitchMonthly: "Fresh creative every month without a big agency contract.",
-      pitchAnnual: "Same monthly creative, with 2 months free on annual billing.",
+      pitchAnnual: "Same monthly creative, with 2 months free on yearly billing.",
       features: [
         "3 fresh custom vertical ads every month",
         "First month launch bonus: +2 video variations",
@@ -37,7 +70,7 @@ window.RP_CONFIG = {
       annualTotal: 4490,
       annualMonthly: 374,
       pitchMonthly: "More creative to test, rotate and keep your ads from going stale.",
-      pitchAnnual: "Six fresh ads every month, with 2 months free on annual billing.",
+      pitchAnnual: "Six fresh ads every month, with 2 months free on yearly billing.",
       features: [
         "6 fresh custom vertical ads every month",
         "First month launch bonus: +2 video variations",
@@ -55,7 +88,7 @@ window.RP_CONFIG = {
       annualTotal: 6990,
       annualMonthly: 583,
       pitchMonthly: "An ongoing creative engine for businesses actively spending on ads.",
-      pitchAnnual: "Weekly creative delivery, with 2 months free on annual billing.",
+      pitchAnnual: "Weekly creative delivery, with 2 months free on yearly billing.",
       features: [
         "10 fresh custom vertical ads every month",
         "Fresh creative delivered weekly",
@@ -68,7 +101,7 @@ window.RP_CONFIG = {
     }
   ];
 
-  let billingTerm = "monthly";
+  let billingTerm = "pack";
 
   const upsertMeta = (selector, attrs) => {
     let el = document.head.querySelector(selector);
@@ -90,18 +123,18 @@ window.RP_CONFIG = {
     el.href = href;
   };
 
-  document.title = "Revenue Pilots | Monthly Short-Form Video Ad Creative";
+  document.title = "Revenue Pilots | Video Ad Packs & Ongoing Creative";
   upsertMeta('meta[name="description"]', {
     name: "description",
-    content: "Monthly short-form video ad creative for home services, restaurants, ecommerce and product brands. Plans from $249/month, with annual billing available."
+    content: "Custom short-form video ad creative for home services, restaurants, ecommerce and product brands. Buy a one-time pack from $249 or choose monthly and yearly plans."
   });
   upsertMeta('meta[property="og:title"]', {
     property: "og:title",
-    content: "Revenue Pilots — Fresh Ad Creative Every Month"
+    content: "Revenue Pilots — Buy a Pack or Keep Creative Rolling"
   });
   upsertMeta('meta[property="og:description"]', {
     property: "og:description",
-    content: "Ongoing vertical video ad creative for businesses and products. Monthly plans from $249. Annual plans include 2 months free."
+    content: "Start with a one-time video ad pack from $249. Monthly and yearly creative subscriptions are available when you want ongoing production."
   });
   upsertMeta('meta[property="og:url"]', { property: "og:url", content: `${SITE}/` });
   upsertMeta('meta[property="og:image"]', {
@@ -135,13 +168,15 @@ window.RP_CONFIG = {
         {
           "@type": "Service",
           "@id": `${SITE}/#video-ad-service`,
-          "name": "Monthly short-form video ad creative",
-          "serviceType": "Recurring short-form video advertising creative",
+          "name": "Short-form video ad creative",
+          "serviceType": "Short-form video advertising creative",
           "provider": { "@id": `${SITE}/#organization` },
           "areaServed": "United States",
           "url": `${SITE}/`,
-          "description": "Ongoing vertical video ad creative for local services, restaurants, ecommerce and product brands.",
+          "description": "One-time and recurring vertical video ad creative for local services, restaurants, ecommerce and product brands.",
           "offers": [
+            { "@type": "Offer", "name": "Starter Pack one-time", "price": "249", "priceCurrency": "USD", "url": `${SITE}/#pricing` },
+            { "@type": "Offer", "name": "Growth Pack one-time", "price": "499", "priceCurrency": "USD", "url": `${SITE}/#pricing` },
             { "@type": "Offer", "name": "Starter monthly", "price": "249", "priceCurrency": "USD", "url": `${SITE}/#pricing` },
             { "@type": "Offer", "name": "Growth monthly", "price": "449", "priceCurrency": "USD", "url": `${SITE}/#pricing` },
             { "@type": "Offer", "name": "Scale monthly", "price": "699", "priceCurrency": "USD", "url": `${SITE}/#pricing` }
@@ -154,7 +189,7 @@ window.RP_CONFIG = {
 
   const applyEnhancements = () => {
     const style = document.createElement("style");
-    style.id = "rp-subscription-styles";
+    style.id = "rp-purchase-styles";
     style.textContent = `
       .rp-launch-offer{padding:1.2rem 0 4.5rem;background:#07090D}
       .rp-launch-card{position:relative;overflow:hidden;border:1px solid rgba(226,189,100,.32);border-radius:28px;padding:clamp(1.4rem,4vw,2.6rem);background:linear-gradient(135deg,rgba(197,154,60,.13),rgba(255,255,255,.025));box-shadow:0 24px 80px rgba(0,0,0,.28)}
@@ -172,29 +207,34 @@ window.RP_CONFIG = {
       .rp-category-card strong{display:block;color:#fff;margin-bottom:.35rem}
       .rp-category-card span{color:rgba(255,255,255,.52);font-size:.86rem;line-height:1.45}
       .rp-billing-wrap{display:flex;flex-direction:column;align-items:center;gap:.8rem;margin:1.6rem auto 2.2rem}
-      .rp-billing-toggle{display:inline-flex;padding:.35rem;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(255,255,255,.035);gap:.25rem}
+      .rp-billing-toggle{display:inline-flex;padding:.35rem;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(255,255,255,.035);gap:.25rem;flex-wrap:wrap;justify-content:center}
       .rp-billing-btn{border:0;border-radius:999px;background:transparent;color:rgba(255,255,255,.62);padding:.72rem 1.05rem;font:inherit;font-weight:700;cursor:pointer;transition:.2s ease}
       .rp-billing-btn.is-active{background:#E2BD64;color:#101216;box-shadow:0 8px 28px rgba(197,154,60,.2)}
       .rp-billing-save{color:#E2BD64;font-size:.78rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
       .rp-billing-detail{color:rgba(255,255,255,.48);font-size:.82rem;text-align:center}
       .price-annual-note{display:block;margin-top:.28rem;color:rgba(255,255,255,.48);font-size:.78rem;line-height:1.35}
-      @media(max-width:760px){.rp-launch-grid{grid-template-columns:1fr}.rp-category-grid{grid-template-columns:1fr}.rp-billing-btn{padding:.68rem .9rem;font-size:.9rem}}
+      .price-grid.rp-two-cards{grid-template-columns:repeat(2,minmax(0,1fr));max-width:920px;margin-left:auto;margin-right:auto}
+      @media(max-width:760px){.rp-launch-grid{grid-template-columns:1fr}.rp-category-grid{grid-template-columns:1fr}.price-grid.rp-two-cards{grid-template-columns:1fr}.rp-billing-btn{padding:.68rem .9rem;font-size:.9rem}}
     `;
     if (!document.getElementById(style.id)) document.head.appendChild(style);
 
     const eyebrow = document.querySelector('.hero .eyebrow');
-    if (eyebrow) eyebrow.innerHTML = '<span class="eyebrow-dash" aria-hidden="true"></span>Ongoing ad creative for businesses & products';
+    if (eyebrow) eyebrow.innerHTML = '<span class="eyebrow-dash" aria-hidden="true"></span>Ad creative for businesses & products';
 
     const heroSub = document.querySelector('.hero-sub');
     if (heroSub) {
-      heroSub.innerHTML = 'Fresh vertical video ads delivered every month.<br class="br-md"><strong>Subscriptions from $249/month. Annual plans include 2 months free.</strong>';
+      heroSub.innerHTML = 'Start with a <strong>one-time pack from $249</strong> — or keep fresh creative coming monthly.<br class="br-md">Yearly plans include 2 months free.';
     }
 
     const heroMicro = document.querySelector('.hero-micro');
-    if (heroMicro) heroMicro.textContent = 'Monthly plans can be canceled before renewal. Ad spend separate.';
+    if (heroMicro) heroMicro.textContent = 'One-time packs require no subscription. Ad spend separate.';
 
     document.querySelectorAll('.hero [data-plan="starter"], .header-actions [data-plan="starter"]').forEach((btn) => {
-      btn.textContent = 'Start for $249/mo';
+      btn.removeAttribute('data-plan');
+      btn.textContent = btn.classList.contains('header-cta') ? 'See pricing' : 'See pricing options';
+      btn.addEventListener('click', () => {
+        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     });
 
     const pricing = document.getElementById('pricing');
@@ -205,13 +245,13 @@ window.RP_CONFIG = {
             <div class="rp-launch-card reveal">
               <div class="rp-launch-grid">
                 <div>
-                  <p class="eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>Launch bonus</p>
-                  <h2 class="rp-launch-title" id="launch-offer-title">Start a subscription. Get 2 bonus videos in month one.</h2>
-                  <p class="rp-launch-copy">The point is not one ad and goodbye. We keep giving your business <strong>fresh creative, new hooks and new angles every month</strong>. Starter and Growth include two extra video variations in the first month so you have more creative to test immediately.</p>
-                  <p class="rp-launch-note">Bonus videos are additional cutdowns or variations built from the approved direction. Qualified businesses can still request one short concept sample before committing. No advertising result is guaranteed.</p>
+                  <p class="eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>Start your way</p>
+                  <h2 class="rp-launch-title" id="launch-offer-title">Buy one pack. Subscribe only when it makes sense.</h2>
+                  <p class="rp-launch-copy">Start with <strong>3 custom ads + 2 bonus videos for $249 one-time</strong>. No contract or subscription required. If you want fresh creative every month after that, switch to a monthly or yearly plan whenever you're ready.</p>
+                  <p class="rp-launch-note">Bonus videos are additional cutdowns or variations built from the approved direction. Qualified businesses can still request one short concept sample before purchasing. No advertising result is guaranteed.</p>
                 </div>
                 <div class="rp-launch-actions">
-                  <a class="btn btn-gold btn-lg" href="#pricing">See subscription plans</a>
+                  <a class="btn btn-gold btn-lg" href="#pricing">See purchase options</a>
                   <a class="btn btn-ghost btn-lg" href="#contact" data-free-concept>Request a free concept</a>
                 </div>
               </div>
@@ -243,16 +283,27 @@ window.RP_CONFIG = {
     if (priceGrid && !document.getElementById('rp-billing-wrap')) {
       priceGrid.insertAdjacentHTML('beforebegin', `
         <div class="rp-billing-wrap" id="rp-billing-wrap">
-          <div class="rp-billing-toggle" role="group" aria-label="Billing period">
-            <button type="button" class="rp-billing-btn is-active" data-billing="monthly">Monthly</button>
-            <button type="button" class="rp-billing-btn" data-billing="annual">Annual</button>
+          <div class="rp-billing-toggle" role="group" aria-label="Purchase option">
+            <button type="button" class="rp-billing-btn is-active" data-billing="pack">Buy Pack</button>
+            <button type="button" class="rp-billing-btn" data-billing="monthly">Monthly</button>
+            <button type="button" class="rp-billing-btn" data-billing="annual">Yearly</button>
           </div>
-          <div class="rp-billing-save">Annual = 2 months free</div>
-          <div class="rp-billing-detail" id="rp-billing-detail">Pay month to month. Switch or cancel before the next renewal.</div>
+          <div class="rp-billing-save" id="rp-billing-save">No subscription required</div>
+          <div class="rp-billing-detail" id="rp-billing-detail">Pay once. Get the creative pack. Subscribe later only if you want ongoing production.</div>
         </div>`);
     }
 
     const cards = Array.from(document.querySelectorAll('.price-card'));
+
+    function wireButton(button, planKey, term, label) {
+      if (!button) return;
+      button.removeAttribute('data-plan');
+      delete button.dataset.subscriptionPlan;
+      button.textContent = label;
+      button.onclick = () => {
+        window.location.assign(`/api/checkout?plan=${encodeURIComponent(planKey)}&term=${encodeURIComponent(term)}`);
+      };
+    }
 
     function renderPricing(term) {
       billingTerm = term;
@@ -263,47 +314,74 @@ window.RP_CONFIG = {
       });
 
       const detail = document.getElementById('rp-billing-detail');
+      const save = document.getElementById('rp-billing-save');
+
+      if (term === 'pack') {
+        if (save) save.textContent = 'No subscription required';
+        if (detail) detail.textContent = 'Pay once. Get the creative pack. Subscribe later only if you want ongoing production.';
+        priceGrid?.classList.add('rp-two-cards');
+
+        cards.forEach((card, index) => {
+          const pack = PACKS[index];
+          if (!pack) {
+            card.hidden = true;
+            return;
+          }
+          card.hidden = false;
+          const name = card.querySelector('.price-name');
+          const amount = card.querySelector('.price-amount');
+          const pitch = card.querySelector('.price-pitch');
+          const list = card.querySelector('.price-list');
+          const button = card.querySelector('.btn');
+          if (name) name.textContent = pack.name;
+          if (amount) amount.innerHTML = `<span class="price-value">$${pack.amount}</span> <span class="price-term">one-time</span>`;
+          if (pitch) pitch.textContent = pack.pitch;
+          if (list) list.innerHTML = pack.features.map((feature) => `<li>${feature}</li>`).join('');
+          wireButton(button, pack.key, 'one_time', `Buy ${pack.name} — $${pack.amount}`);
+        });
+        return;
+      }
+
+      priceGrid?.classList.remove('rp-two-cards');
+      if (save) save.textContent = term === 'annual' ? 'Yearly = 2 months free' : 'Cancel before renewal';
       if (detail) {
         detail.textContent = term === 'annual'
-          ? 'Annual plans are billed once per year. You receive 12 months of service for the price of 10.'
+          ? 'Yearly plans are billed once per year. You receive 12 months of service for the price of 10.'
           : 'Pay month to month. Switch or cancel before the next renewal.';
       }
 
       cards.forEach((card, index) => {
         const plan = PLANS[index];
         if (!plan) return;
+        card.hidden = false;
 
         const name = card.querySelector('.price-name');
         const amount = card.querySelector('.price-amount');
         const pitch = card.querySelector('.price-pitch');
         const list = card.querySelector('.price-list');
-        const button = card.querySelector('.btn[data-plan], .btn[data-subscription-plan]');
+        const button = card.querySelector('.btn');
 
         if (name) name.textContent = plan.name;
         if (pitch) pitch.textContent = term === 'annual' ? plan.pitchAnnual : plan.pitchMonthly;
 
         if (amount) {
           if (term === 'annual') {
-            amount.innerHTML = `<span class="price-value">$${plan.annualMonthly}</span> <span class="price-term">/ month equivalent</span><span class="price-annual-note">$${plan.annualTotal.toLocaleString('en-US')} billed annually</span>`;
+            amount.innerHTML = `<span class="price-value">$${plan.annualMonthly}</span> <span class="price-term">/ month equivalent</span><span class="price-annual-note">$${plan.annualTotal.toLocaleString('en-US')} billed yearly</span>`;
           } else {
             amount.innerHTML = `<span class="price-value">$${plan.monthly}</span> <span class="price-term">/ month</span>`;
           }
         }
 
-        if (list) {
-          list.innerHTML = plan.features.map((feature) => `<li>${feature}</li>`).join('');
-        }
+        if (list) list.innerHTML = plan.features.map((feature) => `<li>${feature}</li>`).join('');
 
-        if (button) {
-          button.removeAttribute('data-plan');
-          button.dataset.subscriptionPlan = plan.key;
-          button.textContent = term === 'annual'
+        wireButton(
+          button,
+          plan.key,
+          term,
+          term === 'annual'
             ? `Start ${plan.name} — $${plan.annualTotal.toLocaleString('en-US')}/yr`
-            : `Start ${plan.name} — $${plan.monthly}/mo`;
-          button.onclick = () => {
-            window.location.assign(`/api/checkout?plan=${encodeURIComponent(plan.key)}&term=${term}`);
-          };
-        }
+            : `Start ${plan.name} — $${plan.monthly}/mo`
+        );
       });
     }
 
@@ -311,22 +389,22 @@ window.RP_CONFIG = {
       btn.addEventListener('click', () => renderPricing(btn.dataset.billing));
     });
 
-    renderPricing('monthly');
+    renderPricing('pack');
 
     const priceHead = pricing?.querySelector('.section-head .section-title');
     const priceSub = pricing?.querySelector('.section-head .section-sub');
-    if (priceHead) priceHead.textContent = 'Choose your monthly creative engine.';
-    if (priceSub) priceSub.textContent = 'Fresh ad creative is a recurring need. Pick monthly flexibility or save two months with annual billing.';
+    if (priceHead) priceHead.textContent = 'Choose how you want to buy.';
+    if (priceSub) priceSub.textContent = 'Buy a one-time pack, subscribe month to month, or save two months with yearly billing.';
 
     const priceFoot = pricing?.querySelector('.price-foot');
-    if (priceFoot) priceFoot.textContent = 'Secure recurring checkout is handled by Stripe. Annual plans are billed upfront. Ad spend is separate and paid directly to the advertising platform.';
+    if (priceFoot) priceFoot.textContent = 'Secure checkout is handled by Stripe. One-time packs do not renew. Monthly plans renew monthly; yearly plans are billed upfront. Ad spend is separate.';
 
     document.querySelectorAll('[data-free-concept]').forEach((link) => {
       link.addEventListener('click', () => {
         window.setTimeout(() => {
           const message = document.getElementById('lf-message');
           const pkg = document.getElementById('lf-package');
-          if (message && !message.value) message.value = "I'd like to request a free short concept sample for my business before choosing a subscription.";
+          if (message && !message.value) message.value = "I'd like to request a free short concept sample for my business before choosing a pack or subscription.";
           if (pkg) pkg.value = 'not_sure';
           document.getElementById('lf-name')?.focus({ preventScroll: true });
         }, 250);
