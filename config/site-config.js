@@ -434,3 +434,321 @@ window.RP_CONFIG = {
     applyEnhancements();
   }
 })();
+
+/* Desktop portfolio behavior: exactly three visible cards, one-card gestures,
+   30-second auto advance, and a seamless five-card loop. Mobile stays under
+   the existing carousel code and is intentionally untouched. */
+(() => {
+  const desktopMQ = window.matchMedia('(min-width: 1024px)');
+  const reduceMotionMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const installDesktopStyles = () => {
+    if (document.getElementById('rp-desktop-carousel-v2')) return;
+    const style = document.createElement('style');
+    style.id = 'rp-desktop-carousel-v2';
+    style.textContent = `
+      @media (min-width:1024px){
+        #work .work-track{
+          --work-gap:clamp(16px,1.55vw,22px);
+          --card-w:calc((100% - (2 * var(--work-gap))) / 3);
+          max-width:var(--shell);
+          box-sizing:border-box;
+          padding-inline:var(--pad);
+          scroll-padding-inline-start:var(--pad);
+          overflow-x:auto;
+          scroll-snap-type:x mandatory;
+        }
+        #work .work-grid{display:flex;flex-wrap:nowrap;gap:var(--work-gap);}
+        #work .work-card{
+          flex:0 0 var(--card-w);
+          width:var(--card-w);
+          scroll-snap-align:start;
+          opacity:1;
+        }
+        #work .work-card.is-loop-clone{display:flex;}
+        #work .work-rail{display:flex!important;}
+      }
+    `;
+    document.head.appendChild(style);
+  };
+
+  const initDesktopCarousel = () => {
+    installDesktopStyles();
+    if (!desktopMQ.matches || reduceMotionMQ.matches) return;
+
+    let track = document.getElementById('workTrack');
+    if (!track || track.dataset.rpDesktopLoop === 'true') return;
+
+    /* main.js has already initialized by window.load. Replacing this one
+       scroll region removes only its old carousel listeners so the two
+       carousel controllers never fight each other. */
+    const freshTrack = track.cloneNode(true);
+    track.replaceWith(freshTrack);
+    track = freshTrack;
+    track.dataset.rpDesktopLoop = 'true';
+
+    const grid = track.querySelector('#workGrid');
+    const rail = document.getElementById('workRail');
+    if (!grid) return;
+
+    const realCards = Array.from(grid.querySelectorAll('.work-card'));
+    if (realCards.length < 4) return;
+
+    realCards.forEach((card, index) => {
+      card.dataset.rpRealIndex = String(index);
+      card.classList.add('is-visible');
+    });
+
+    const makeClone = (card) => {
+      const clone = card.cloneNode(true);
+      clone.classList.add('is-loop-clone', 'is-visible');
+      clone.classList.remove('is-active');
+      clone.setAttribute('aria-hidden', 'true');
+      clone.querySelectorAll('button,a,input,select,textarea').forEach((el) => el.setAttribute('tabindex', '-1'));
+      return clone;
+    };
+
+    const before = realCards.slice(-2).map(makeClone);
+    const after = realCards.slice(0, 2).map(makeClone);
+    grid.prepend(...before);
+    grid.append(...after);
+
+    const items = Array.from(grid.querySelectorAll('.work-card'));
+    const realCount = realCards.length;
+    const firstRealPos = 2;
+    const lastLoopPos = firstRealPos + realCount - 1;
+    let currentPos = firstRealPos;
+    let lastSettledPos = firstRealPos;
+    let settleTimer = 0;
+    let autoTimer = 0;
+    let resumeTimer = 0;
+    let wheelLocked = false;
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartPos = firstRealPos;
+    let dragPointerId = null;
+    let sectionVisible = true;
+
+    if (rail) {
+      rail.innerHTML = '';
+      realCards.forEach(() => rail.appendChild(document.createElement('span')));
+    }
+    const dots = rail ? Array.from(rail.children) : [];
+
+    const paddingLeft = () => parseFloat(getComputedStyle(track).paddingLeft || '0') || 0;
+
+    const leftFor = (pos) => {
+      const item = items[pos];
+      if (!item) return track.scrollLeft;
+      const tr = track.getBoundingClientRect();
+      const ir = item.getBoundingClientRect();
+      return track.scrollLeft + ir.left - tr.left - paddingLeft();
+    };
+
+    const nearestPos = () => {
+      const tr = track.getBoundingClientRect();
+      const anchor = tr.left + paddingLeft();
+      let best = 0;
+      let bestDistance = Infinity;
+      items.forEach((item, index) => {
+        const distance = Math.abs(item.getBoundingClientRect().left - anchor);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          best = index;
+        }
+      });
+      return best;
+    };
+
+    const jumpTo = (pos) => {
+      const previous = track.style.scrollBehavior;
+      track.style.scrollBehavior = 'auto';
+      track.scrollLeft = leftFor(pos);
+      currentPos = pos;
+      window.requestAnimationFrame(() => { track.style.scrollBehavior = previous; });
+    };
+
+    const scrollToPos = (pos, behavior = 'smooth') => {
+      if (!items[pos]) return;
+      currentPos = pos;
+      track.scrollTo({ left: leftFor(pos), behavior });
+    };
+
+    const realIndexForPos = (pos) => {
+      const item = items[pos];
+      return item ? Number(item.dataset.rpRealIndex || 0) : 0;
+    };
+
+    const syncUI = (pos) => {
+      const realIndex = realIndexForPos(pos);
+      dots.forEach((dot, index) => dot.classList.toggle('is-on', index === realIndex));
+
+      items.forEach((card, index) => {
+        card.classList.toggle('is-active', index >= pos && index < pos + 3);
+        const video = card.querySelector('.work-video');
+        if (!video) return;
+        if (sectionVisible && index >= pos && index < pos + 3) {
+          const p = video.play();
+          if (p && typeof p.catch === 'function') p.catch(() => {});
+        } else if (!video.paused) {
+          video.pause();
+        }
+      });
+    };
+
+    const normalizeAfterSettle = () => {
+      let pos = nearestPos();
+      const direction = pos - lastSettledPos;
+
+      /* Equivalent clone windows let the next gesture continue in the same
+         direction instead of visibly rewinding from card 5 back to card 1. */
+      if (pos >= lastLoopPos && direction > 0) {
+        jumpTo(1); // [5,1,2] clone window -> identical left-side window
+        pos = 1;
+      } else if (pos <= 1 && direction < 0) {
+        jumpTo(lastLoopPos); // [5,1,2] left clone -> identical right-side window
+        pos = lastLoopPos;
+      } else if (pos === 0 && direction < 0) {
+        jumpTo(lastLoopPos - 1); // [4,5,1] -> identical real/right clone window
+        pos = lastLoopPos - 1;
+      }
+
+      currentPos = pos;
+      lastSettledPos = pos;
+      syncUI(pos);
+    };
+
+    const stopAuto = () => {
+      if (autoTimer) window.clearInterval(autoTimer);
+      autoTimer = 0;
+    };
+
+    const startAuto = () => {
+      stopAuto();
+      if (!sectionVisible) return;
+      autoTimer = window.setInterval(() => advance(1), 30000);
+    };
+
+    const pauseAuto = (resumeAfter = 4500) => {
+      stopAuto();
+      if (resumeTimer) window.clearTimeout(resumeTimer);
+      resumeTimer = window.setTimeout(startAuto, resumeAfter);
+    };
+
+    const advance = (direction) => {
+      let pos = nearestPos();
+      if (direction > 0 && pos >= lastLoopPos) {
+        jumpTo(1);
+        pos = 1;
+      } else if (direction < 0 && pos <= 1) {
+        jumpTo(lastLoopPos);
+        pos = lastLoopPos;
+      }
+      scrollToPos(pos + direction);
+    };
+
+    track.addEventListener('scroll', () => {
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(normalizeAfterSettle, 140);
+      syncUI(nearestPos());
+    }, { passive: true });
+
+    /* Mac trackpad: one horizontal two-finger gesture = exactly one card. */
+    track.addEventListener('wheel', (event) => {
+      if (Math.abs(event.deltaX) < 8 || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      event.preventDefault();
+      pauseAuto();
+      if (wheelLocked) return;
+      wheelLocked = true;
+      advance(event.deltaX > 0 ? 1 : -1);
+      window.setTimeout(() => { wheelLocked = false; }, 620);
+    }, { passive: false });
+
+    track.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'touch' || event.button !== 0) return;
+      dragging = true;
+      dragStartX = event.clientX;
+      dragStartPos = nearestPos();
+      dragPointerId = event.pointerId;
+      track.classList.add('is-dragging');
+      pauseAuto();
+      if (track.setPointerCapture) {
+        try { track.setPointerCapture(dragPointerId); } catch (_) {}
+      }
+    });
+
+    track.addEventListener('pointermove', (event) => {
+      if (!dragging) return;
+      const dx = event.clientX - dragStartX;
+      track.scrollLeft = leftFor(dragStartPos) - dx;
+      event.preventDefault();
+    });
+
+    const endDrag = (event) => {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove('is-dragging');
+      if (track.releasePointerCapture && dragPointerId !== null) {
+        try { track.releasePointerCapture(dragPointerId); } catch (_) {}
+      }
+      const dx = (event?.clientX ?? dragStartX) - dragStartX;
+      dragPointerId = null;
+      if (Math.abs(dx) >= 28) {
+        let target = dragStartPos + (dx < 0 ? 1 : -1);
+        if (target > lastLoopPos) {
+          jumpTo(1);
+          target = 2;
+        } else if (target < 1) {
+          jumpTo(lastLoopPos);
+          target = lastLoopPos - 1;
+        }
+        scrollToPos(target);
+      } else {
+        scrollToPos(dragStartPos);
+      }
+    };
+
+    ['pointerup','pointercancel','pointerleave'].forEach((type) => track.addEventListener(type, endDrag));
+
+    track.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      event.preventDefault();
+      pauseAuto();
+      advance(event.key === 'ArrowRight' ? 1 : -1);
+    });
+
+    track.addEventListener('mouseenter', stopAuto);
+    track.addEventListener('mouseleave', () => pauseAuto(1600));
+    track.addEventListener('focusin', stopAuto);
+    track.addEventListener('focusout', () => pauseAuto(2500));
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          sectionVisible = entry.isIntersecting;
+          if (sectionVisible) startAuto(); else stopAuto();
+          syncUI(nearestPos());
+        });
+      }, { rootMargin: '100px 0px', threshold: .12 });
+      observer.observe(track);
+    }
+
+    window.requestAnimationFrame(() => {
+      jumpTo(firstRealPos);
+      lastSettledPos = firstRealPos;
+      syncUI(firstRealPos);
+      startAuto();
+    });
+  };
+
+  if (document.readyState === 'complete') {
+    window.setTimeout(initDesktopCarousel, 0);
+  } else {
+    window.addEventListener('load', initDesktopCarousel, { once: true });
+  }
+
+  desktopMQ.addEventListener?.('change', (event) => {
+    if (event.matches) initDesktopCarousel();
+    else if (document.getElementById('workTrack')?.dataset.rpDesktopLoop === 'true') window.location.reload();
+  });
+})();
