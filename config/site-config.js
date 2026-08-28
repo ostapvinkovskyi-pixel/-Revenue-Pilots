@@ -229,9 +229,18 @@ window.RP_CONFIG = {
     const heroMicro = document.querySelector('.hero-micro');
     if (heroMicro) heroMicro.textContent = 'One-time packs require no subscription. Ad spend separate.';
 
-    document.querySelectorAll('.hero [data-plan="starter"], .header-actions [data-plan="starter"]').forEach((btn) => {
+    const contactSub = document.querySelector('.contact-pitch .section-sub');
+    if (contactSub) contactSub.textContent = 'Choose a one-time pack or an ongoing creative plan.';
+    const contactMicro = document.querySelector('.contact-pitch .hero-micro');
+    if (contactMicro) contactMicro.textContent = 'One-time packs do not renew. Ad spend separate.';
+
+    document.querySelectorAll('.hero [data-plan="starter"], .header-actions [data-plan="starter"], .contact-ctas [data-plan="starter"]').forEach((btn) => {
       btn.removeAttribute('data-plan');
-      btn.textContent = btn.classList.contains('header-cta') ? 'See pricing' : 'See pricing options';
+      btn.textContent = btn.classList.contains('header-cta')
+        ? 'See pricing'
+        : btn.closest('.contact-ctas')
+          ? 'Buy pack or subscribe'
+          : 'See pricing options';
       btn.addEventListener('click', () => {
         document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
