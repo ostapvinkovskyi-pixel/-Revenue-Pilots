@@ -1,4 +1,5 @@
 const REQUIRED = ["name", "business_name", "email"];
+const DEFAULT_MAKE_WEBHOOK_URL = "https://hook.us2.make.com/qbvey2ub4psm3u7gg1mswes2g2hog19h";
 
 function clean(value, max = 1000) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -18,10 +19,7 @@ export default {
       return json({ error: "Method not allowed" }, 405);
     }
 
-    const makeUrl = process.env.MAKE_WEBHOOK_URL;
-    if (!makeUrl) {
-      return json({ error: "Lead intake is not configured yet." }, 503);
-    }
+    const makeUrl = process.env.MAKE_WEBHOOK_URL || DEFAULT_MAKE_WEBHOOK_URL;
 
     let body;
     try {
