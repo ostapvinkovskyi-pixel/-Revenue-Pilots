@@ -1,30 +1,9 @@
 import Stripe from "stripe";
 
-const PLANS = {
-  starter: {
-    name: "Revenue Pilots — Starter",
-    oneTimeAmount: 24900,
-    monthlyAmount: 24900,
-    annualAmount: 249000,
-    oneTimeDescription: "One-time launch pack: 3 custom vertical video ads plus 2 bonus video variations. No subscription required.",
-    subscriptionDescription: "3 fresh custom vertical video ads per month. First month includes 2 bonus video variations."
-  },
-  growth: {
-    name: "Revenue Pilots — Growth",
-    oneTimeAmount: 49900,
-    monthlyAmount: 44900,
-    annualAmount: 449000,
-    oneTimeDescription: "One-time growth pack: 6 custom vertical video ads plus 2 bonus video variations, multiple creative angles, and 1 revision round. No subscription required.",
-    subscriptionDescription: "6 fresh custom vertical video ads per month with multiple creative angles and 1 revision round. First month includes 2 bonus video variations."
-  },
-  weekly: {
-    name: "Revenue Pilots — Scale",
-    oneTimeAmount: null,
-    monthlyAmount: 69900,
-    annualAmount: 699000,
-    oneTimeDescription: "",
-    subscriptionDescription: "10 fresh custom vertical video ads per month with weekly delivery, ongoing hooks and angles, and 2 revision rounds."
-  }
+const STARTER = {
+  name: "Revenue Pilots — Starter Pilot",
+  amount: 24900,
+  description: "One-time pilot: 3 custom vertical video ads, 3 distinct hooks/creative angles, branding + CTA copy, social-ready 9:16 exports, and 1 revision round. First drafts within 72 hours after required assets are received. No subscription. Ad spend not included."
 };
 
 function json(data, status = 200) {
@@ -42,87 +21,55 @@ export default {
       return json({ error: "Checkout is not configured yet." }, 503);
     }
 
-    const stripe = new Stripe(secret);
     const url = new URL(request.url);
-    const planKey = url.searchParams.get("plan");
-    const requestedTerm = url.searchParams.get("term");
-    const term = requestedTerm === "annual"
-      ? "annual"
-      : (requestedTerm === "one_time" || requestedTerm === "pack")
-        ? "one_time"
-        : "monthly";
-    const plan = PLANS[planKey];
+    const plan = url.searchParams.get("plan");
+    const term = url.searchParams.get("term");
 
-    if (!plan) {
-      return json({ error: "Unknown plan" }, 400);
+    if (plan !== "starter") {
+      return json({ error: "Only the Starter Pilot is available during the launch test." }, 400);
     }
 
-    const oneTime = term === "one_time";
-    const annual = term === "annual";
-
-    if (oneTime && !plan.oneTimeAmount) {
-      return json({ error: "This package is only available as a subscription." }, 400);
+    if (term && term !== "one_time" && term !== "pack") {
+      return json({ error: "The Starter Pilot is a one-time purchase, not a subscription." }, 400);
     }
 
+    const stripe = new Stripe(secret);
     const origin = process.env.PUBLIC_SITE_URL || url.origin;
-    const unitAmount = oneTime
-      ? plan.oneTimeAmount
-      : annual
-        ? plan.annualAmount
-        : plan.monthlyAmount;
-
-    const termDescription = oneTime
-      ? plan.oneTimeDescription
-      : `${plan.subscriptionDescription} ${annual ? "Annual plan: pay for 10 months and receive 12 months of service." : "Monthly plan: cancel anytime before the next renewal."}`;
-
-    const priceData = {
-      currency: "usd",
-      unit_amount: unitAmount,
-      product_data: {
-        name: oneTime ? `${plan.name} Pack` : plan.name,
-        description: termDescription
-      }
-    };
-
-    if (!oneTime) {
-      priceData.recurring = { interval: annual ? "year" : "month" };
-    }
-
-    const params = {
-      mode: oneTime ? "payment" : "subscription",
-      line_items: [{ price_data: priceData, quantity: 1 }],
-      success_url: `${origin}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/#pricing`,
-      phone_number_collection: { enabled: true },
-      billing_address_collection: "auto",
-      metadata: {
-        plan: planKey,
-        billing_term: term,
-        source: "revenue-pilots-website",
-        launch_bonus: planKey === "starter" || planKey === "growth" ? "2-video-variations" : "none"
-      }
-    };
-
-    if (oneTime) {
-      params.payment_intent_data = {
-        metadata: {
-          plan: planKey,
-          billing_term: term,
-          source: "revenue-pilots-website"
-        }
-      };
-    } else {
-      params.subscription_data = {
-        metadata: {
-          plan: planKey,
-          billing_term: term,
-          source: "revenue-pilots-website"
-        }
-      };
-    }
 
     try {
-      const session = await stripe.checkout.sessions.create(params);
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        line_items: [{
+          price_data: {
+            currency: "usd",
+            unit_amount: STARTER.amount,
+            product_data: {
+              name: STARTER.name,
+              description: STARTER.description
+            }
+          },
+          quantity: 1
+        }],
+        success_url: `${origin}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/#pricing`,
+        phone_number_collection: { enabled: true },
+        billing_address_collection: "auto",
+        metadata: {
+          plan: "starter",
+          billing_term: "one_time",
+          source: "revenue-pilots-website",
+          launch_offer_version: "starter-pilot-v1"
+        },
+        payment_intent_data: {
+          metadata: {
+            plan: "starter",
+            billing_term: "one_time",
+            source: "revenue-pilots-website",
+            launch_offer_version: "starter-pilot-v1"
+          }
+        }
+      });
+
       return Response.redirect(session.url, 303);
     } catch (error) {
       console.error("Stripe checkout error", error);
