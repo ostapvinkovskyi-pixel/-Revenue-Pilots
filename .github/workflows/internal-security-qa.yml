@@ -1,0 +1,17 @@
+name: Revenue Pilots intake security QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/internal-security-qa.yml'
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit internal QA lead through production API
+        run: |
+          curl --fail-with-body --silent --show-error \
+            -X POST 'https://revenuepilot.company/api/lead' \
+            -H 'content-type: application/json' \
+            --data '{"name":"Revenue Pilots Security QA","business_name":"INTERNAL SECURITY QA","email":"ostapvinkovskyi@gmail.com","phone":"","website":"https://revenuepilot.company","service_area":"Fort Mill, SC","package_interest":"internal_test","message":"Internal security QA — safe to ignore. Used to validate authenticated Vercel → Make intake.","page_url":"https://revenuepilot.company/internal-security-qa","company_url":""}'
