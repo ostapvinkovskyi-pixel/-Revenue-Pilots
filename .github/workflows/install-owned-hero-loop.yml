@@ -1,0 +1,36 @@
+name: Install owned Revenue Pilots hero loop
+
+on:
+  push:
+    paths:
+      - '.github/workflows/install-owned-hero-loop.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Replace third-party hero media with Revenue Pilots original loop
+        run: |
+          set -euo pipefail
+          mkdir -p assets/hero
+          curl -fL 'https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/c7ab52f3-85f5-44a7-be23-46b5732119a3.mp4' -o assets/hero/hero-loop.mp4
+          curl -fL 'https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/571d60d2-9d0f-47ab-984f-6c2818a4ea7a.jpg' -o assets/hero/hero-loop-poster.jpg
+          test -s assets/hero/hero-loop.mp4
+          test -s assets/hero/hero-loop-poster.jpg
+      - name: Commit owned hero media
+        run: |
+          git config user.name 'Revenue Pilots Site Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add assets/hero/hero-loop.mp4 assets/hero/hero-loop-poster.jpg
+          if git diff --cached --quiet; then
+            echo 'Hero media already current.'
+            exit 0
+          fi
+          git commit -m 'Replace hero watch clip with owned Revenue Pilots loop'
+          git push origin main
