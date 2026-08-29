@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 const REQUIRED = ["name", "business_name", "email"];
+const DEFAULT_MAKE_WEBHOOK_URL = "https://hook.us2.make.com/qbvey2ub4psm3u7gg1mswes2g2hog19h";
 const MAKE_TOKEN_CONTEXT = "revenue-pilots-make-v1";
 
 function clean(value, max = 1000) {
@@ -27,10 +28,10 @@ export default {
       return json({ error: "Method not allowed" }, 405);
     }
 
-    const makeUrl = process.env.MAKE_WEBHOOK_URL;
+    const makeUrl = process.env.MAKE_WEBHOOK_URL || DEFAULT_MAKE_WEBHOOK_URL;
     const internalSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    if (!makeUrl || !internalSecret) {
-      console.error("Internal Make intake configuration is unavailable");
+    if (!internalSecret) {
+      console.error("Internal Make authentication secret is unavailable");
       return json({ error: "Lead intake unavailable" }, 503);
     }
 
@@ -41,7 +42,6 @@ export default {
       return json({ error: "Invalid JSON" }, 400);
     }
 
-    // Hidden honeypot. Bots that fill it are acknowledged but discarded.
     if (clean(body.company_url, 200)) {
       return json({ ok: true });
     }
