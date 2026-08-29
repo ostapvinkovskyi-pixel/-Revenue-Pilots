@@ -1,5 +1,8 @@
+import { createHash } from "node:crypto";
+
 const REQUIRED = ["name", "business_name", "email"];
 const DEFAULT_MAKE_WEBHOOK_URL = "https://hook.us2.make.com/qbvey2ub4psm3u7gg1mswes2g2hog19h";
+const MAKE_TOKEN_CONTEXT = "revenue-pilots-make-v1";
 
 function clean(value, max = 1000) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -13,6 +16,12 @@ function json(data, status = 200) {
   return Response.json(data, { status });
 }
 
+function makeToken(secret) {
+  return createHash("sha256")
+    .update(`${secret}|${MAKE_TOKEN_CONTEXT}`)
+    .digest("hex");
+}
+
 export default {
   async fetch(request) {
     if (request.method !== "POST") {
@@ -20,6 +29,11 @@ export default {
     }
 
     const makeUrl = process.env.MAKE_WEBHOOK_URL || DEFAULT_MAKE_WEBHOOK_URL;
+    const internalSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!internalSecret) {
+      console.error("Internal Make authentication secret is unavailable");
+      return json({ error: "Lead intake unavailable" }, 503);
+    }
 
     let body;
     try {
@@ -44,7 +58,8 @@ export default {
       package_interest: clean(body.package_interest, 50),
       message: clean(body.message, 3000),
       source: "revenue-pilots-website",
-      page_url: clean(body.page_url, 500)
+      page_url: clean(body.page_url, 500),
+      make_token: makeToken(internalSecret)
     };
 
     if (REQUIRED.some((key) => !lead[key]) || !validEmail(lead.email)) {
