@@ -11,6 +11,7 @@ jobs:
     steps:
       - name: Submit internal QA lead through production API
         run: |
+          # Final pass validates the authenticated Vercel → Make path after Make-side filters.
           curl --fail-with-body --silent --show-error \
             -X POST 'https://www.revenuepilot.company/api/lead' \
             -H 'content-type: application/json' \
