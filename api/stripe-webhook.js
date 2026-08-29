@@ -1,7 +1,6 @@
 import Stripe from "stripe";
 import { createHash } from "node:crypto";
 
-const DEFAULT_MAKE_WEBHOOK_URL = "https://hook.us2.make.com/qbvey2ub4psm3u7gg1mswes2g2hog19h";
 const MAKE_TOKEN_CONTEXT = "revenue-pilots-make-v1";
 
 function safe(value) {
@@ -15,7 +14,10 @@ function makeToken(secret) {
 }
 
 async function notifyMake(payload, internalSecret) {
-  const makeUrl = process.env.MAKE_WEBHOOK_URL || DEFAULT_MAKE_WEBHOOK_URL;
+  const makeUrl = process.env.MAKE_WEBHOOK_URL;
+  if (!makeUrl) {
+    throw new Error("MAKE_WEBHOOK_URL is not configured");
+  }
 
   const response = await fetch(makeUrl, {
     method: "POST",
@@ -39,7 +41,8 @@ export default {
 
     const secret = process.env.STRIPE_SECRET_KEY;
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    if (!secret || !webhookSecret) {
+    const makeUrl = process.env.MAKE_WEBHOOK_URL;
+    if (!secret || !webhookSecret || !makeUrl) {
       return new Response("Stripe webhook is not configured", { status: 503 });
     }
 
@@ -63,9 +66,6 @@ export default {
         const phone = session.customer_details?.phone || "";
         const paymentStatus = safe(session.payment_status || session.status);
 
-        // Never open a production order until Stripe says this one-time Checkout is paid.
-        // The launch checkout currently accepts card payments only, but keep this guard
-        // so a future payment-method change cannot silently create unpaid orders.
         if (session.payment_status !== "paid") {
           await notifyMake({
             event_type: "payment_issue",
@@ -84,7 +84,6 @@ export default {
             subscription_id: safe(session.subscription),
             verified: true
           }, webhookSecret);
-
           return new Response("ok", { status: 200 });
         }
 
@@ -109,8 +108,6 @@ export default {
           verified: true
         }, webhookSecret);
       } else if (event.type === "invoice.payment_failed" || event.type === "customer.subscription.deleted") {
-        // Kept defensively for any legacy subscription objects. The public launch
-        // checkout no longer sells subscriptions.
         const object = event.data.object;
         await notifyMake({
           event_type: "payment_issue",
