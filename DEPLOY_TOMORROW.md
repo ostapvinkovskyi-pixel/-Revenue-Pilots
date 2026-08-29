@@ -1,35 +1,24 @@
-# Revenue Pilots — fastest launch path
+# ARCHIVED — pre-launch deployment checklist
 
-The site is already wired for Vercel Functions. Final portfolio videos can be replaced later without touching payments or lead automation.
+Revenue Pilots is already deployed and the live payment / intake path has been verified.
 
-## 1) GitHub → Vercel
-Push this folder to a GitHub repository, import that repository into Vercel, and deploy.
+This file is intentionally retained only as historical context. **Do not use it as the current operating checklist.**
 
-## 2) Vercel environment variables
-In Vercel → Project → Settings → Environment Variables add:
+Current sources of truth:
 
-- `STRIPE_SECRET_KEY` — LIVE Stripe secret key. Paste it directly in Vercel only.
-- `MAKE_WEBHOOK_URL` — Revenue Pilot — Master Intake webhook URL from Make.
-- `PUBLIC_SITE_URL` — optional canonical production site URL.
+1. `README.md` — current production architecture and revenue-mode rules.
+2. Google Drive → **Revenue Pilots — AIOS** → `00 — Business Brain` → **Revenue Pilots — CURRENT STATE & OPERATING RULES**.
+3. Google Drive → **Revenue Pilots — AIOS** → `04 — Operations & Automation` for Orders / Agent Control.
+4. Google Drive → **Revenue Pilots — AIOS** → `06 — Reports` for dated operating reports.
 
-Redeploy. At this point checkout can create live Stripe-hosted Checkout Sessions.
+Current launch state as of 2026-08-29:
 
-## 3) Stripe webhook
-After the Vercel deployment has a stable URL:
+- production domain is live and verified
+- public checkout is intentionally locked to Starter Pilot — $249 one-time
+- Stripe webhook verification is live
+- Make Master Intake is live
+- lead/order notifications and payment confirmation are live
+- the three-card portfolio is live
+- the hero uses the Revenue Pilots-owned loop
 
-1. Stripe Dashboard → Developers → Webhooks → Add endpoint.
-2. Endpoint: `https://YOUR_DOMAIN/api/stripe-webhook`
-3. Subscribe to:
-   - `checkout.session.completed`
-   - `invoice.payment_failed`
-   - `customer.subscription.deleted`
-4. Copy the webhook signing secret (`whsec_...`) directly into Vercel as `STRIPE_WEBHOOK_SECRET`.
-5. Redeploy.
-
-## 4) End-to-end QA before outreach
-- Submit the website form once: verify a row appears in Revenue Pilot — Orders → Leads, Ostap gets an alert email, and the lead gets an acknowledgment email.
-- Run a Stripe test/live checkout as appropriate and verify the paid order appears in Orders and both payment emails arrive.
-- Never infer payment from the browser success page; the verified Stripe webhook is payment truth.
-
-## 5) Portfolio videos
-Replace the three MP4s/posters in `assets/videos/` and `assets/posters/` after the final Claude/Higgsfield exports are ready. This does not require changing the API/payment setup.
+Do not rebuild deployment infrastructure unless a verified production issue requires it.
