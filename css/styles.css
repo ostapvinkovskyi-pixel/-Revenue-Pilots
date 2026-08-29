@@ -451,31 +451,18 @@ a{color:inherit;}
     linear-gradient(168deg,#151C25,#0A0E14 66%);
   overflow:hidden;
 }
+.art-video{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  border-radius:inherit;
+  display:block;
+}
 .art-lens{
   position:absolute;top:15px;left:17px;
   width:9px;height:9px;border-radius:50%;
   background:rgba(226,189,100,.32);
   box-shadow:0 0 0 1px rgba(226,189,100,.22);
-}
-.art-play{
-  position:absolute;left:50%;top:50%;
-  width:0;height:0;
-  transform:translate(-38%,-50%);
-  border-left:26px solid rgba(245,242,234,.88);
-  border-top:16px solid transparent;
-  border-bottom:16px solid transparent;
-  filter:drop-shadow(0 6px 18px rgba(0,0,0,.65));
-}
-.art-progress{
-  position:absolute;left:20px;right:20px;bottom:30px;
-  height:3px;border-radius:100px;
-  background:rgba(245,242,234,.16);
-  overflow:hidden;
-}
-.art-progress i{
-  display:block;height:100%;width:42%;
-  border-radius:100px;
-  background:linear-gradient(90deg,var(--gold),var(--gold-hi));
 }
 
 /* --- floating glass cards --- */
