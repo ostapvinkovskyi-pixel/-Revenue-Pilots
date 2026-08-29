@@ -1,18 +1,29 @@
 import Stripe from "stripe";
+import { createHash } from "node:crypto";
 
 const DEFAULT_MAKE_WEBHOOK_URL = "https://hook.us2.make.com/qbvey2ub4psm3u7gg1mswes2g2hog19h";
+const MAKE_TOKEN_CONTEXT = "revenue-pilots-make-v1";
 
 function safe(value) {
   return value == null ? "" : String(value);
 }
 
-async function notifyMake(payload) {
+function makeToken(secret) {
+  return createHash("sha256")
+    .update(`${secret}|${MAKE_TOKEN_CONTEXT}`)
+    .digest("hex");
+}
+
+async function notifyMake(payload, internalSecret) {
   const makeUrl = process.env.MAKE_WEBHOOK_URL || DEFAULT_MAKE_WEBHOOK_URL;
 
   const response = await fetch(makeUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      ...payload,
+      make_token: makeToken(internalSecret)
+    })
   });
 
   if (!response.ok) {
@@ -72,7 +83,7 @@ export default {
             stripe_customer_id: safe(session.customer),
             subscription_id: safe(session.subscription),
             verified: true
-          });
+          }, webhookSecret);
 
           return new Response("ok", { status: 200 });
         }
@@ -96,7 +107,7 @@ export default {
           stripe_customer_id: safe(session.customer),
           subscription_id: safe(session.subscription),
           verified: true
-        });
+        }, webhookSecret);
       } else if (event.type === "invoice.payment_failed" || event.type === "customer.subscription.deleted") {
         // Kept defensively for any legacy subscription objects. The public launch
         // checkout no longer sells subscriptions.
@@ -110,7 +121,7 @@ export default {
           stripe_customer_id: safe(object.customer),
           subscription_id: safe(object.subscription || object.id),
           verified: true
-        });
+        }, webhookSecret);
       }
     } catch (error) {
       console.error("Webhook processing error", error);
