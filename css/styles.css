@@ -614,6 +614,11 @@ a{color:inherit;}
   margin:0;
   padding:0;
   list-style:none;
+  /* Size the row to its content. Without this the <ul> stays as wide as the
+     scrollport, the cards spill out of it, and the scroll container drops its
+     trailing padding — which puts the LAST card's centre snap point beyond
+     the maximum scroll, so mandatory snapping refuses to move at all. */
+  width:max-content;
 }
 
 .work-card{
@@ -628,12 +633,17 @@ a{color:inherit;}
   scroll-snap-align:start;
 }
 
-/* all five sit in one clean row once there is room for them */
-@media (min-width:1400px){
+/* three cards fit comfortably in the 1240px shell well before desktop
+   sizes run out — no need to wait for a 5-card-wide breakpoint. Matches the
+   min-width:1024px split used everywhere else on the page (nav, steps). */
+@media (min-width:1024px){
   .work-track{
-    --card-w:calc((100% - 4 * var(--work-gap)) / 5);
-    max-width:1500px;
+    --card-w:calc((100% - 2 * var(--work-gap)) / 3);
+    max-width:var(--shell);
   }
+  /* nothing overflows here, so the row goes back to filling the scrollport —
+     the percentage card width above needs a resolvable basis */
+  .work-grid{width:100%;}
 }
 
 /* --- "in production" placeholder cards --- */
@@ -761,7 +771,7 @@ a{color:inherit;}
 }
 .work-rail span.is-on{background:var(--gold);width:34px;}
 /* once every card is in view at once the rail has nothing left to say */
-@media (min-width:1400px){.work-rail{display:none;}}
+@media (min-width:1024px){.work-rail{display:none;}}
 
 .work-disclosure{
   margin-top:clamp(34px,4.5vw,54px);
