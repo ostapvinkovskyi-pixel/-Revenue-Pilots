@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { createHash } from "node:crypto";
 
+const DEFAULT_MAKE_WEBHOOK_URL = "https://hook.us2.make.com/qbvey2ub4psm3u7gg1mswes2g2hog19h";
 const MAKE_TOKEN_CONTEXT = "revenue-pilots-make-v1";
 
 function safe(value) {
@@ -14,10 +15,7 @@ function makeToken(secret) {
 }
 
 async function notifyMake(payload, internalSecret) {
-  const makeUrl = process.env.MAKE_WEBHOOK_URL;
-  if (!makeUrl) {
-    throw new Error("MAKE_WEBHOOK_URL is not configured");
-  }
+  const makeUrl = process.env.MAKE_WEBHOOK_URL || DEFAULT_MAKE_WEBHOOK_URL;
 
   const response = await fetch(makeUrl, {
     method: "POST",
@@ -41,8 +39,7 @@ export default {
 
     const secret = process.env.STRIPE_SECRET_KEY;
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    const makeUrl = process.env.MAKE_WEBHOOK_URL;
-    if (!secret || !webhookSecret || !makeUrl) {
+    if (!secret || !webhookSecret) {
       return new Response("Stripe webhook is not configured", { status: 503 });
     }
 
