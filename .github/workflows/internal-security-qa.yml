@@ -11,6 +11,7 @@ jobs:
     steps:
       - name: Validate authenticated production API path
         run: |
+          echo 'Testing authenticated path after production restore.'
           curl --fail-with-body --silent --show-error \
             -X POST 'https://www.revenuepilot.company/api/lead' \
             -H 'content-type: application/json' \
