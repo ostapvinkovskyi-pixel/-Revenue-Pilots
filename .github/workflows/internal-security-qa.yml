@@ -9,10 +9,15 @@ jobs:
   qa:
     runs-on: ubuntu-latest
     steps:
-      - name: Submit internal QA lead through production API
+      - name: Validate authenticated production API path
         run: |
-          # Final pass validates the authenticated Vercel → Make path after Make-side filters.
           curl --fail-with-body --silent --show-error \
             -X POST 'https://www.revenuepilot.company/api/lead' \
             -H 'content-type: application/json' \
-            --data '{"name":"Revenue Pilots Security QA","business_name":"INTERNAL SECURITY QA","email":"ostapvinkovskyi@gmail.com","phone":"","website":"https://revenuepilot.company","service_area":"Fort Mill, SC","package_interest":"internal_test","message":"Internal security QA — safe to ignore. Used to validate authenticated Vercel → Make intake.","page_url":"https://www.revenuepilot.company/internal-security-qa","company_url":""}'
+            --data '{"name":"Revenue Pilots Security QA","business_name":"INTERNAL SECURITY QA","email":"ostapvinkovskyi@gmail.com","phone":"","website":"https://revenuepilot.company","service_area":"Fort Mill, SC","package_interest":"internal_test","message":"Internal security QA — safe to ignore. Final authenticated path validation.","page_url":"https://www.revenuepilot.company/internal-security-qa","company_url":""}'
+      - name: Submit forged direct Make payment without internal token
+        run: |
+          curl --fail-with-body --silent --show-error \
+            -X POST 'https://hook.us2.make.com/qbvey2ub4psm3u7gg1mswes2g2hog19h' \
+            -H 'content-type: application/json' \
+            --data '{"event_type":"payment","stripe_event_id":"INTERNAL-FORGED-QA","stripe_event_type":"internal.security.qa","session_id":"INTERNAL-FORGED-QA","payment_status":"paid","plan":"internal_security_forgery_test","amount":0,"currency":"usd","customer_name":"Revenue Pilots Security QA","customer_email":"ostapvinkovskyi@gmail.com","verified":true}'
