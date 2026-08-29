@@ -50,13 +50,39 @@ export default {
         const email = session.customer_details?.email || session.customer_email || "";
         const name = session.customer_details?.name || "";
         const phone = session.customer_details?.phone || "";
+        const paymentStatus = safe(session.payment_status || session.status);
+
+        // Never open a production order until Stripe says this one-time Checkout is paid.
+        // The launch checkout currently accepts card payments only, but keep this guard
+        // so a future payment-method change cannot silently create unpaid orders.
+        if (session.payment_status !== "paid") {
+          await notifyMake({
+            event_type: "payment_issue",
+            stripe_event_id: event.id,
+            stripe_event_type: event.type,
+            session_id: safe(session.id),
+            payment_status: paymentStatus || "not_paid",
+            mode: safe(session.mode),
+            plan: safe(session.metadata?.plan),
+            amount: typeof session.amount_total === "number" ? session.amount_total / 100 : "",
+            currency: safe(session.currency || "usd"),
+            customer_name: safe(name),
+            customer_email: safe(email),
+            phone: safe(phone),
+            stripe_customer_id: safe(session.customer),
+            subscription_id: safe(session.subscription),
+            verified: true
+          });
+
+          return new Response("ok", { status: 200 });
+        }
 
         await notifyMake({
           event_type: "payment",
           stripe_event_id: event.id,
           stripe_event_type: event.type,
           session_id: safe(session.id),
-          payment_status: safe(session.payment_status || session.status),
+          payment_status: paymentStatus,
           mode: safe(session.mode),
           plan: safe(session.metadata?.plan),
           amount: typeof session.amount_total === "number" ? session.amount_total / 100 : "",
@@ -72,6 +98,8 @@ export default {
           verified: true
         });
       } else if (event.type === "invoice.payment_failed" || event.type === "customer.subscription.deleted") {
+        // Kept defensively for any legacy subscription objects. The public launch
+        // checkout no longer sells subscriptions.
         const object = event.data.object;
         await notifyMake({
           event_type: "payment_issue",
