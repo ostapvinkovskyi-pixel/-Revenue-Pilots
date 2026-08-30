@@ -76,46 +76,130 @@
     restorePortfolioHome();
 
     var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var grid = document.querySelector(".portfolio-grid");
     var videos = Array.prototype.slice.call(document.querySelectorAll(".portfolio-video"));
-    var activeVideo = null;
+    var carousel = null;
+    var autoTimer = null;
+    var moving = false;
+    var moveMode = "next";
+    var pointerStartX = null;
 
     function safePlay(video){
-      if(!video || reduceMotion) return;
+      if(!video || reduceMotion || video.dataset.userPaused === "1") return;
       video.muted = true;
       var p = video.play();
       if(p && typeof p.catch === "function") p.catch(function(){});
-    }
-
-    function pauseOthers(except){
-      videos.forEach(function(v){
-        if(v !== except && !v.paused) v.pause();
-        var card = v.closest(".portfolio-card");
-        if(card && v !== except) card.classList.remove("is-playing");
-      });
-    }
-
-    function activate(video){
-      if(!video) return;
-      pauseOthers(video);
-      activeVideo = video;
-      safePlay(video);
       var card = video.closest(".portfolio-card");
       if(card) card.classList.add("is-playing");
     }
 
+    function pauseVideo(video){
+      if(!video) return;
+      video.pause();
+      var card = video.closest(".portfolio-card");
+      if(card) card.classList.remove("is-playing");
+    }
+
+    function cardStep(){
+      if(!grid || !grid.children.length) return 0;
+      var card = grid.children[0];
+      var gap = parseFloat(window.getComputedStyle(grid).gap) || 0;
+      return card.getBoundingClientRect().width + gap;
+    }
+
+    function finishMove(){
+      if(!grid || !moving) return;
+      if(moveMode === "next") grid.appendChild(grid.children[0]);
+      grid.style.transition = "none";
+      grid.style.transform = "translate3d(0,0,0)";
+      grid.offsetHeight;
+      moving = false;
+    }
+
+    function moveNext(){
+      if(!grid || moving || grid.children.length < 2) return;
+      if(reduceMotion){ grid.appendChild(grid.children[0]); return; }
+      var step = cardStep();
+      if(!step) return;
+      moving = true;
+      moveMode = "next";
+      grid.style.transition = "transform 620ms cubic-bezier(.22,.72,.2,1)";
+      grid.style.transform = "translate3d(-"+step+"px,0,0)";
+    }
+
+    function movePrev(){
+      if(!grid || moving || grid.children.length < 2) return;
+      var last = grid.children[grid.children.length-1];
+      grid.insertBefore(last,grid.children[0]);
+      if(reduceMotion) return;
+      var step = cardStep();
+      if(!step) return;
+      moving = true;
+      moveMode = "prev";
+      grid.style.transition = "none";
+      grid.style.transform = "translate3d(-"+step+"px,0,0)";
+      grid.offsetHeight;
+      requestAnimationFrame(function(){
+        grid.style.transition = "transform 620ms cubic-bezier(.22,.72,.2,1)";
+        grid.style.transform = "translate3d(0,0,0)";
+      });
+    }
+
+    function stopAuto(){
+      if(autoTimer){ window.clearInterval(autoTimer); autoTimer = null; }
+    }
+
+    function startAuto(){
+      stopAuto();
+      if(!reduceMotion && !document.hidden) autoTimer = window.setInterval(moveNext,4300);
+    }
+
+    if(grid && grid.children.length > 1){
+      carousel = document.createElement("div");
+      carousel.className = "portfolio-carousel";
+      carousel.setAttribute("role","region");
+      carousel.setAttribute("aria-label","Selected spec work carousel");
+      grid.parentNode.insertBefore(carousel,grid);
+      carousel.appendChild(grid);
+
+      var controls = document.createElement("div");
+      controls.className = "portfolio-controls";
+      controls.innerHTML = '<p class="portfolio-control-copy">7 selected concepts · 3 in view · loops automatically</p><div class="portfolio-control-buttons"><button type="button" class="portfolio-arrow portfolio-prev" aria-label="Previous creative">←</button><button type="button" class="portfolio-arrow portfolio-next" aria-label="Next creative">→</button></div>';
+      carousel.parentNode.insertBefore(controls,carousel.nextSibling);
+
+      controls.querySelector(".portfolio-prev").addEventListener("click",function(){ movePrev(); startAuto(); });
+      controls.querySelector(".portfolio-next").addEventListener("click",function(){ moveNext(); startAuto(); });
+      grid.addEventListener("transitionend",function(e){ if(e.propertyName === "transform") finishMove(); });
+
+      carousel.addEventListener("mouseenter",stopAuto);
+      carousel.addEventListener("mouseleave",startAuto);
+      carousel.addEventListener("focusin",stopAuto);
+      carousel.addEventListener("focusout",startAuto);
+      carousel.addEventListener("pointerdown",function(e){ pointerStartX = e.clientX; stopAuto(); });
+      carousel.addEventListener("pointerup",function(e){
+        if(pointerStartX !== null){
+          var delta = e.clientX - pointerStartX;
+          if(delta > 55) movePrev();
+          else if(delta < -55) moveNext();
+        }
+        pointerStartX = null;
+        startAuto();
+      });
+      carousel.addEventListener("pointercancel",function(){ pointerStartX = null; startAuto(); });
+      document.addEventListener("visibilitychange",function(){ if(document.hidden) stopAuto(); else startAuto(); });
+      startAuto();
+    }
+
+    /* Play only the portfolio videos that are actually visible inside the carousel.
+       On desktop this means up to three at once; off-screen videos pause. */
     if(videos.length && !reduceMotion && "IntersectionObserver" in window){
-      var visibility = new Map();
-      var observer = new IntersectionObserver(function(entries){
-        entries.forEach(function(entry){ visibility.set(entry.target,entry.intersectionRatio); });
-        var best = null, bestRatio = .34;
-        videos.forEach(function(v){
-          var r = visibility.get(v) || 0;
-          if(r > bestRatio){ best = v; bestRatio = r; }
+      var videoObserver = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting && entry.intersectionRatio >= .46) safePlay(entry.target);
+          else pauseVideo(entry.target);
         });
-        if(best && best !== activeVideo) activate(best);
-        if(!best && activeVideo){ activeVideo.pause(); activeVideo = null; }
-      },{threshold:[0,.25,.4,.6,.8],rootMargin:"-8% 0px -8% 0px"});
-      videos.forEach(function(v){ observer.observe(v); });
+      },{root:carousel || null,threshold:[0,.25,.46,.7,.95]});
+      videos.forEach(function(v){ videoObserver.observe(v); });
     }
 
     Array.prototype.slice.call(document.querySelectorAll(".portfolio-play")).forEach(function(btn){
@@ -123,8 +207,8 @@
         var card = btn.closest(".portfolio-card");
         var video = card && card.querySelector(".portfolio-video");
         if(!video) return;
-        if(video.paused){ activate(video); }
-        else{ video.pause(); card.classList.remove("is-playing"); if(activeVideo===video) activeVideo=null; }
+        if(video.paused){ video.dataset.userPaused = "0"; safePlay(video); }
+        else{ video.dataset.userPaused = "1"; pauseVideo(video); }
       });
     });
 
