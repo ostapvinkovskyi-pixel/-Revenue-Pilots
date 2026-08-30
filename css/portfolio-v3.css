@@ -1,6 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&display=swap');
+
 /* Revenue Pilots — Portfolio v3
-   Built to make performance-creative capability legible in seconds.
-   Uses variables and shared components from css/styles.css. */
+   Performance-creative capability made legible in seconds. */
 
 .hero-v3{
   position:relative;
@@ -26,19 +27,30 @@
   gap:clamp(46px,7vw,96px);
 }
 .hero-v3-copy{position:relative;z-index:2;max-width:760px;}
+.hero-v3-title,
+.section-title,
+.hook-lab-title,
+.more-work-title,
+.trust-title,
+.price-name,
+.portfolio-title{
+  font-family:"Inter Tight",var(--font-sans),sans-serif;
+}
 .hero-v3-title{
   max-width:12ch;
   margin:0 0 24px;
   font-size:clamp(48px,7.2vw,86px);
+  font-weight:700;
   line-height:.98;
-  letter-spacing:-.045em;
+  letter-spacing:-.05em;
 }
 .hero-v3-title span{
   display:block;
-  font-family:var(--font-serif);
-  font-weight:400;
-  font-style:italic;
-  letter-spacing:-.025em;
+  margin-top:.08em;
+  font-family:"Inter Tight",var(--font-sans),sans-serif;
+  font-weight:600;
+  font-style:normal;
+  letter-spacing:-.045em;
   color:var(--gold-hi);
 }
 .hero-v3-sub{
@@ -116,23 +128,34 @@
 .proof-kicker{display:block;margin-bottom:5px;font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);}
 .proof-copy{font-size:14px;color:var(--text-2);line-height:1.45;}
 
-.portfolio-v3{padding-top:clamp(84px,10vw,124px);}
+.portfolio-v3{padding-top:clamp(84px,10vw,124px);overflow:hidden;}
 .portfolio-head{display:flex;justify-content:space-between;align-items:end;gap:36px;margin-bottom:44px;}
 .portfolio-head .section-head{margin:0;}
 .portfolio-side-note{max-width:360px;font-size:13.5px;color:var(--text-3);line-height:1.55;}
+.portfolio-carousel{
+  position:relative;
+  overflow:hidden;
+  width:100%;
+  padding:4px 1px 8px;
+  touch-action:pan-y;
+}
 .portfolio-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:clamp(18px,2vw,28px);
+  --portfolio-gap:clamp(18px,2vw,28px);
+  display:flex;
+  gap:var(--portfolio-gap);
+  width:100%;
+  transform:translate3d(0,0,0);
+  will-change:transform;
 }
 .portfolio-card{
+  flex:0 0 calc((100% - (var(--portfolio-gap) * 2))/3);
   min-width:0;
   border:1px solid rgba(255,255,255,.095);
   border-radius:22px;
   background:linear-gradient(180deg,rgba(255,255,255,.032),rgba(255,255,255,.012));
   overflow:hidden;
   box-shadow:0 28px 60px -46px rgba(0,0,0,.92);
-  transition:transform 320ms var(--ease),border-color 320ms var(--ease),box-shadow 320ms var(--ease);
+  transition:transform 320ms var(--ease),border-color 320ms var(--ease),box-shadow 320ms var(--ease),opacity 320ms var(--ease);
 }
 .portfolio-card:hover{transform:translateY(-5px);border-color:rgba(226,189,100,.25);box-shadow:0 35px 72px -44px rgba(0,0,0,1),0 0 0 1px rgba(197,154,60,.04);}
 .portfolio-frame{position:relative;aspect-ratio:9/16;background:#06080c;overflow:hidden;}
@@ -154,12 +177,20 @@
 .portfolio-card.is-playing .portfolio-play::before{width:8px;height:10px;border:0;border-left:3px solid white;border-right:3px solid white;margin:0;}
 .portfolio-meta{padding:18px 18px 20px;}
 .portfolio-type{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
-.portfolio-title{font-size:19px;line-height:1.15;margin-bottom:8px;}
+.portfolio-title{font-size:19px;line-height:1.15;margin-bottom:8px;letter-spacing:-.02em;}
 .portfolio-strategy{font-size:13.5px;color:var(--text-3);line-height:1.5;}
+.portfolio-controls{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:18px;}
+.portfolio-control-copy{font-size:12px;color:var(--text-3);}
+.portfolio-control-buttons{display:flex;gap:8px;}
+.portfolio-arrow{
+  width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.018);color:var(--text);
+  display:grid;place-items:center;cursor:pointer;font-size:18px;transition:border-color 220ms var(--ease),background 220ms var(--ease),transform 220ms var(--ease);
+}
+.portfolio-arrow:hover{border-color:rgba(226,189,100,.32);background:rgba(197,154,60,.08);transform:translateY(-1px);}
 
 .hook-lab{margin-top:clamp(70px,8vw,100px);padding:28px;border:1px solid rgba(226,189,100,.16);border-radius:24px;background:radial-gradient(120% 160% at 0% 0%,rgba(197,154,60,.08),transparent 50%),rgba(255,255,255,.016);}
 .hook-lab-top{display:flex;justify-content:space-between;gap:28px;align-items:end;margin-bottom:24px;}
-.hook-lab-title{font-size:clamp(28px,3vw,40px);}
+.hook-lab-title{font-size:clamp(28px,3vw,40px);letter-spacing:-.025em;}
 .hook-lab-copy{max-width:520px;color:var(--text-2);font-size:14px;}
 .hook-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
 .hook-card{min-height:142px;padding:18px;border:1px solid var(--line);border-radius:15px;background:rgba(7,9,13,.68);display:flex;flex-direction:column;justify-content:space-between;}
@@ -171,7 +202,9 @@
 .capability-grid{display:flex;flex-wrap:wrap;gap:10px;}
 .capability-pill{padding:10px 13px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.018);font-size:13px;color:var(--text-2);}
 
-.more-work{margin-top:clamp(72px,8vw,100px);padding-top:34px;border-top:1px solid var(--line);}
+/* The seven selected pieces are now the primary portfolio loop. The old three-card range
+   remains in the markup for rollback/history, but no longer lengthens the live homepage. */
+.more-work{display:none;}
 .more-work-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:24px;}
 .more-work-title{font-size:clamp(24px,2.8vw,34px);}
 .more-work-note{font-size:13px;color:var(--text-3);max-width:520px;}
@@ -190,17 +223,53 @@
 
 .spec-disclosure{margin-top:25px;font-size:12.5px;color:var(--text-3);max-width:850px;}
 
+/* Four Steps: restore full visual weight. */
+#how .steps{gap:clamp(14px,1.6vw,22px);align-items:stretch;}
+#how .step{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  padding:14px 14px 24px;
+  border:1px solid rgba(255,255,255,.085);
+  border-radius:20px;
+  background:linear-gradient(180deg,rgba(255,255,255,.026),rgba(255,255,255,.008));
+  overflow:hidden;
+}
+#how .step-icon{
+  position:relative;
+  display:block;
+  width:100%;
+  height:clamp(150px,12vw,205px);
+  margin:0 0 22px;
+  border-radius:15px;
+  overflow:hidden;
+  border:1px solid rgba(226,189,100,.14);
+  background:#0b0d11;
+  box-shadow:0 20px 40px -32px rgba(197,154,60,.7);
+}
+#how .step-icon img{
+  width:100%;height:100%;display:block;object-fit:cover;object-position:center;
+  transform:scale(1.04);filter:brightness(1.08) contrast(1.06) saturate(.98);
+  transition:transform 450ms var(--ease),filter 450ms var(--ease);
+}
+#how .step:hover .step-icon img{transform:scale(1.09);filter:brightness(1.14) contrast(1.07) saturate(1.02);}
+#how .step-num{margin-bottom:10px;}
+#how .step-title{font-family:"Inter Tight",var(--font-sans),sans-serif;font-size:clamp(18px,1.45vw,21px);letter-spacing:-.018em;margin-bottom:8px;}
+#how .step-body{font-size:14px;line-height:1.55;color:var(--text-2);}
+
 .mobile-revenue-bar{display:none;}
 
 @media (max-width:1024px){
   .hero-v3-grid{grid-template-columns:minmax(0,1fr) 300px;gap:42px;}
-  .portfolio-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .portfolio-card{flex-basis:calc((100% - var(--portfolio-gap))/2);}
   .hook-grid{grid-template-columns:repeat(2,1fr);}
   .proof-strip-inner{grid-template-columns:repeat(2,1fr);}
   .proof-item:nth-child(2){border-right:0;}
   .proof-item:nth-child(-n+2){border-bottom:1px solid var(--line);}
   .proof-item:first-child,.proof-item:nth-child(3){padding-left:0;}
   .legacy-grid{grid-template-columns:1fr;}
+  #how .step-icon{height:170px;}
 }
 
 @media (max-width:760px){
@@ -210,11 +279,11 @@
   .showreel-wrap{justify-self:center;width:min(82vw,335px);}
   .portfolio-head,.hook-lab-top,.more-work-head{display:block;}
   .portfolio-side-note,.hook-lab-copy,.more-work-note{margin-top:14px;}
-  .portfolio-grid{grid-template-columns:1fr;gap:18px;}
-  .portfolio-card{display:grid;grid-template-columns:minmax(0,46%) 1fr;align-items:stretch;}
-  .portfolio-frame{aspect-ratio:9/16;}
-  .portfolio-meta{align-self:center;padding:18px 16px;}
+  .portfolio-card{flex-basis:88%;border-radius:19px;}
+  .portfolio-meta{padding:16px 15px 18px;}
   .portfolio-title{font-size:18px;}
+  .portfolio-controls{margin-top:14px;}
+  .portfolio-control-copy{max-width:62%;font-size:11px;}
   .hook-lab{padding:20px 16px;overflow:hidden;}
   .hook-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px;gap:10px;}
   .hook-card{min-width:78vw;scroll-snap-align:center;}
@@ -225,6 +294,9 @@
   .legacy-card video{width:84px;}
   .price-value-line{display:block;}
   .price-value-line .price-pitch{margin-top:12px;text-align:left;}
+  #how .steps{display:grid;grid-template-columns:1fr;gap:16px;}
+  #how .step{padding:14px 14px 22px;}
+  #how .step-icon{height:min(56vw,270px);}
   .mobile-revenue-bar{
     position:fixed;z-index:95;left:12px;right:12px;bottom:12px;
     min-height:54px;padding:8px 10px 8px 16px;
@@ -242,7 +314,7 @@
 }
 
 @media (max-width:520px){
-  .portfolio-card{grid-template-columns:44% 1fr;border-radius:17px;}
+  .portfolio-card{flex-basis:91%;}
   .portfolio-meta{padding:15px 13px;}
   .portfolio-strategy{font-size:12px;}
   .portfolio-chip{font-size:8.5px;padding:5px 7px;}
@@ -250,6 +322,6 @@
 }
 
 @media (prefers-reduced-motion:reduce){
-  .portfolio-card{transition:none;}
-  .portfolio-card:hover{transform:none;}
+  .portfolio-card,#how .step-icon img{transition:none;}
+  .portfolio-card:hover,#how .step:hover .step-icon img{transform:none;}
 }
