@@ -80,9 +80,27 @@
     var videos = Array.prototype.slice.call(document.querySelectorAll(".portfolio-video"));
     var carousel = null;
     var autoTimer = null;
-    var moving = false;
-    var moveMode = "next";
+    var restartTimer = null;
+    var normalizeTimer = null;
     var pointerStartX = null;
+    var pointerStartScroll = 0;
+    var dragging = false;
+
+    var nativeStyle = document.createElement("style");
+    nativeStyle.id = "portfolio-native-scroll";
+    nativeStyle.textContent = [
+      ".portfolio-carousel{overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory;scroll-behavior:smooth;overscroll-behavior-x:contain;touch-action:pan-x pan-y!important;cursor:grab;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:10px!important;}",
+      ".portfolio-carousel::-webkit-scrollbar{display:none;}",
+      ".portfolio-carousel.is-dragging{cursor:grabbing;scroll-snap-type:none!important;user-select:none;}",
+      ".portfolio-carousel.is-dragging *{pointer-events:none!important;}",
+      ".portfolio-grid{transform:none!important;transition:none!important;will-change:auto!important;width:100%!important;}",
+      ".portfolio-card{scroll-snap-align:start;scroll-snap-stop:normal;}",
+      ".portfolio-controls{display:none!important;}",
+      ".portfolio-scroll-hint{margin:12px 0 0;font-size:11.5px;line-height:1.4;color:var(--text-3);letter-spacing:.015em;}",
+      "@media (hover:hover) and (pointer:fine){.portfolio-carousel:hover{cursor:grab;}}",
+      "@media (prefers-reduced-motion:reduce){.portfolio-carousel{scroll-behavior:auto;}}"
+    ].join("");
+    document.head.appendChild(nativeStyle);
 
     function safePlay(video){
       if(!video || reduceMotion || video.dataset.userPaused === "1") return;
@@ -107,91 +125,170 @@
       return card.getBoundingClientRect().width + gap;
     }
 
-    function finishMove(){
-      if(!grid || !moving) return;
-      if(moveMode === "next") grid.appendChild(grid.children[0]);
-      grid.style.transition = "none";
-      grid.style.transform = "translate3d(0,0,0)";
-      grid.offsetHeight;
-      moving = false;
+    function clearTimers(){
+      if(autoTimer){ window.clearTimeout(autoTimer); autoTimer = null; }
+      if(restartTimer){ window.clearTimeout(restartTimer); restartTimer = null; }
     }
 
-    function moveNext(){
-      if(!grid || moving || grid.children.length < 2) return;
-      if(reduceMotion){ grid.appendChild(grid.children[0]); return; }
+    function scheduleAuto(delay){
+      clearTimers();
+      if(reduceMotion || document.hidden || !carousel) return;
+      autoTimer = window.setTimeout(function(){
+        var step = cardStep();
+        if(step){
+          carousel.scrollBy({left:step,behavior:"smooth"});
+          scheduleNormalize(900);
+        }
+        scheduleAuto(8200);
+      },delay || 8200);
+    }
+
+    function pauseForUser(){
+      clearTimers();
+      if(reduceMotion || !carousel) return;
+      restartTimer = window.setTimeout(function(){ scheduleAuto(8200); },12000);
+    }
+
+    function normalizeLoop(){
+      if(!carousel || !grid || dragging) return;
+      var step = cardStep();
+      if(!step || grid.children.length < 4) return;
+
+      var previousBehavior = carousel.style.scrollBehavior;
+      carousel.style.scrollBehavior = "auto";
+
+      while(carousel.scrollLeft > step * 2.65){
+        grid.appendChild(grid.children[0]);
+        carousel.scrollLeft -= step;
+      }
+      while(carousel.scrollLeft < step * 1.35){
+        grid.insertBefore(grid.children[grid.children.length-1],grid.children[0]);
+        carousel.scrollLeft += step;
+      }
+
+      carousel.style.scrollBehavior = previousBehavior;
+    }
+
+    function scheduleNormalize(delay){
+      if(normalizeTimer) window.clearTimeout(normalizeTimer);
+      normalizeTimer = window.setTimeout(normalizeLoop,delay || 180);
+    }
+
+    function centerLoopBuffer(){
+      if(!carousel || !grid || grid.children.length < 5) return;
       var step = cardStep();
       if(!step) return;
-      moving = true;
-      moveMode = "next";
-      grid.style.transition = "transform 620ms cubic-bezier(.22,.72,.2,1)";
-      grid.style.transform = "translate3d(-"+step+"px,0,0)";
-    }
-
-    function movePrev(){
-      if(!grid || moving || grid.children.length < 2) return;
-      var last = grid.children[grid.children.length-1];
-      grid.insertBefore(last,grid.children[0]);
-      if(reduceMotion) return;
-      var step = cardStep();
-      if(!step) return;
-      moving = true;
-      moveMode = "prev";
-      grid.style.transition = "none";
-      grid.style.transform = "translate3d(-"+step+"px,0,0)";
-      grid.offsetHeight;
-      requestAnimationFrame(function(){
-        grid.style.transition = "transform 620ms cubic-bezier(.22,.72,.2,1)";
-        grid.style.transform = "translate3d(0,0,0)";
-      });
-    }
-
-    function stopAuto(){
-      if(autoTimer){ window.clearInterval(autoTimer); autoTimer = null; }
-    }
-
-    function startAuto(){
-      stopAuto();
-      if(!reduceMotion && !document.hidden) autoTimer = window.setInterval(moveNext,4300);
+      grid.insertBefore(grid.children[grid.children.length-1],grid.children[0]);
+      grid.insertBefore(grid.children[grid.children.length-1],grid.children[0]);
+      var previousBehavior = carousel.style.scrollBehavior;
+      carousel.style.scrollBehavior = "auto";
+      carousel.scrollLeft = step * 2;
+      carousel.style.scrollBehavior = previousBehavior;
     }
 
     if(grid && grid.children.length > 1){
       carousel = document.createElement("div");
       carousel.className = "portfolio-carousel";
       carousel.setAttribute("role","region");
-      carousel.setAttribute("aria-label","Selected spec work carousel");
+      carousel.setAttribute("aria-label","Selected spec work. Drag, swipe, or scroll horizontally to browse.");
+      carousel.setAttribute("tabindex","0");
       grid.parentNode.insertBefore(carousel,grid);
       carousel.appendChild(grid);
 
-      var controls = document.createElement("div");
-      controls.className = "portfolio-controls";
-      controls.innerHTML = '<p class="portfolio-control-copy">7 selected concepts · 3 in view · loops automatically</p><div class="portfolio-control-buttons"><button type="button" class="portfolio-arrow portfolio-prev" aria-label="Previous creative">←</button><button type="button" class="portfolio-arrow portfolio-next" aria-label="Next creative">→</button></div>';
-      carousel.parentNode.insertBefore(controls,carousel.nextSibling);
+      var hint = document.createElement("p");
+      hint.className = "portfolio-scroll-hint";
+      hint.textContent = "Drag with a mouse · swipe on mobile · scroll with a trackpad";
+      carousel.parentNode.insertBefore(hint,carousel.nextSibling);
 
-      controls.querySelector(".portfolio-prev").addEventListener("click",function(){ movePrev(); startAuto(); });
-      controls.querySelector(".portfolio-next").addEventListener("click",function(){ moveNext(); startAuto(); });
-      grid.addEventListener("transitionend",function(e){ if(e.propertyName === "transform") finishMove(); });
-
-      carousel.addEventListener("mouseenter",stopAuto);
-      carousel.addEventListener("mouseleave",startAuto);
-      carousel.addEventListener("focusin",stopAuto);
-      carousel.addEventListener("focusout",startAuto);
-      carousel.addEventListener("pointerdown",function(e){ pointerStartX = e.clientX; stopAuto(); });
-      carousel.addEventListener("pointerup",function(e){
-        if(pointerStartX !== null){
-          var delta = e.clientX - pointerStartX;
-          if(delta > 55) movePrev();
-          else if(delta < -55) moveNext();
-        }
-        pointerStartX = null;
-        startAuto();
+      requestAnimationFrame(function(){
+        centerLoopBuffer();
+        scheduleAuto(8200);
       });
-      carousel.addEventListener("pointercancel",function(){ pointerStartX = null; startAuto(); });
-      document.addEventListener("visibilitychange",function(){ if(document.hidden) stopAuto(); else startAuto(); });
-      startAuto();
+
+      carousel.addEventListener("scroll",function(){ scheduleNormalize(220); },{passive:true});
+      carousel.addEventListener("wheel",pauseForUser,{passive:true});
+      carousel.addEventListener("touchstart",pauseForUser,{passive:true});
+      carousel.addEventListener("mouseenter",function(){ clearTimers(); });
+      carousel.addEventListener("mouseleave",function(){ scheduleAuto(5000); });
+      carousel.addEventListener("focusin",function(){ clearTimers(); });
+      carousel.addEventListener("focusout",function(){ scheduleAuto(5000); });
+
+      carousel.addEventListener("pointerdown",function(e){
+        if(e.pointerType !== "mouse" || e.button !== 0) return;
+        pointerStartX = e.clientX;
+        pointerStartScroll = carousel.scrollLeft;
+        dragging = false;
+        carousel.setPointerCapture(e.pointerId);
+        clearTimers();
+      });
+
+      carousel.addEventListener("pointermove",function(e){
+        if(pointerStartX === null || e.pointerType !== "mouse") return;
+        var dx = e.clientX - pointerStartX;
+        if(!dragging && Math.abs(dx) > 4){
+          dragging = true;
+          carousel.classList.add("is-dragging");
+        }
+        if(dragging){
+          e.preventDefault();
+          carousel.scrollLeft = pointerStartScroll - dx;
+        }
+      });
+
+      function finishPointer(e){
+        if(pointerStartX === null) return;
+        try{ if(carousel.hasPointerCapture(e.pointerId)) carousel.releasePointerCapture(e.pointerId); }catch(err){}
+        pointerStartX = null;
+        if(dragging){
+          dragging = false;
+          carousel.classList.remove("is-dragging");
+          var step = cardStep();
+          if(step){
+            var target = Math.round(carousel.scrollLeft / step) * step;
+            carousel.scrollTo({left:target,behavior:"smooth"});
+          }
+          scheduleNormalize(700);
+        }
+        pauseForUser();
+      }
+
+      carousel.addEventListener("pointerup",finishPointer);
+      carousel.addEventListener("pointercancel",finishPointer);
+
+      carousel.addEventListener("keydown",function(e){
+        var step = cardStep();
+        if(!step) return;
+        if(e.key === "ArrowRight"){
+          e.preventDefault();
+          carousel.scrollBy({left:step,behavior:"smooth"});
+          pauseForUser();
+        }else if(e.key === "ArrowLeft"){
+          e.preventDefault();
+          carousel.scrollBy({left:-step,behavior:"smooth"});
+          pauseForUser();
+        }
+      });
+
+      window.addEventListener("resize",function(){
+        window.clearTimeout(normalizeTimer);
+        normalizeTimer = window.setTimeout(function(){
+          var step = cardStep();
+          if(step){
+            var previousBehavior = carousel.style.scrollBehavior;
+            carousel.style.scrollBehavior = "auto";
+            carousel.scrollLeft = step * 2;
+            carousel.style.scrollBehavior = previousBehavior;
+          }
+        },180);
+      });
+
+      document.addEventListener("visibilitychange",function(){
+        if(document.hidden) clearTimers();
+        else scheduleAuto(5000);
+      });
     }
 
-    /* Play only the portfolio videos that are actually visible inside the carousel.
-       On desktop this means up to three at once; off-screen videos pause. */
+    /* Play portfolio videos only while they are actually visible in the scroll area. */
     if(videos.length && !reduceMotion && "IntersectionObserver" in window){
       var videoObserver = new IntersectionObserver(function(entries){
         entries.forEach(function(entry){
@@ -209,6 +306,7 @@
         if(!video) return;
         if(video.paused){ video.dataset.userPaused = "0"; safePlay(video); }
         else{ video.dataset.userPaused = "1"; pauseVideo(video); }
+        pauseForUser();
       });
     });
 
