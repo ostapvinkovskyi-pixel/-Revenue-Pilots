@@ -10,7 +10,7 @@
 <meta property="og:description" content="The person behind Revenue Pilots and why the company exists.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.revenuepilot.company/about/">
-<meta property="og:image" content="https://www.revenuepilot.company/assets/brand/revenue-pilots-monogram-logo.png">
+<meta property="og:image" content="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/3988ca5c-dd0b-479e-bde3-7b9c4e93ab66.jpg">
 <link rel="canonical" href="https://www.revenuepilot.company/about/">
 <link rel="icon" href="../assets/brand/rp-monogram.png">
 <link rel="apple-touch-icon" href="../assets/brand/rp-monogram.png">
@@ -27,12 +27,17 @@
   .about-back{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 18px;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:#f4f3ef;text-decoration:none;font-size:.84rem;font-weight:700;}
   .about-back:hover{border-color:rgba(255,255,255,.42);}
   .founder-hero{padding:clamp(82px,10vw,142px) 0 clamp(96px,12vw,170px);}
-  .founder-wrap{max-width:980px;margin:0 auto;}
+  .founder-wrap{max-width:1120px;margin:0 auto;}
   .founder-kicker{display:flex;align-items:center;gap:12px;margin:0 0 30px;color:#d9b96e;font-size:.76rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;}
   .founder-kicker::before{content:"";width:34px;height:1px;background:#d9b96e;}
-  .founder-title{margin:0 0 54px;font-family:"Space Grotesk","Manrope",Arial,sans-serif;font-size:clamp(3rem,6.1vw,5.55rem);font-weight:600;line-height:.98;letter-spacing:-.055em;max-width:940px;text-wrap:balance;}
+  .founder-title{margin:0 0 58px;font-family:"Space Grotesk","Manrope",Arial,sans-serif;font-size:clamp(3rem,6.1vw,5.55rem);font-weight:600;line-height:.98;letter-spacing:-.055em;max-width:940px;text-wrap:balance;}
   .founder-title span{display:block;margin-top:14px;color:#aeb0ad;font-size:.80em;font-weight:500;line-height:1.04;letter-spacing:-.045em;font-style:normal;}
-  .founder-story{max-width:700px;margin-left:auto;padding-left:30px;border-left:1px solid rgba(217,185,110,.28);}
+  .founder-layout{display:grid;grid-template-columns:minmax(280px,390px) minmax(0,1fr);gap:clamp(42px,6vw,82px);align-items:start;}
+  .founder-photo-wrap{position:relative;}
+  .founder-photo-wrap::after{content:"";position:absolute;inset:14px -14px -14px 14px;border:1px solid rgba(217,185,110,.24);border-radius:24px;z-index:0;pointer-events:none;}
+  .founder-photo{position:relative;z-index:1;display:block;width:100%;aspect-ratio:3/4;object-fit:cover;object-position:center 45%;border-radius:24px;border:1px solid rgba(255,255,255,.10);box-shadow:0 28px 70px rgba(0,0,0,.28);background:#11151b;}
+  .founder-photo-caption{position:relative;z-index:1;margin:18px 0 0;color:#777a78;font-size:.78rem;letter-spacing:.02em;}
+  .founder-story{max-width:700px;padding-left:30px;border-left:1px solid rgba(217,185,110,.28);}
   .founder-story p{margin:0 0 24px;color:#c9c9c4;font-size:clamp(1.03rem,1.45vw,1.18rem);line-height:1.76;letter-spacing:-.012em;}
   .founder-story p:first-child{color:#f4f3ef;font-size:clamp(1.14rem,1.75vw,1.34rem);font-weight:600;line-height:1.62;}
   .founder-rule{height:1px;background:rgba(255,255,255,.1);margin:48px 0 34px;}
@@ -44,6 +49,12 @@
   .about-footer-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;color:#777a78;font-size:.82rem;}
   .about-footer a{color:#b8b8b3;text-decoration:none;}
   .about-footer a:hover{color:#f4f3ef;}
+  @media(max-width:860px){
+    .founder-layout{grid-template-columns:minmax(0,1fr);gap:48px;}
+    .founder-photo-wrap{max-width:480px;}
+    .founder-photo-wrap::after{inset:12px -12px -12px 12px;}
+    .founder-story{max-width:760px;}
+  }
   @media(max-width:700px){
     .about-header-inner{min-height:68px;}
     .about-back{min-height:38px;padding:0 14px;font-size:.8rem;}
@@ -51,7 +62,11 @@
     .founder-kicker{margin-bottom:24px;}
     .founder-title{margin-bottom:40px;font-size:clamp(2.8rem,12.5vw,4.4rem);letter-spacing:-.05em;}
     .founder-title span{margin-top:10px;font-size:.74em;line-height:1.08;}
-    .founder-story{margin-left:0;padding-left:18px;}
+    .founder-layout{gap:42px;}
+    .founder-photo-wrap{max-width:none;margin-right:10px;}
+    .founder-photo{border-radius:20px;}
+    .founder-photo-wrap::after{border-radius:20px;}
+    .founder-story{padding-left:18px;}
     .founder-story p{line-height:1.68;}
     .founder-signoff{align-items:flex-start;flex-direction:column;}
   }
@@ -76,24 +91,31 @@
         <p class="founder-kicker">The person behind Revenue Pilots</p>
         <h1 class="founder-title">I’m Ostap.<span>I build creative for businesses that deserve to be noticed.</span></h1>
 
-        <div class="founder-story">
-          <p>I started Revenue Pilots because I kept seeing the same problem: good businesses doing genuinely good work, but their advertising didn’t communicate that nearly as well as it could.</p>
+        <div class="founder-layout">
+          <figure class="founder-photo-wrap">
+            <img class="founder-photo" src="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/3988ca5c-dd0b-479e-bde3-7b9c4e93ab66.jpg" alt="Ostap Vinkovskyi, founder of Revenue Pilots, standing by the ocean" width="1536" height="2048" decoding="async" fetchpriority="high">
+            <figcaption class="founder-photo-caption">Ostap Vinkovskyi · Founder</figcaption>
+          </figure>
 
-          <p>I’ve always been drawn to creative work. I make music, build ideas from scratch, and spend a lot of time thinking about what makes someone stop, feel something, and pay attention. Revenue Pilots became a way to apply that same creative thinking to business.</p>
+          <div class="founder-story">
+            <p>I started Revenue Pilots because I kept seeing the same problem: good businesses doing genuinely good work, but their advertising didn’t communicate that nearly as well as it could.</p>
 
-          <p>My goal isn’t to sell companies more marketing for the sake of marketing. It’s to understand what makes a business valuable, find the clearest and strongest way to communicate it, and turn that into creative people actually want to watch.</p>
+            <p>I’ve always been drawn to creative work. I make music, build ideas from scratch, and spend a lot of time thinking about what makes someone stop, feel something, and pay attention. Revenue Pilots became a way to apply that same creative thinking to business.</p>
 
-          <p>I care about the details, I communicate directly, and I’d rather make something genuinely useful than promise results I can’t control.</p>
+            <p>My goal isn’t to sell companies more marketing for the sake of marketing. It’s to understand what makes a business valuable, find the clearest and strongest way to communicate it, and turn that into creative people actually want to watch.</p>
 
-          <p>Revenue Pilots is still being built — intentionally. One business, one project, and one piece of great work at a time.</p>
+            <p>I care about the details, I communicate directly, and I’d rather make something genuinely useful than promise results I can’t control.</p>
 
-          <div class="founder-rule" aria-hidden="true"></div>
-          <div class="founder-signoff">
-            <div>
-              <p class="founder-name">Ostap Vinkovskyi</p>
-              <p class="founder-role">Founder, Revenue Pilots</p>
+            <p>Revenue Pilots is still being built — intentionally. One business, one project, and one piece of great work at a time.</p>
+
+            <div class="founder-rule" aria-hidden="true"></div>
+            <div class="founder-signoff">
+              <div>
+                <p class="founder-name">Ostap Vinkovskyi</p>
+                <p class="founder-role">Founder, Revenue Pilots</p>
+              </div>
+              <p class="founder-note">Make the business look as good online as the work it does in real life.</p>
             </div>
-            <p class="founder-note">Make the business look as good online as the work it does in real life.</p>
           </div>
         </div>
       </div>
