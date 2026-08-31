@@ -95,11 +95,11 @@ window.RP_CONFIG = {
       style.id = 'rp-founder-inline-styles';
       style.textContent = `
         .section-founder-inline{padding-top:0;padding-bottom:clamp(72px,9vw,120px)}
-        .founder-window{position:relative;display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:clamp(32px,5vw,68px);align-items:center;padding:clamp(26px,4vw,50px);border:1px solid rgba(255,255,255,.10);border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));box-shadow:0 30px 80px rgba(0,0,0,.18);overflow:hidden}
+        .founder-window{position:relative;display:grid;grid-template-columns:minmax(180px,240px) minmax(0,1fr);gap:clamp(32px,4.5vw,58px);align-items:start;padding:clamp(26px,4vw,50px);border:1px solid rgba(255,255,255,.10);border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));box-shadow:0 30px 80px rgba(0,0,0,.18);overflow:hidden}
         .founder-window::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,rgba(217,185,110,.9),rgba(217,185,110,.08))}
-        .founder-window-photo{position:relative;margin:0;max-width:300px}
-        .founder-window-photo::after{content:"";position:absolute;inset:10px -10px -10px 10px;border:1px solid rgba(217,185,110,.22);border-radius:20px;z-index:0;pointer-events:none}
-        .founder-window-photo img{position:relative;z-index:1;display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center 28%;border-radius:20px;border:1px solid rgba(255,255,255,.10);background:#11151b}
+        .founder-window-photo{position:relative;margin:0;max-width:240px;align-self:start;justify-self:center}
+        .founder-window-photo::after{content:"";position:absolute;inset:9px -9px -9px 9px;border:1px solid rgba(217,185,110,.22);border-radius:20px;z-index:0;pointer-events:none}
+        .founder-window-photo img{position:relative;z-index:1;display:block;width:100%;height:auto;max-height:330px;object-fit:contain;border-radius:20px;border:1px solid rgba(255,255,255,.10);background:#11151b}
         .founder-window-copy{max-width:720px}
         .founder-window-copy .eyebrow{margin-bottom:18px}
         .founder-window-title{margin:0;color:#f4f3ef;font-family:"Manrope",Arial,sans-serif;font-size:clamp(2.1rem,4vw,3.8rem);font-weight:700;line-height:1.02;letter-spacing:-.055em}
@@ -110,8 +110,8 @@ window.RP_CONFIG = {
         .founder-window-name{margin:0;color:#f4f3ef;font-weight:800;font-size:1rem}
         .founder-window-role{margin:4px 0 0;color:#7f827f;font-size:.82rem}
         .founder-window-quote{max-width:330px;margin:0;color:#d9b96e;font-size:.95rem;font-weight:600;line-height:1.5}
-        @media(max-width:820px){.founder-window{grid-template-columns:1fr;gap:38px}.founder-window-photo{max-width:270px}.founder-window-copy{max-width:none}}
-        @media(max-width:560px){.founder-window{padding:24px 22px;border-radius:22px}.founder-window-photo{max-width:230px;margin:0 auto}.founder-window-photo img,.founder-window-photo::after{border-radius:17px}.founder-window-signoff{align-items:flex-start;flex-direction:column}.founder-window-title{font-size:2.25rem}}
+        @media(max-width:820px){.founder-window{grid-template-columns:1fr;gap:34px}.founder-window-photo{max-width:215px}.founder-window-copy{max-width:none}}
+        @media(max-width:560px){.founder-window{padding:24px 22px;border-radius:22px}.founder-window-photo{max-width:190px;margin:0 auto}.founder-window-photo img,.founder-window-photo::after{border-radius:17px}.founder-window-signoff{align-items:flex-start;flex-direction:column}.founder-window-title{font-size:2.25rem}}
       `;
       document.head.appendChild(style);
     }
@@ -124,7 +124,7 @@ window.RP_CONFIG = {
       <div class="shell">
         <div class="founder-window reveal">
           <figure class="founder-window-photo">
-            <img src="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/3988ca5c-dd0b-479e-bde3-7b9c4e93ab66.jpg" alt="Ostap Vinkovskyi, founder of Revenue Pilots, standing by the ocean" width="1536" height="2048" loading="lazy" decoding="async">
+            <img src="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/ae5475e9-b185-4db1-879c-73e0f1f4410a.jpg" alt="Ostap Vinkovskyi, founder of Revenue Pilots" width="1536" height="2048" loading="lazy" decoding="async">
           </figure>
           <div class="founder-window-copy">
             <p class="eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>The person behind Revenue Pilots</p>
