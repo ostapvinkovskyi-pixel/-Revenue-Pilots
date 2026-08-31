@@ -87,29 +87,70 @@ window.RP_CONFIG = {
     document.head.appendChild(schema);
   }
 
-  const applyRevenueMode = () => {
-    const addAboutLink = (nav, beforeSelector) => {
-      if (!nav || nav.querySelector('a[href="/about/"]')) return;
-      const link = document.createElement('a');
-      link.href = '/about/';
-      link.textContent = 'About';
-      const before = beforeSelector ? nav.querySelector(beforeSelector) : null;
-      if (before) nav.insertBefore(link, before);
-      else nav.appendChild(link);
-    };
+  const ensureFounderWindow = () => {
+    if (document.getElementById('about-founder')) return;
 
-    addAboutLink(document.querySelector('.nav-desktop'), 'a[href="#contact"]');
-    addAboutLink(document.getElementById('navMobile'), 'a[href="#contact"]');
-
-    const footerContact = document.querySelector('.footer-contact');
-    if (footerContact && !footerContact.querySelector('a[href="/about/"]')) {
-      const separator = document.createTextNode(' · ');
-      const about = document.createElement('a');
-      about.href = '/about/';
-      about.textContent = 'About Ostap';
-      footerContact.appendChild(separator);
-      footerContact.appendChild(about);
+    if (!document.getElementById('rp-founder-inline-styles')) {
+      const style = document.createElement('style');
+      style.id = 'rp-founder-inline-styles';
+      style.textContent = `
+        .section-founder-inline{padding-top:0;padding-bottom:clamp(72px,9vw,120px)}
+        .founder-window{position:relative;display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:clamp(32px,5vw,68px);align-items:center;padding:clamp(26px,4vw,50px);border:1px solid rgba(255,255,255,.10);border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));box-shadow:0 30px 80px rgba(0,0,0,.18);overflow:hidden}
+        .founder-window::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,rgba(217,185,110,.9),rgba(217,185,110,.08))}
+        .founder-window-photo{position:relative;margin:0;max-width:300px}
+        .founder-window-photo::after{content:"";position:absolute;inset:10px -10px -10px 10px;border:1px solid rgba(217,185,110,.22);border-radius:20px;z-index:0;pointer-events:none}
+        .founder-window-photo img{position:relative;z-index:1;display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center 28%;border-radius:20px;border:1px solid rgba(255,255,255,.10);background:#11151b}
+        .founder-window-copy{max-width:720px}
+        .founder-window-copy .eyebrow{margin-bottom:18px}
+        .founder-window-title{margin:0;color:#f4f3ef;font-family:"Manrope",Arial,sans-serif;font-size:clamp(2.1rem,4vw,3.8rem);font-weight:700;line-height:1.02;letter-spacing:-.055em}
+        .founder-window-lead{margin:14px 0 28px;color:#d9b96e;font-size:clamp(1.05rem,1.5vw,1.22rem);font-weight:600;line-height:1.45}
+        .founder-window-story{display:grid;gap:16px}
+        .founder-window-story p{margin:0;color:#b8b9b5;font-size:clamp(.98rem,1.25vw,1.08rem);line-height:1.7;letter-spacing:-.01em}
+        .founder-window-signoff{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-top:30px;padding-top:24px;border-top:1px solid rgba(255,255,255,.09)}
+        .founder-window-name{margin:0;color:#f4f3ef;font-weight:800;font-size:1rem}
+        .founder-window-role{margin:4px 0 0;color:#7f827f;font-size:.82rem}
+        .founder-window-quote{max-width:330px;margin:0;color:#d9b96e;font-size:.95rem;font-weight:600;line-height:1.5}
+        @media(max-width:820px){.founder-window{grid-template-columns:1fr;gap:38px}.founder-window-photo{max-width:270px}.founder-window-copy{max-width:none}}
+        @media(max-width:560px){.founder-window{padding:24px 22px;border-radius:22px}.founder-window-photo{max-width:230px;margin:0 auto}.founder-window-photo img,.founder-window-photo::after{border-radius:17px}.founder-window-signoff{align-items:flex-start;flex-direction:column}.founder-window-title{font-size:2.25rem}}
+      `;
+      document.head.appendChild(style);
     }
+
+    const section = document.createElement('section');
+    section.className = 'section section-founder-inline';
+    section.id = 'about-founder';
+    section.setAttribute('aria-labelledby', 'founder-inline-title');
+    section.innerHTML = `
+      <div class="shell">
+        <div class="founder-window reveal">
+          <figure class="founder-window-photo">
+            <img src="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/3988ca5c-dd0b-479e-bde3-7b9c4e93ab66.jpg" alt="Ostap Vinkovskyi, founder of Revenue Pilots, standing by the ocean" width="1536" height="2048" loading="lazy" decoding="async">
+          </figure>
+          <div class="founder-window-copy">
+            <p class="eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>The person behind Revenue Pilots</p>
+            <h2 class="founder-window-title" id="founder-inline-title">I’m Ostap.</h2>
+            <p class="founder-window-lead">I build creative for businesses that deserve to be noticed.</p>
+            <div class="founder-window-story">
+              <p>I started Revenue Pilots because I kept seeing the same problem: good businesses doing genuinely good work, but their advertising didn’t communicate that nearly as well as it could.</p>
+              <p>I’ve always been drawn to creative work. I make music, build ideas from scratch, and spend a lot of time thinking about what makes someone stop, feel something, and pay attention. Revenue Pilots became a way to apply that same creative thinking to business.</p>
+              <p>My goal isn’t to sell companies more marketing for the sake of marketing. It’s to understand what makes a business valuable, find the clearest way to communicate it, and turn that into creative people actually want to watch.</p>
+            </div>
+            <div class="founder-window-signoff">
+              <div><p class="founder-window-name">Ostap Vinkovskyi</p><p class="founder-window-role">Founder, Revenue Pilots</p></div>
+              <p class="founder-window-quote">“Make the business look as good online as the work it does in real life.”</p>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    const main = document.getElementById('main');
+    const contact = document.getElementById('contact');
+    if (contact && contact.parentNode === main) contact.insertAdjacentElement('afterend', section);
+    else if (main) main.appendChild(section);
+  };
+
+  const applyRevenueMode = () => {
+    ensureFounderWindow();
 
     const eyebrow = document.querySelector('.hero .eyebrow');
     if (eyebrow) eyebrow.innerHTML = '<span class="eyebrow-dash" aria-hidden="true"></span>Meta ad creative for home-service businesses';
