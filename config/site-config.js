@@ -88,6 +88,29 @@ window.RP_CONFIG = {
   }
 
   const applyRevenueMode = () => {
+    const addAboutLink = (nav, beforeSelector) => {
+      if (!nav || nav.querySelector('a[href="/about/"]')) return;
+      const link = document.createElement('a');
+      link.href = '/about/';
+      link.textContent = 'About';
+      const before = beforeSelector ? nav.querySelector(beforeSelector) : null;
+      if (before) nav.insertBefore(link, before);
+      else nav.appendChild(link);
+    };
+
+    addAboutLink(document.querySelector('.nav-desktop'), 'a[href="#contact"]');
+    addAboutLink(document.getElementById('navMobile'), 'a[href="#contact"]');
+
+    const footerContact = document.querySelector('.footer-contact');
+    if (footerContact && !footerContact.querySelector('a[href="/about/"]')) {
+      const separator = document.createTextNode(' · ');
+      const about = document.createElement('a');
+      about.href = '/about/';
+      about.textContent = 'About Ostap';
+      footerContact.appendChild(separator);
+      footerContact.appendChild(about);
+    }
+
     const eyebrow = document.querySelector('.hero .eyebrow');
     if (eyebrow) eyebrow.innerHTML = '<span class="eyebrow-dash" aria-hidden="true"></span>Meta ad creative for home-service businesses';
 
