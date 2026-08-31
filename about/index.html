@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" href="../assets/brand/rp-monogram.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../css/styles.css">
 <style>
   .about-page{min-height:100vh;background:#07090d;color:#f4f3ef;}
@@ -26,20 +26,20 @@
   .about-home:hover{opacity:.78;}
   .about-back{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 18px;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:#f4f3ef;text-decoration:none;font-size:.84rem;font-weight:700;}
   .about-back:hover{border-color:rgba(255,255,255,.42);}
-  .founder-hero{padding:clamp(88px,12vw,160px) 0 clamp(96px,12vw,170px);}
-  .founder-wrap{max-width:860px;margin:0 auto;}
-  .founder-kicker{display:flex;align-items:center;gap:12px;margin:0 0 28px;color:#d9b96e;font-size:.78rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;}
+  .founder-hero{padding:clamp(82px,10vw,142px) 0 clamp(96px,12vw,170px);}
+  .founder-wrap{max-width:980px;margin:0 auto;}
+  .founder-kicker{display:flex;align-items:center;gap:12px;margin:0 0 30px;color:#d9b96e;font-size:.76rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;}
   .founder-kicker::before{content:"";width:34px;height:1px;background:#d9b96e;}
-  .founder-title{margin:0 0 42px;font-family:"Instrument Serif",Georgia,serif;font-size:clamp(3.2rem,8vw,6.4rem);font-weight:400;line-height:.94;letter-spacing:-.035em;max-width:820px;}
-  .founder-title span{display:block;color:#b8b8b3;font-style:italic;}
-  .founder-story{max-width:720px;margin-left:auto;}
-  .founder-story p{margin:0 0 24px;color:#c9c9c4;font-size:clamp(1.05rem,1.6vw,1.25rem);line-height:1.78;}
-  .founder-story p:first-child{color:#f4f3ef;font-size:clamp(1.18rem,2vw,1.45rem);font-weight:600;line-height:1.6;}
+  .founder-title{margin:0 0 54px;font-family:"Space Grotesk","Manrope",Arial,sans-serif;font-size:clamp(3rem,6.1vw,5.55rem);font-weight:600;line-height:.98;letter-spacing:-.055em;max-width:940px;text-wrap:balance;}
+  .founder-title span{display:block;margin-top:14px;color:#aeb0ad;font-size:.80em;font-weight:500;line-height:1.04;letter-spacing:-.045em;font-style:normal;}
+  .founder-story{max-width:700px;margin-left:auto;padding-left:30px;border-left:1px solid rgba(217,185,110,.28);}
+  .founder-story p{margin:0 0 24px;color:#c9c9c4;font-size:clamp(1.03rem,1.45vw,1.18rem);line-height:1.76;letter-spacing:-.012em;}
+  .founder-story p:first-child{color:#f4f3ef;font-size:clamp(1.14rem,1.75vw,1.34rem);font-weight:600;line-height:1.62;}
   .founder-rule{height:1px;background:rgba(255,255,255,.1);margin:48px 0 34px;}
   .founder-signoff{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;flex-wrap:wrap;}
   .founder-name{margin:0;color:#f4f3ef;font-size:1.05rem;font-weight:800;}
   .founder-role{margin:5px 0 0;color:#8f918f;font-size:.9rem;}
-  .founder-note{max-width:390px;margin:0;color:#d9b96e;font-family:"Instrument Serif",Georgia,serif;font-size:1.35rem;line-height:1.35;font-style:italic;}
+  .founder-note{max-width:390px;margin:0;color:#d9b96e;font-family:"Space Grotesk","Manrope",Arial,sans-serif;font-size:1.15rem;font-weight:500;line-height:1.45;letter-spacing:-.02em;}
   .about-footer{border-top:1px solid rgba(255,255,255,.08);padding:28px 0 34px;}
   .about-footer-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;color:#777a78;font-size:.82rem;}
   .about-footer a{color:#b8b8b3;text-decoration:none;}
@@ -47,9 +47,11 @@
   @media(max-width:700px){
     .about-header-inner{min-height:68px;}
     .about-back{min-height:38px;padding:0 14px;font-size:.8rem;}
-    .founder-hero{padding-top:76px;}
-    .founder-title{margin-bottom:34px;}
-    .founder-story{margin-left:0;}
+    .founder-hero{padding-top:72px;}
+    .founder-kicker{margin-bottom:24px;}
+    .founder-title{margin-bottom:40px;font-size:clamp(2.8rem,12.5vw,4.4rem);letter-spacing:-.05em;}
+    .founder-title span{margin-top:10px;font-size:.74em;line-height:1.08;}
+    .founder-story{margin-left:0;padding-left:18px;}
     .founder-story p{line-height:1.68;}
     .founder-signoff{align-items:flex-start;flex-direction:column;}
   }
