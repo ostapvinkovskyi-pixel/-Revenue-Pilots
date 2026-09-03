@@ -58,7 +58,7 @@ export default {
           quantity: 1
         }],
         success_url: `${origin}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/#pricing`,
+        cancel_url: `${origin}/#packages`,
         phone_number_collection: { enabled: true },
         billing_address_collection: "auto",
         metadata,
