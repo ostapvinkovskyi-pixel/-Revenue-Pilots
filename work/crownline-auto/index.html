@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crownline Auto Care — Concept Website Build | Revenue Pilots</title>
+<meta name="description" content="A fictional automotive concept website built by Revenue Pilots to demonstrate service-request intake, trust presentation and a clear call/schedule path.">
+<meta name="theme-color" content="#1E3A2B">
+<meta property="og:title" content="Crownline Auto Care — Concept Website Build">
+<meta property="og:description" content="Fictional automotive shop concept site — service-request intake, vehicle fields, clear call/schedule path.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.revenuepilot.company/work/crownline-auto/">
+<link rel="canonical" href="https://www.revenuepilot.company/work/crownline-auto/">
+<link rel="icon" href="../../assets/brand/rp-monogram.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;500;600;700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--green-deep:#1E3A2B;--green-mid:#2E5541;--cream:#F6F0E2;--cream-2:#EFE6D2;--rust:#BD5A2A;--rust-dark:#9C4A22;--ink:#20201B;--ink-soft:#4A4A42;--white:#FFFDF8;--line:rgba(32,32,27,.12);--radius:14px;--shadow:0 10px 30px rgba(30,58,43,.12);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Work Sans',-apple-system,sans-serif;font-size:16px;line-height:1.55;}
+  h1,h2,h3{font-family:'Zilla Slab',Georgia,serif;margin:0 0 .4em;line-height:1.12;color:var(--green-deep);letter-spacing:-.01em;}
+  p{margin:0 0 1em;}
+  a{color:inherit;}
+  img,svg{display:block;max-width:100%;}
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;font-size:12px;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px;}
+  section{padding:64px 0;}
+  .concept-flag{position:sticky;top:0;z-index:50;background:var(--ink);color:var(--cream);text-align:center;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;}
+  .concept-flag a{color:var(--rust);text-decoration:underline;}
+  header{background:rgba(246,240,226,.92);border-bottom:1px solid var(--line);}
+  .header-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:38px;height:38px;border-radius:9px;background:var(--green-deep);display:flex;align-items:center;justify-content:center;flex:none;}
+  .brand-mark svg{width:22px;height:22px;}
+  .brand-name{font-family:'Zilla Slab',serif;font-weight:600;font-size:18px;color:var(--green-deep);}
+  .brand-tag{font-size:11px;color:var(--rust);font-style:italic;}
+  .call-btn{display:flex;align-items:center;gap:8px;background:var(--rust);color:var(--white);padding:10px 16px;border-radius:999px;font-weight:600;font-size:14px;text-decoration:none;}
+  .hero{padding-top:52px;padding-bottom:40px;}
+  .eyebrow{color:var(--rust);font-weight:600;margin-bottom:14px;}
+  .hero h1{font-size:clamp(32px,7vw,50px);}
+  .hero-sub{color:var(--ink-soft);font-size:17px;max-width:46ch;}
+  .cta-row{display:flex;flex-direction:column;gap:12px;margin:24px 0 22px;max-width:340px;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:15px 22px;border-radius:10px;font-weight:600;font-size:15.5px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;}
+  .btn-primary{background:var(--green-deep);color:var(--white);}
+  .btn-secondary{background:transparent;color:var(--green-deep);border:1.5px solid var(--green-deep);}
+  .trust-pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .pill{background:var(--white);border:1px solid var(--line);padding:7px 13px;border-radius:999px;font-size:13px;color:var(--ink-soft);font-weight:500;}
+  .pill strong{color:var(--green-deep);}
+  .story{background:var(--green-deep);color:var(--cream);}
+  .story h2{color:var(--cream);font-size:clamp(26px,5vw,34px);}
+  .story p{color:rgba(246,240,226,.82);max-width:60ch;}
+  .story-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:32px;}
+  .story-card{background:rgba(246,240,226,.06);border:1px solid rgba(246,240,226,.16);border-radius:var(--radius);padding:22px;}
+  .story-card h3{color:var(--cream);font-size:19px;margin-bottom:6px;}
+  .story-card p{color:rgba(246,240,226,.75);font-size:14.5px;margin:0;}
+  .flow-section{background:var(--cream-2);}
+  .flow-card{background:var(--white);border-radius:18px;box-shadow:var(--shadow);padding:26px 22px;max-width:560px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin:12px 0 6px;}
+  label:first-of-type{margin-top:0;}
+  input,select,textarea{width:100%;padding:12px 13px;border-radius:9px;border:1.5px solid var(--line);font-family:inherit;font-size:15px;background:var(--white);color:var(--ink);}
+  textarea{resize:vertical;min-height:80px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  footer{background:var(--ink);color:rgba(246,240,226,.72);padding:34px 0 40px;}
+  footer .f-brand{color:var(--cream);font-family:'Zilla Slab',serif;font-weight:600;font-size:17px;}
+  footer .disclosure{font-size:12px;line-height:1.6;color:rgba(246,240,226,.55);border-top:1px solid rgba(246,240,226,.14);padding-top:14px;margin-top:14px;}
+  @media(min-width:760px){
+    section{padding:96px 0;}
+    .hero{padding-top:64px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;}
+    .cta-row{flex-direction:row;max-width:none;}
+    .story-grid{grid-template-columns:repeat(3,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<div class="concept-flag">Concept / Spec website build — fictional business, made by <a href="/">Revenue Pilots</a></div>
+
+<header>
+  <div class="wrap header-row">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M3 13l1.5-4.5A2 2 0 0 1 6.4 7h11.2a2 2 0 0 1 1.9 1.5L21 13" stroke="#F6F0E2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="2.5" y="13" width="19" height="5.5" rx="1.6" stroke="#F6F0E2" stroke-width="1.6"/><circle cx="7" cy="18.7" r="1.6" fill="#F6F0E2"/><circle cx="17" cy="18.7" r="1.6" fill="#F6F0E2"/></svg></div>
+      <div><div class="brand-name">Crownline Auto Care</div><div class="brand-tag">Neighborhood Auto Shop (fictional)</div></div>
+    </div>
+    <a class="call-btn" href="tel:7045550178">(704) 555-0178</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap" style="display:contents;">
+  <div class="hero-copy">
+    <div class="eyebrow mono">Fictional Concept · Local Auto Shop</div>
+    <h1>Real shop feel. A clearer way to book.</h1>
+    <p class="hero-sub">A concept build showing how a local, family-run auto shop can present trust and take a service request without a visitor ever picking up the phone.</p>
+    <div class="cta-row">
+      <a href="#request" class="btn btn-primary">Request Service</a>
+      <a href="tel:7045550178" class="btn btn-secondary">Call (704) 555-0178</a>
+    </div>
+    <div class="trust-pills">
+      <span class="pill"><strong>Family-Owned</strong></span>
+      <span class="pill">Local Shop Since <strong>2011</strong></span>
+      <span class="pill">Honest Diagnostics</span>
+    </div>
+  </div>
+  <div class="hero-art">
+    <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" rx="24" fill="#EFE6D2"/><circle cx="200" cy="150" r="108" stroke="#BD5A2A" stroke-width="1.5" stroke-dasharray="3 6" fill="none"/><g transform="translate(70,120)"><path d="M10 60l8-30a12 12 0 0 1 11.5-8.7h101a12 12 0 0 1 11.4 8.7l8 30" stroke="#1E3A2B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><rect x="0" y="60" width="160" height="34" rx="9" stroke="#1E3A2B" stroke-width="4" fill="none"/><circle cx="34" cy="96" r="10" fill="#1E3A2B"/><circle cx="126" cy="96" r="10" fill="#1E3A2B"/></g></svg>
+  </div>
+  </div>
+</section>
+
+<section class="story">
+  <div class="wrap">
+    <div class="mono" style="color:#E7B694;">Why This Structure</div>
+    <h2>Trust first, then the ask.</h2>
+    <p>The concept leads with the shop's personality — family-owned, local, honest — before ever asking for information, so the request form feels like the natural next step instead of a cold form.</p>
+    <div class="story-grid">
+      <div class="story-card"><h3>Family-Owned</h3><p>A local identity built into the hero, not buried in an About page.</p></div>
+      <div class="story-card"><h3>Since 2011</h3><p>A track record stated plainly, once, near the top.</p></div>
+      <div class="story-card"><h3>Honest Diagnostics</h3><p>The kind of language that builds trust before a single form field.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="flow-section" id="request">
+  <div class="wrap">
+    <div class="eyebrow mono">Proposed Booking Path</div>
+    <h2>Request Service</h2>
+    <p class="hero-sub" style="margin-bottom:24px;">This is a design demo, not a live booking system. It does not send or store anything.</p>
+    <form class="flow-card" onsubmit="return false;">
+      <label for="issue">What's wrong with the vehicle?</label><textarea id="issue" placeholder="e.g. Grinding sound when I brake"></textarea>
+      <div class="field-row">
+        <div><label for="year">Year</label><input type="text" id="year" placeholder="2018"></div>
+        <div><label for="make">Make / Model</label><input type="text" id="make" placeholder="Honda Accord"></div>
+      </div>
+      <label for="contact">Best way to reach you</label><input type="text" id="contact" placeholder="(704) 555-0100">
+      <button type="button" class="btn btn-primary" style="width:100%;margin-top:20px;" disabled>Send Request (demo only)</button>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="f-brand">Crownline Auto Care</div>
+    <div style="font-size:13px;margin-top:4px;">Charlotte, NC · (704) 555-0178 — fictional contact details</div>
+    <div class="disclosure">Crownline Auto Care is a fictional business created by Revenue Pilots to demonstrate a website concept. It is not a real company, and this page is not connected to any real business, booking system, or customer data collection. <a href="/websites/" style="color:#BD5A2A;">See website plans →</a></div>
+  </div>
+</footer>
+
+</body>
+</html>

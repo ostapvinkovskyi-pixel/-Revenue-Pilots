@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Northline Heating &amp; Air — Concept Website Build | Revenue Pilots</title>
+<meta name="description" content="A fictional HVAC concept website built by Revenue Pilots to demonstrate emergency-first service routing, mobile call flow and trust structure.">
+<meta name="theme-color" content="#0F2A3D">
+<meta property="og:title" content="Northline Heating &amp; Air — Concept Website Build">
+<meta property="og:description" content="Fictional HVAC concept site — emergency/service CTA, repair/maintenance/replacement routing, mobile call flow.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.revenuepilot.company/work/northline-hvac/">
+<link rel="canonical" href="https://www.revenuepilot.company/work/northline-hvac/">
+<link rel="icon" href="../../assets/brand/rp-monogram.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0F2A3D;--navy-deep:#081A28;--amber:#D9822B;--amber-dark:#B5661A;--paper:#F6F6F2;--paper-2:#EDEEE7;--white:#FFFFFF;--ink:#16232C;--ink-soft:#54626B;--line:rgba(15,42,61,.14);--radius:14px;--shadow:0 10px 30px rgba(10,32,51,.14);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',-apple-system,sans-serif;font-size:16px;line-height:1.56;}
+  h1,h2,h3{font-family:'Bricolage Grotesque',sans-serif;margin:0 0 .4em;line-height:1.1;color:var(--navy);letter-spacing:-.01em;}
+  p{margin:0 0 1em;}
+  a{color:inherit;}
+  img,svg{display:block;max-width:100%;}
+  .mono{font-family:'IBM Plex Mono',monospace;letter-spacing:.07em;text-transform:uppercase;font-size:11.5px;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px;}
+  section{padding:60px 0;}
+  .concept-flag{position:sticky;top:0;z-index:50;background:var(--navy-deep);color:var(--paper);text-align:center;padding:9px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;}
+  .concept-flag a{color:var(--amber);text-decoration:underline;}
+  header{background:rgba(246,246,242,.94);border-bottom:1px solid var(--line);}
+  .header-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;gap:10px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:38px;height:38px;border-radius:10px;background:var(--navy);display:flex;align-items:center;justify-content:center;flex:none;}
+  .brand-mark svg{width:21px;height:21px;}
+  .brand-name{font-weight:700;font-size:17px;color:var(--navy);}
+  .brand-tag{font-size:11px;color:var(--ink-soft);}
+  .call-btn{display:flex;align-items:center;gap:8px;background:var(--amber);color:var(--white);padding:10px 16px;border-radius:999px;font-weight:600;font-size:14px;text-decoration:none;}
+  .hero{padding-top:48px;padding-bottom:36px;}
+  .eyebrow{color:var(--amber-dark);font-weight:700;margin-bottom:14px;}
+  .hero h1{font-size:clamp(29px,6.6vw,46px);}
+  .hero-sub{color:var(--ink-soft);font-size:16.5px;max-width:48ch;}
+  .cta-row{display:flex;flex-direction:column;gap:12px;margin:22px 0 20px;max-width:340px;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:15px 22px;border-radius:10px;font-weight:600;font-size:15.5px;text-decoration:none;border:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+  .btn-primary{background:var(--navy);color:var(--white);}
+  .btn-secondary{background:var(--amber);color:var(--white);}
+  .trust-pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .pill{background:var(--white);border:1px solid var(--line);padding:7px 13px;border-radius:999px;font-size:13px;color:var(--ink-soft);font-weight:500;}
+  .pill strong{color:var(--navy);}
+  .choice-section{background:var(--navy-deep);color:var(--paper);}
+  .choice-section h2{color:var(--paper);font-size:clamp(24px,5vw,32px);}
+  .choice-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:26px;}
+  .choice-card{background:rgba(246,246,242,.05);border:1px solid rgba(246,246,242,.18);border-radius:var(--radius);padding:20px;}
+  .choice-card h3{color:var(--paper);font-size:16.5px;margin-bottom:4px;}
+  .choice-card p{color:rgba(246,246,242,.65);font-size:13.5px;margin:0;}
+  .form-section{background:var(--paper-2);}
+  .service-card{background:var(--white);border-radius:18px;box-shadow:var(--shadow);padding:26px 22px;max-width:560px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin:14px 0 6px;}
+  label:first-of-type{margin-top:0;}
+  input,select,textarea{width:100%;padding:12px 13px;border-radius:9px;border:1.5px solid var(--line);font-family:inherit;font-size:15px;background:var(--paper);color:var(--ink);}
+  textarea{resize:vertical;min-height:78px;}
+  .trust-strip{display:grid;grid-template-columns:1fr;gap:16px;}
+  .trust-block{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
+  .trust-block h3{font-size:16.5px;margin-bottom:5px;}
+  .trust-block p{font-size:13.5px;color:var(--ink-soft);margin:0;}
+  footer{background:var(--navy-deep);color:rgba(246,246,242,.72);padding:34px 0 40px;}
+  footer .f-brand{color:var(--paper);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px;}
+  footer .disclosure{font-size:12px;line-height:1.6;color:rgba(246,246,242,.55);border-top:1px solid rgba(246,246,242,.14);padding-top:14px;margin-top:14px;}
+  @media(min-width:760px){
+    section{padding:88px 0;}
+    .hero{padding-top:56px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;}
+    .cta-row{flex-direction:row;max-width:none;}
+    .choice-grid{grid-template-columns:repeat(2,1fr);}
+    .trust-strip{grid-template-columns:repeat(3,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<div class="concept-flag">Concept / Spec website build — fictional business, made by <a href="/">Revenue Pilots</a></div>
+
+<header>
+  <div class="wrap header-row">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" stroke="#F6F6F2" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="#F6F6F2" stroke-width="1.7"/></svg></div>
+      <div><div class="brand-name">Northline Heating &amp; Air</div><div class="brand-tag">Licensed HVAC Contractor (fictional)</div></div>
+    </div>
+    <a class="call-btn" href="tel:7045550142">Call Now</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap" style="display:contents;">
+  <div class="hero-copy">
+    <div class="eyebrow mono">Charlotte, NC &amp; Surrounding Areas</div>
+    <h1>Heat or air down? Get the right help, in one tap.</h1>
+    <p class="hero-sub">A concept build showing how a local HVAC company can route repair, maintenance and replacement requests without making a visitor guess.</p>
+    <div class="cta-row">
+      <a href="#schedule" class="btn btn-primary">Schedule Service</a>
+      <a href="tel:7045550142" class="btn btn-secondary">Call Now: (704) 555-0142</a>
+    </div>
+    <div class="trust-pills">
+      <span class="pill"><strong>Licensed</strong> HVAC Contractor</span>
+      <span class="pill">24-Hour Availability</span>
+      <span class="pill">Charlotte &amp; Surrounding Areas</span>
+    </div>
+  </div>
+  <div class="hero-art">
+    <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" rx="24" fill="#EDEEE7"/><circle cx="200" cy="150" r="104" stroke="#D9822B" stroke-width="1.5" stroke-dasharray="3 6" fill="none"/><g transform="translate(130,90)"><rect x="0" y="0" width="140" height="90" rx="12" stroke="#0F2A3D" stroke-width="4" fill="none"/><path d="M22 30h96M22 46h96M22 62h60" stroke="#0F2A3D" stroke-width="4" stroke-linecap="round"/><circle cx="112" cy="62" r="8" fill="#D9822B"/></g></svg>
+  </div>
+  </div>
+</section>
+
+<section class="choice-section">
+  <div class="wrap">
+    <div class="mono" style="color:#E8A968;">Start Here</div>
+    <h2>What's going on with your system?</h2>
+    <div class="choice-grid">
+      <div class="choice-card"><h3>I need repair now</h3><p>System is down or not working right.</p></div>
+      <div class="choice-card"><h3>I need maintenance</h3><p>Routine check or seasonal tune-up.</p></div>
+      <div class="choice-card"><h3>I'm replacing a system</h3><p>Looking into a new install or upgrade.</p></div>
+      <div class="choice-card"><h3>Indoor air quality</h3><p>Something about the air, not the unit.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="form-section" id="schedule">
+  <div class="wrap">
+    <div class="eyebrow mono">Proposed Request Path</div>
+    <h2>Schedule Service</h2>
+    <p class="hero-sub" style="margin-bottom:24px;">A short form built for a phone screen — this is a design demo, not a live booking system. It does not send or store anything.</p>
+    <form class="service-card" onsubmit="return false;">
+      <label for="name">Name</label><input type="text" id="name" placeholder="Jane Miller">
+      <label for="phone">Phone</label><input type="tel" id="phone" placeholder="(704) 555-0100">
+      <label for="need">Service needed</label>
+      <select id="need"><option>I need repair now</option><option>I need maintenance</option><option>I'm replacing a system</option><option>Indoor air quality</option></select>
+      <label for="desc">Short description</label><textarea id="desc" placeholder="e.g. Upstairs unit blowing warm air"></textarea>
+      <button type="button" class="btn btn-primary" style="width:100%;margin-top:20px;" disabled>Send Request (demo only)</button>
+    </form>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow mono">Why This Structure</div>
+    <h2 style="max-width:20ch;">Built for the moment a customer needs help fast.</h2>
+    <div class="trust-strip" style="margin-top:26px;">
+      <div class="trust-block"><h3>Emergency-first hierarchy</h3><p>The most urgent path is the easiest to find, above the fold, on every screen size.</p></div>
+      <div class="trust-block"><h3>One number, one path</h3><p>Call or schedule online — both lead to the same clear next step.</p></div>
+      <div class="trust-block"><h3>Mobile thumb-friendly</h3><p>Call and schedule actions sit exactly where a thumb already is.</p></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="f-brand">Northline Heating &amp; Air</div>
+    <div style="font-size:13px;margin-top:4px;">Charlotte, NC · (704) 555-0142 — fictional contact details</div>
+    <div class="disclosure">Northline Heating &amp; Air is a fictional business created by Revenue Pilots to demonstrate a website concept. It is not a real company, and this page is not connected to any real business, booking system, or customer data collection. <a href="/websites/" style="color:#D9822B;">See website plans →</a></div>
+  </div>
+</footer>
+
+</body>
+</html>

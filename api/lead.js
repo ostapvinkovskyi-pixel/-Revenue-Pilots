@@ -120,6 +120,14 @@ export default {
 
     const email = clean(body.email, 254).toLowerCase();
     const packageInterest = clean(body.package_interest, 50);
+    const KNOWN_PACKAGES = new Set([
+      "starter",
+      "website_rescue",
+      "website_build",
+      "systems",
+      "full_build",
+      "not_sure"
+    ]);
     const lead = {
       event_type: "lead",
       name: clean(body.name, 120),
@@ -128,7 +136,7 @@ export default {
       phone: clean(body.phone, 80),
       website: clean(body.website, 300),
       service_area: clean(body.service_area, 200),
-      package_interest: packageInterest === "starter" ? "starter" : "not_sure",
+      package_interest: KNOWN_PACKAGES.has(packageInterest) ? packageInterest : "not_sure",
       message: clean(body.message, 3000, true),
       source: "revenue-pilots-website",
       page_url: clean(request.headers.get("referer") || requestUrl.origin, 500),

@@ -1,25 +1,19 @@
 # Revenue Pilots — production website
 
-Revenue Pilots is currently in **revenue mode**: one ICP, one public offer, one checkout path.
+Revenue Pilots is a **modular company site** (Site V2, 2026-09-03): one business, four buyable modules — video creative, websites, systems/automation, and a combined full build. A visitor can buy one module or the full system; each acquisition message and landing page stays narrow and relevant even though the company itself is broad. See `01_CONTEXT/OWNER_DECISIONS.md` in the V2 handoff pack for the full reasoning — it supersedes the older single-offer "revenue mode" freeze below wherever the two conflict.
 
 Production: `https://www.revenuepilot.company`
 
-## Current public offer
+## Current public offers
 
-**Starter Pilot — $249 one-time**
-
-- 3 custom vertical 9:16 video ads
-- 3 distinct hooks / creative angles
+**Starter Pilot (video) — $249 one-time.** The only module with instant Stripe checkout.
+- 3 custom vertical 9:16 video ads, 3 distinct hooks
 - built around the customer's real offer, service area and brand
-- branding + CTA copy
-- social-ready exports
-- 1 revision round
-- first drafts within 72 hours after required usable assets are received
-- no contract / subscription
-- ad spend separate
+- 1 revision round; first drafts within 72 hours after required usable assets are received
+- no contract / subscription; ad spend separate
 - Revenue Pilots guarantees the creative deliverables, not advertising results
 
-Do **not** re-enable Growth, Weekly, recurring tiers, multiple public packages or a different public niche without an intentional business decision. The current goal is to prove the Starter Pilot with a real customer first.
+**Website Rescue** (from ~$500), **Website Build** (from ~$1.5k, scope-dependent), **Growth Systems** (custom-scoped), **Full Revenue Build** (from $10k, custom scope) all route through the lead form — quoted after a real review, never an instant checkout. Do not add Stripe checkout for these without an explicit pricing decision; do not promise unsupported SMS/telephony capability.
 
 ---
 
@@ -27,12 +21,24 @@ Do **not** re-enable Growth, Weekly, recurring tiers, multiple public packages o
 
 The front end is a static site. Sensitive operations run through same-origin Vercel Functions.
 
-Core front-end files:
+Route map:
 
-- `index.html`
-- `css/styles.css`
-- `js/main.js`
-- `config/site-config.js`
+- `/` → `home-v2.html` — modular router homepage (services, tabbed video/website work, packages, process, contact)
+- `/video-ads/` — dedicated video-creative landing page (the full prior homepage content, preserved)
+- `/websites/`, `/systems/`, `/full-build/` — dedicated service landing pages
+- `/work/northline-hvac/`, `/work/crownline-auto/`, `/work/stone-shade-outdoors/` — public, indexable, **fictional** website concept demos (not real clients)
+- `/previews/*` — private, noindex prospect previews; never linked from public nav, never listed as client work
+- `/about/` and the standalone video SEO pages (`/ai-ugc-video-ads/`, `/beauty-video-ads/`, etc.) are unchanged
+
+Shared front-end files:
+
+- `css/styles.css` — shared design tokens/components (dark, gold accent)
+- `css/portfolio-v3.css` — video showreel + portfolio grid (used by `/` and `/video-ads/`)
+- `css/site-v2.css` — V2-only components (service cards, work tabs, concept cards, flow diagram)
+- `js/main.js` — nav, reveal animation, checkout button wiring, lead form (unchanged)
+- `js/portfolio-v3.js` — video portfolio behavior
+- `js/site-v2.js` — Work-section tab switching on the homepage
+- `config/site-config.js` — just the `window.RP_CONFIG` routing object now. It no longer force-rewrites page title/meta/hero copy at runtime (that "revenue mode" DOM-patching was removed in V2); each page sets its own correct `<title>`, meta and JSON-LD directly in its own `<head>`.
 
 Current `config/site-config.js` public routing:
 
@@ -47,6 +53,8 @@ Secrets must stay server-side in Vercel environment variables. Never place Strip
 ## Lead flow
 
 Website form → `/api/lead` → validated / normalized server-side → Make Master Intake → Google Sheets + internal alert + customer acknowledgement.
+
+`package_interest` now accepts `starter`, `website_rescue`, `website_build`, `systems`, `full_build`, or `not_sure` (previously anything but `starter` collapsed to `not_sure`) so a V2 lead routes to the right conversation instead of landing as generic. Update the Make scenario's routing if it branches on this field.
 
 A browser success state is never treated as proof that a lead was saved; server response is authoritative.
 
@@ -81,15 +89,13 @@ Real values belong in Vercel only. Do not commit them.
 
 ## Portfolio state
 
-The public portfolio currently contains **three real spec / concept examples**:
+The homepage `#work` section has two tabs, both public and both spec/concept work — never client case studies:
 
-1. Home Services
-2. Hospitality
-3. E-commerce / Beauty
+**Video tab** — the full 7-card portfolio grid (UGC, founder/app, testimonial, before/after, wellness, high-motion, cinematic), the hook-lab, and the legacy 3-card range (Home Services, Hospitality, E-commerce/Beauty). Preserved in full; not trimmed for the redesign.
+
+**Websites tab** — 3 fictional public concept demos: Northline Heating & Air, Crownline Auto Care, Stone & Shade Outdoors, at `/work/<slug>/`. Fictional names, fictional contact details, labeled `Concept / Spec`. Real prospect previews under `/previews/*` stay private/noindex and are never shown here.
 
 All examples are clearly presented as spec / concept work. Do not imply they are client case studies or attach fictional performance results.
-
-The old two empty / “in production” cards were removed. The desktop layout is intentionally sized for the three current cards.
 
 ---
 
@@ -148,16 +154,18 @@ ChatGPT is the primary operator / reviewer. Claude is available as a second exec
 
 ---
 
-## Current production status — 2026-08-29
+## Current production status — 2026-09-03 (Site V2)
 
 - production domain live and verified
-- public $249 one-time checkout live
-- verified Stripe webhook flow live
-- Make Master Intake live
+- public $249 one-time Starter Pilot checkout live and unchanged
+- verified Stripe webhook flow live and unchanged
+- Make Master Intake live; `package_interest` enum widened (see Lead flow above) — confirm the Make scenario handles the new values before relying on routing by them
 - lead / order Sheets live
 - branded payment confirmation live
-- original hero loop live
-- 3-card portfolio layout fixed
+- original hero loop live, reused on both `/` and `/video-ads/`
+- homepage rebuilt as a modular router (Site V2); `/video-ads/`, `/websites/`, `/systems/`, `/full-build/`, and 3 public fictional `/work/*` concept demos added
+- all 4 private `/previews/*` prospect pages unchanged and still noindex
 - ChatGPT → Make → Claude bridge tested and active
+- Site V2 was built and locally QA'd on branch `site-v2-modular-homepage`; not yet merged to `main` or deployed — pending owner review
 
 When this state changes intentionally, update this README so the repository does not become a second conflicting version of the business.

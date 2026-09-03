@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 
 Disallow: /api/
+Disallow: /previews/
 
 Sitemap: https://www.revenuepilot.company/sitemap.xml
