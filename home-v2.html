@@ -73,7 +73,7 @@
         <div class="hero-v3-copy">
           <p class="eyebrow reveal"><span class="eyebrow-dash" aria-hidden="true"></span>Websites · Video ads · Customer systems</p>
           <h1 class="hero-v3-title reveal">Websites, video ads, and customer systems.<span>Built together or one at a time.</span></h1>
-          <p class="engine-state" id="engineState" hidden aria-live="polite">
+          <p class="engine-state" id="engineState" aria-live="polite">
             <span class="engine-state-num" id="engineStateNum">01</span>
             <span class="engine-state-text" id="engineStateText">Video Creative — short-form ads that earn attention.</span>
           </p>
@@ -87,62 +87,60 @@
 
         <div class="engine-scene-wrap reveal">
           <div class="engine-scene" id="engineScene" data-state="-1" aria-hidden="true">
-            <svg class="engine-connectors" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <path class="engine-connector" d="M50 50 L50 8" />
-              <path class="engine-connector" d="M50 50 L4 46" />
-              <path class="engine-connector" d="M50 50 L96 42" />
-            </svg>
+            <div class="engine-stage" id="engineStage">
+              <svg class="engine-connectors" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path class="engine-connector" d="M50 50 L50 8" />
+                <path class="engine-connector" d="M50 50 L4 46" />
+                <path class="engine-connector" d="M50 50 L96 42" />
+              </svg>
 
-            <div class="engine-platform">
-              <div class="engine-ring engine-ring-1"></div>
-              <div class="engine-ring engine-ring-2"></div>
-              <div class="engine-ring engine-ring-3"></div>
-            </div>
-
-            <div class="engine-hub">
-              <img src="assets/brand/rp-monogram.png" alt="Revenue Pilots" width="320" height="320" decoding="async">
-            </div>
-
-            <div class="engine-panel engine-panel-video">
-              <div class="engine-phone">
-                <img src="assets/posters/03-ecommerce-beauty-product.jpg" alt="" loading="lazy">
-                <span class="engine-play" aria-hidden="true"></span>
+              <div class="engine-platform">
+                <div class="engine-ring engine-ring-1"></div>
+                <div class="engine-ring engine-ring-2"></div>
+                <div class="engine-ring engine-ring-3"></div>
               </div>
-            </div>
 
-            <div class="engine-panel engine-panel-website">
-              <div class="engine-browser">
-                <div class="engine-browser-bar"><i></i><i></i><i></i></div>
-                <div class="engine-browser-body">
-                  <span class="eb-eyebrow">CHARLOTTE, NC</span>
-                  <span class="eb-line eb-line-1"></span>
-                  <span class="eb-line eb-line-2"></span>
-                  <span class="eb-cta">Schedule Service</span>
+              <div class="engine-hub">
+                <img src="assets/brand/rp-monogram.png" alt="Revenue Pilots" width="320" height="320" decoding="async">
+              </div>
+
+              <div class="engine-panel engine-panel-video">
+                <div class="engine-phone engine-phone-back">
+                  <img src="assets/posters/01-home-services-roofing.jpg" alt="" loading="lazy">
+                </div>
+                <div class="engine-phone engine-phone-front">
+                  <img src="assets/posters/03-ecommerce-beauty-product.jpg" alt="" loading="lazy">
+                  <span class="engine-play" aria-hidden="true"></span>
                 </div>
               </div>
-            </div>
 
-            <div class="engine-panel engine-panel-systems">
-              <svg class="engine-nodes" viewBox="0 0 220 160">
-                <path class="en-line" d="M40 40 L110 30 L180 40" />
-                <path class="en-line" d="M40 40 L40 120" />
-                <path class="en-line" d="M40 120 L110 130 L180 120" />
-                <path class="en-line" d="M180 40 L180 120" />
-                <g class="en-node en-node-1"><circle cx="40" cy="40" r="15"/><text x="40" y="66">Intake</text></g>
-                <g class="en-node en-node-2"><circle cx="180" cy="40" r="15"/><text x="180" y="66">Booking</text></g>
-                <g class="en-node en-node-3"><circle cx="40" cy="120" r="15"/><text x="40" y="146">Follow-up</text></g>
-                <g class="en-node en-node-4"><circle cx="180" cy="120" r="15"/><text x="180" y="146">CRM</text></g>
-              </svg>
+              <div class="engine-panel engine-panel-website">
+                <div class="engine-browser">
+                  <div class="engine-browser-bar"><i></i><i></i><i></i></div>
+                  <img class="engine-browser-shot" src="assets/hero/engine-website-panel.jpg" alt="Northline Heating &amp; Air — Revenue Pilots concept website" loading="lazy">
+                </div>
+              </div>
+
+              <div class="engine-panel engine-panel-systems">
+                <svg class="engine-nodes" viewBox="0 0 260 150">
+                  <path class="en-line" d="M25 95 L85 55 L135 40 L185 55 L245 95" />
+                  <g class="en-node en-node-1"><circle cx="25" cy="95" r="15"/><text x="25" y="121">Intake</text></g>
+                  <g class="en-node en-node-2"><circle cx="85" cy="55" r="15"/><text x="85" y="81">Booking</text></g>
+                  <g class="en-node en-node-3"><circle cx="135" cy="40" r="15"/><text x="135" y="66">Payment</text></g>
+                  <g class="en-node en-node-4"><circle cx="185" cy="55" r="15"/><text x="185" y="81">Follow-up</text></g>
+                  <g class="en-node en-node-5"><circle cx="245" cy="95" r="15"/><text x="245" y="121">CRM</text></g>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="engine-dots" role="tablist" aria-label="Revenue Engine states">
-        <button class="engine-dot" type="button" data-goto="0" aria-selected="false">01<span>Video</span></button>
-        <button class="engine-dot" type="button" data-goto="1" aria-selected="false">02<span>Websites</span></button>
-        <button class="engine-dot" type="button" data-goto="2" aria-selected="false">03<span>Systems</span></button>
-        <button class="engine-dot" type="button" data-goto="3" aria-selected="false">04<span>Full Build</span></button>
+        <button class="engine-dot" type="button" data-goto="0" aria-selected="false"><span class="engine-dot-num">01</span><span class="engine-dot-label">Video</span></button>
+        <button class="engine-dot" type="button" data-goto="1" aria-selected="false"><span class="engine-dot-num">02</span><span class="engine-dot-label">Websites</span></button>
+        <button class="engine-dot" type="button" data-goto="2" aria-selected="false"><span class="engine-dot-num">03</span><span class="engine-dot-label">Systems</span></button>
+        <button class="engine-dot" type="button" data-goto="3" aria-selected="false"><span class="engine-dot-num">04</span><span class="engine-dot-label">Full Build</span></button>
       </div>
     </div>
   </div>

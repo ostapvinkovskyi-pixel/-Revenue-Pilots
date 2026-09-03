@@ -9,8 +9,15 @@
    current, the same rAF-throttled-scroll-listener pattern already used by
    the portfolio carousel and the #how beam canvas in js/main.js.
 
+   Each state drives two independent layers: the .engine-stage transform
+   (a restrained rotateY/translate/scale "turn toward" the active module,
+   applied to the whole scene) and per-panel .is-active classes (opacity,
+   filter, translateZ). That combination is what reads as one machine
+   being explored rather than four cards swapping.
+
    Mobile (<=760px) and prefers-reduced-motion: no scroll linkage at all.
-   Mobile uses tap (dots) or swipe; reduced-motion renders one static state.
+   Mobile uses tap (segmented selector) or swipe; reduced-motion renders
+   one static state.
    ========================================================================= */
 (function () {
   "use strict";
@@ -30,10 +37,24 @@
     { label: "Full Build", copy: "Website, systems and creative — working together." }
   ];
 
+  /* Per-state stage pose: a restrained "turn toward" the active module.
+     Video sits at the top of the composition, so its pose leans in
+     (small vertical shift) rather than rotating; Websites/Systems sit
+     left/right, so the stage rotates a few degrees toward each side.
+     Full Build pulls back (scaled down) with everything centered and lit. */
+  var STAGE = [
+    { ry: 0, tx: 0, ty: -3, scale: 1.03 },   // 0 Video
+    { ry: 11, tx: 3, ty: 0, scale: 1.03 },   // 1 Websites
+    { ry: -11, tx: -3, ty: 0, scale: 1.03 }, // 2 Systems
+    { ry: 0, tx: 0, ty: 0, scale: 0.9 }      // 3 Full Build
+  ];
+  var OVERVIEW_STAGE = { ry: 0, tx: 0, ty: 0, scale: 1 };
+
   ready(function () {
     var section = document.getElementById("engine-hero");
     var scene = document.getElementById("engineScene");
-    if (!section || !scene) return;
+    var stage = document.getElementById("engineStage");
+    if (!section || !scene || !stage) return;
 
     var stateLabel = document.getElementById("engineState");
     var stateNum = document.getElementById("engineStateNum");
@@ -51,10 +72,18 @@
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var currentState = -2; // force the first setState call to actually apply
 
+    function applyStage(cfg) {
+      stage.style.setProperty("--stage-ry", cfg.ry + "deg");
+      stage.style.setProperty("--stage-tx", cfg.tx + "%");
+      stage.style.setProperty("--stage-ty", cfg.ty + "%");
+      stage.style.setProperty("--stage-scale", String(cfg.scale));
+    }
+
     function setState(i) {
       if (i === currentState) return;
       currentState = i;
       scene.setAttribute("data-state", String(i));
+      applyStage(i >= 0 && STAGE[i] ? STAGE[i] : OVERVIEW_STAGE);
 
       var activeSet = ACTIVE_PANELS_FOR_STATE[String(i)] || [];
       panels.forEach(function (panel, idx) {
@@ -66,11 +95,11 @@
       });
 
       if (i >= 0 && STATES[i]) {
-        stateLabel.hidden = false;
         stateNum.textContent = "0" + (i + 1);
         stateText.textContent = STATES[i].label + " — " + STATES[i].copy;
+        stateLabel.classList.add("is-visible");
       } else {
-        stateLabel.hidden = true;
+        stateLabel.classList.remove("is-visible");
       }
 
       dots.forEach(function (dot, idx) {
@@ -92,7 +121,8 @@
     }
 
     /* -------------------------------------------------------------------
-       Mobile: tap dots or swipe the scene. No scroll linkage, no pin.
+       Mobile: tap the segmented selector or swipe the scene. No scroll
+       linkage, no pin.
        ------------------------------------------------------------------- */
     function setupMobile() {
       setState(0);
@@ -122,9 +152,9 @@
        First ~10% of the pinned range is a calm "overview" beat (state -1,
        no label). The remaining ~90% splits evenly across the 4 states.
        A CSS variable carries a small continuous platform rotation
-       (0 -> 18deg across the whole range) on top of the discrete state
-       swaps, so the settle between states reads as one continuous piece
-       of motion rather than four separate scenes.
+       (0 -> 8deg across the whole range) on top of the discrete stage/
+       panel state swaps, so the platform never looks static between
+       state changes without competing with the stage's own turn.
        ------------------------------------------------------------------- */
     function setupDesktop() {
       var OVERVIEW_FRACTION = 0.10;
@@ -142,7 +172,7 @@
         var scrolledIntoPin = -section.getBoundingClientRect().top;
         var progress = Math.max(0, Math.min(1, scrolledIntoPin / range));
 
-        scene.style.setProperty("--engine-rotate", (progress * 18).toFixed(2) + "deg");
+        scene.style.setProperty("--engine-rotate", (progress * 8).toFixed(2) + "deg");
 
         if (progress < OVERVIEW_FRACTION) {
           setState(-1);
@@ -174,7 +204,24 @@
         });
       });
 
-      update();
+      /* QA-only: ?engine_state=N (N = -1..3) scrolls straight to that
+         state's band so a screenshot tool can capture it deterministically
+         without simulating a real scroll gesture, then calls update()
+         directly rather than waiting on a scroll event + rAF round trip
+         (which can stall in automated/backgrounded capture tools). Inert
+         for every visitor who doesn't hand-craft that query string. */
+      var qaMatch = /[?&]engine_state=(-?\d)/.exec(location.search);
+      if (qaMatch) {
+        var qaTarget = parseInt(qaMatch[1], 10);
+        var qaRange = pinnedRange();
+        var qaFrac = qaTarget < 0
+          ? 0.02
+          : OVERVIEW_FRACTION + ((qaTarget + 0.5) / STATES.length) * (1 - OVERVIEW_FRACTION);
+        window.scrollTo({ top: qaFrac * qaRange, left: 0, behavior: "instant" });
+        update();
+      } else {
+        update();
+      }
     }
 
     if (window.matchMedia("(max-width: 760px)").matches) {
