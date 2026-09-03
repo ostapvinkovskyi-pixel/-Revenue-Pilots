@@ -20,11 +20,13 @@
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/portfolio-v3.css">
 <link rel="stylesheet" href="css/site-v2.css">
+<link rel="stylesheet" href="css/hero-engine.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.revenuepilot.company/#organization","name":"Revenue Pilots","url":"https://www.revenuepilot.company/","logo":"https://www.revenuepilot.company/assets/brand/revenue-pilots-monogram-logo.png"},{"@type":"WebSite","@id":"https://www.revenuepilot.company/#website","url":"https://www.revenuepilot.company/","name":"Revenue Pilots","publisher":{"@id":"https://www.revenuepilot.company/#organization"}}]}</script>
 <script src="config/site-config.js" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/portfolio-v3.js" defer></script>
 <script src="js/site-v2.js" defer></script>
+<script src="js/hero-engine.js" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -64,27 +66,84 @@
 <main id="main">
 <span id="top"></span>
 
-<section class="hero-v3">
-  <div class="shell hero-v3-grid">
-    <div class="hero-v3-copy">
-      <p class="eyebrow reveal"><span class="eyebrow-dash" aria-hidden="true"></span>Websites · Video ads · Customer systems</p>
-      <h1 class="hero-v3-title reveal">Websites, video ads, and customer systems.<span>Built together or one at a time.</span></h1>
-      <p class="hero-v3-sub reveal">Start with the piece you need now. Add the rest when it makes sense. Revenue Pilots builds the digital path from <strong>attention to inquiry to follow-up</strong>.</p>
-      <div class="hero-v3-actions reveal">
-        <a class="btn btn-gold btn-lg" href="#services">See what we build</a>
-        <a class="btn btn-ghost btn-lg" href="#packages">Start with a small project</a>
-      </div>
-      <p class="hero-v3-micro reveal">No forced bundle. Buy one module or the full system — the site tells you which page fits what you need.</p>
-    </div>
+<section class="engine-hero" id="engine-hero">
+  <div class="engine-sticky">
+    <div class="hero-v3">
+      <div class="shell hero-v3-grid">
+        <div class="hero-v3-copy">
+          <p class="eyebrow reveal"><span class="eyebrow-dash" aria-hidden="true"></span>Websites · Video ads · Customer systems</p>
+          <h1 class="hero-v3-title reveal">Websites, video ads, and customer systems.<span>Built together or one at a time.</span></h1>
+          <p class="engine-state" id="engineState" hidden aria-live="polite">
+            <span class="engine-state-num" id="engineStateNum">01</span>
+            <span class="engine-state-text" id="engineStateText">Video Creative — short-form ads that earn attention.</span>
+          </p>
+          <p class="hero-v3-sub reveal">Start with the piece you need now. Add the rest when it makes sense. Revenue Pilots builds the digital path from <strong>attention to inquiry to follow-up</strong>.</p>
+          <div class="hero-v3-actions reveal">
+            <a class="btn btn-gold btn-lg" href="#services">See what we build</a>
+            <a class="btn btn-ghost btn-lg" href="#packages">Start with a small project</a>
+          </div>
+          <p class="hero-v3-micro reveal">No forced bundle. Buy one module or the full system — the site tells you which page fits what you need.</p>
+        </div>
 
-    <div class="showreel-wrap reveal">
-      <span class="showreel-halo" aria-hidden="true"></span>
-      <div class="showreel-shell">
-        <video class="showreel-video" src="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/5bb2df58-0355-41bd-8737-d586ad18bd6b.mp4" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/2324d222-1827-46b2-b203-106b55bee686.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Revenue Pilots spec creative showreel. Silent video."></video>
-        <span class="showreel-badge">Selected creative</span>
-        <div class="showreel-caption"><span><strong>One of the things we build</strong>Video is one module — see all four below</span><span>9:16</span></div>
+        <div class="engine-scene-wrap reveal">
+          <div class="engine-scene" id="engineScene" data-state="-1" aria-hidden="true">
+            <svg class="engine-connectors" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path class="engine-connector" d="M50 50 L50 8" />
+              <path class="engine-connector" d="M50 50 L4 46" />
+              <path class="engine-connector" d="M50 50 L96 42" />
+            </svg>
+
+            <div class="engine-platform">
+              <div class="engine-ring engine-ring-1"></div>
+              <div class="engine-ring engine-ring-2"></div>
+              <div class="engine-ring engine-ring-3"></div>
+            </div>
+
+            <div class="engine-hub">
+              <img src="assets/brand/rp-monogram.png" alt="Revenue Pilots" width="320" height="320" decoding="async">
+            </div>
+
+            <div class="engine-panel engine-panel-video">
+              <div class="engine-phone">
+                <img src="assets/posters/03-ecommerce-beauty-product.jpg" alt="" loading="lazy">
+                <span class="engine-play" aria-hidden="true"></span>
+              </div>
+            </div>
+
+            <div class="engine-panel engine-panel-website">
+              <div class="engine-browser">
+                <div class="engine-browser-bar"><i></i><i></i><i></i></div>
+                <div class="engine-browser-body">
+                  <span class="eb-eyebrow">CHARLOTTE, NC</span>
+                  <span class="eb-line eb-line-1"></span>
+                  <span class="eb-line eb-line-2"></span>
+                  <span class="eb-cta">Schedule Service</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="engine-panel engine-panel-systems">
+              <svg class="engine-nodes" viewBox="0 0 220 160">
+                <path class="en-line" d="M40 40 L110 30 L180 40" />
+                <path class="en-line" d="M40 40 L40 120" />
+                <path class="en-line" d="M40 120 L110 130 L180 120" />
+                <path class="en-line" d="M180 40 L180 120" />
+                <g class="en-node en-node-1"><circle cx="40" cy="40" r="15"/><text x="40" y="66">Intake</text></g>
+                <g class="en-node en-node-2"><circle cx="180" cy="40" r="15"/><text x="180" y="66">Booking</text></g>
+                <g class="en-node en-node-3"><circle cx="40" cy="120" r="15"/><text x="40" y="146">Follow-up</text></g>
+                <g class="en-node en-node-4"><circle cx="180" cy="120" r="15"/><text x="180" y="146">CRM</text></g>
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
-      <p class="spec-disclosure">Concept/spec work created to demonstrate craft and creative direction — not paid client results.</p>
+
+      <div class="engine-dots" role="tablist" aria-label="Revenue Engine states">
+        <button class="engine-dot" type="button" data-goto="0" aria-selected="false">01<span>Video</span></button>
+        <button class="engine-dot" type="button" data-goto="1" aria-selected="false">02<span>Websites</span></button>
+        <button class="engine-dot" type="button" data-goto="2" aria-selected="false">03<span>Systems</span></button>
+        <button class="engine-dot" type="button" data-goto="3" aria-selected="false">04<span>Full Build</span></button>
+      </div>
     </div>
   </div>
 </section>
