@@ -1,0 +1,172 @@
+/* =========================================================================
+   REVENUE ENGINE — cinematic WebGL intro.
+
+   Progressive enhancement, by design:
+   - Default (no JS, prefers-reduced-motion, or no WebGL): the 5 chapters
+     render as normal stacked static text. No pin, no canvas, no wasted
+     scroll height. This is what ships to a user who never gets the
+     "engine-3d-active" class.
+   - js/engine-intro.js adds `engine-3d-active` (and `engine-3d-mobile` on
+     small screens) to <html> ONLY after confirming prefers-reduced-motion
+     is off AND a WebGL context is actually available. Only then do the
+     pin/canvas/scroll-driven rules below take effect.
+   ========================================================================= */
+
+.engine-intro{
+  position:relative;
+  background:var(--bg);
+}
+
+.engine-intro-sticky{
+  position:relative;
+  overflow:hidden;
+}
+
+.engine-canvas{
+  display:none;
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.engine-intro-poster{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(closest-side, rgba(197,154,60,.16), transparent 62%),
+    radial-gradient(120% 90% at 50% 60%, rgba(197,154,60,.06), transparent 70%);
+  opacity:0;
+  transition:opacity .6s var(--ease);
+}
+
+/* ---------- chapter copy: static by default ---------- */
+.engine-chapters{
+  position:relative;
+  z-index:2;
+  max-width:640px;
+  margin:0 auto;
+  padding:clamp(72px,10vw,120px) var(--pad) clamp(48px,7vw,88px);
+  display:flex;
+  flex-direction:column;
+  gap:clamp(72px,12vw,140px);
+}
+.engine-chapter{ max-width:52ch; }
+.engine-chapter-eyebrow{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin:0 0 14px;
+}
+.engine-chapter-heading{
+  font-family:var(--font);
+  font-weight:800;
+  letter-spacing:-.03em;
+  line-height:1.05;
+  font-size:clamp(30px,4.6vw,48px);
+  color:var(--text);
+  margin:0 0 14px;
+}
+.engine-chapter-sub{
+  font-size:16px;
+  line-height:1.6;
+  color:var(--text-2);
+  margin:0;
+}
+
+.engine-scroll-hint{ display:none; }
+
+/* =========================================================================
+   ENHANCED MODE — only when JS has confirmed WebGL + no reduced-motion.
+   ========================================================================= */
+html.engine-3d-active .engine-intro{
+  height:450vh;
+}
+html.engine-3d-mobile .engine-intro{
+  height:320vh;
+}
+
+html.engine-3d-active .engine-intro-sticky{
+  position:sticky;
+  top:0;
+  height:100vh;
+  min-height:600px;
+}
+
+html.engine-3d-active .engine-canvas{
+  display:block;
+}
+
+html.engine-3d-active .engine-intro-poster{
+  opacity:1;
+}
+html.engine-3d-active .engine-intro-poster.is-hidden{
+  opacity:0;
+}
+
+html.engine-3d-active .engine-chapters{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  max-width:560px;
+  margin:0;
+  padding:0 clamp(24px,6vw,80px);
+  display:block;
+  pointer-events:none;
+}
+html.engine-3d-active .engine-chapter{
+  position:absolute;
+  left:clamp(24px,6vw,80px);
+  bottom:14%;
+  max-width:520px;
+  opacity:0;
+  transform:translateY(10px);
+  transition:opacity .45s var(--ease), transform .45s var(--ease);
+}
+html.engine-3d-active .engine-chapter.is-active{
+  opacity:1;
+  transform:translateY(0);
+}
+
+html.engine-3d-active .engine-scroll-hint{
+  display:block;
+  position:absolute;
+  left:50%;
+  bottom:34px;
+  transform:translateX(-50%);
+  z-index:2;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  opacity:.8;
+  transition:opacity .4s var(--ease);
+  pointer-events:none;
+}
+html.engine-3d-active .engine-scroll-hint.is-hidden{ opacity:0; }
+
+@media(max-width:760px){
+  html.engine-3d-active .engine-chapter{
+    left:20px;
+    right:20px;
+    max-width:none;
+    bottom:12%;
+  }
+  html.engine-3d-active .engine-chapter-heading{ font-size:clamp(26px,7vw,36px); }
+  html.engine-3d-active .engine-chapter-sub{ font-size:14.5px; }
+}
+
+@media(prefers-reduced-motion:reduce){
+  /* belt and suspenders: even if the class were somehow added, collapse
+     straight back to the static, unpinned experience. */
+  html.engine-3d-active .engine-intro{ height:auto; }
+  html.engine-3d-active .engine-intro-sticky{ position:relative; height:auto; min-height:0; }
+  html.engine-3d-active .engine-canvas{ display:none; }
+  html.engine-3d-active .engine-chapters{ position:relative; max-width:640px; margin:0 auto; padding:clamp(72px,10vw,120px) var(--pad) clamp(48px,7vw,88px); display:flex; flex-direction:column; gap:clamp(72px,12vw,140px); }
+  html.engine-3d-active .engine-chapter{ position:static; opacity:1; transform:none; }
+  html.engine-3d-active .engine-scroll-hint{ display:none; }
+}

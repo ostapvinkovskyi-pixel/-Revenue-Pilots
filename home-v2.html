@@ -20,13 +20,13 @@
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/portfolio-v3.css">
 <link rel="stylesheet" href="css/site-v2.css">
-<link rel="stylesheet" href="css/hero-engine.css">
+<link rel="stylesheet" href="css/engine-intro.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.revenuepilot.company/#organization","name":"Revenue Pilots","url":"https://www.revenuepilot.company/","logo":"https://www.revenuepilot.company/assets/brand/revenue-pilots-monogram-logo.png"},{"@type":"WebSite","@id":"https://www.revenuepilot.company/#website","url":"https://www.revenuepilot.company/","name":"Revenue Pilots","publisher":{"@id":"https://www.revenuepilot.company/#organization"}}]}</script>
 <script src="config/site-config.js" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/portfolio-v3.js" defer></script>
 <script src="js/site-v2.js" defer></script>
-<script src="js/hero-engine.js" defer></script>
+<script type="module" src="js/engine-intro.js"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -66,83 +66,40 @@
 <main id="main">
 <span id="top"></span>
 
-<section class="engine-hero" id="engine-hero">
-  <div class="engine-sticky">
-    <div class="hero-v3">
-      <div class="shell hero-v3-grid">
-        <div class="hero-v3-copy">
-          <p class="eyebrow reveal"><span class="eyebrow-dash" aria-hidden="true"></span>Websites · Video ads · Customer systems</p>
-          <h1 class="hero-v3-title reveal">Websites, video ads, and customer systems.<span>Built together or one at a time.</span></h1>
-          <p class="engine-state" id="engineState" aria-live="polite">
-            <span class="engine-state-num" id="engineStateNum">01</span>
-            <span class="engine-state-text" id="engineStateText">Video Creative — short-form ads that earn attention.</span>
-          </p>
-          <p class="hero-v3-sub reveal">Start with the piece you need now. Add the rest when it makes sense. Revenue Pilots builds the digital path from <strong>attention to inquiry to follow-up</strong>.</p>
-          <div class="hero-v3-actions reveal">
-            <a class="btn btn-gold btn-lg" href="#services">See what we build</a>
-            <a class="btn btn-ghost btn-lg" href="#packages">Start with a small project</a>
-          </div>
-          <p class="hero-v3-micro reveal">No forced bundle. Buy one module or the full system — the site tells you which page fits what you need.</p>
-        </div>
+<section class="engine-intro" id="engine-intro">
+  <div class="engine-intro-sticky">
+    <canvas id="engineCanvas" class="engine-canvas" aria-hidden="true"></canvas>
+    <div id="engineIntroPoster" class="engine-intro-poster" aria-hidden="true"></div>
 
-        <div class="engine-scene-wrap reveal">
-          <div class="engine-scene" id="engineScene" data-state="-1" aria-hidden="true">
-            <div class="engine-stage" id="engineStage">
-              <svg class="engine-connectors" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <path class="engine-connector" d="M50 50 L50 8" />
-                <path class="engine-connector" d="M50 50 L4 46" />
-                <path class="engine-connector" d="M50 50 L96 42" />
-              </svg>
-
-              <div class="engine-platform">
-                <div class="engine-ring engine-ring-1"></div>
-                <div class="engine-ring engine-ring-2"></div>
-                <div class="engine-ring engine-ring-3"></div>
-              </div>
-
-              <div class="engine-hub">
-                <img src="assets/brand/rp-monogram.png" alt="Revenue Pilots" width="320" height="320" decoding="async">
-              </div>
-
-              <div class="engine-panel engine-panel-video">
-                <div class="engine-phone engine-phone-back">
-                  <img src="assets/posters/01-home-services-roofing.jpg" alt="" loading="lazy">
-                </div>
-                <div class="engine-phone engine-phone-front">
-                  <img src="assets/posters/03-ecommerce-beauty-product.jpg" alt="" loading="lazy">
-                  <span class="engine-play" aria-hidden="true"></span>
-                </div>
-              </div>
-
-              <div class="engine-panel engine-panel-website">
-                <div class="engine-browser">
-                  <div class="engine-browser-bar"><i></i><i></i><i></i></div>
-                  <img class="engine-browser-shot" src="assets/hero/engine-website-panel.jpg" alt="Northline Heating &amp; Air — Revenue Pilots concept website" loading="lazy">
-                </div>
-              </div>
-
-              <div class="engine-panel engine-panel-systems">
-                <svg class="engine-nodes" viewBox="0 0 260 150">
-                  <path class="en-line" d="M25 95 L85 55 L135 40 L185 55 L245 95" />
-                  <g class="en-node en-node-1"><circle cx="25" cy="95" r="15"/><text x="25" y="121">Intake</text></g>
-                  <g class="en-node en-node-2"><circle cx="85" cy="55" r="15"/><text x="85" y="81">Booking</text></g>
-                  <g class="en-node en-node-3"><circle cx="135" cy="40" r="15"/><text x="135" y="66">Payment</text></g>
-                  <g class="en-node en-node-4"><circle cx="185" cy="55" r="15"/><text x="185" y="81">Follow-up</text></g>
-                  <g class="en-node en-node-5"><circle cx="245" cy="95" r="15"/><text x="245" y="121">CRM</text></g>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div class="engine-chapters" id="engineChapters">
+      <div class="engine-chapter is-active" data-chapter="0">
+        <p class="engine-chapter-eyebrow">The Revenue Engine</p>
+        <h1 class="engine-chapter-heading">One build. Four ways in.</h1>
+        <p class="engine-chapter-sub">Websites, video ads, and customer systems — built together or one at a time.</p>
       </div>
-
-      <div class="engine-dots" role="tablist" aria-label="Revenue Engine states">
-        <button class="engine-dot" type="button" data-goto="0" aria-selected="false"><span class="engine-dot-num">01</span><span class="engine-dot-label">Video</span></button>
-        <button class="engine-dot" type="button" data-goto="1" aria-selected="false"><span class="engine-dot-num">02</span><span class="engine-dot-label">Websites</span></button>
-        <button class="engine-dot" type="button" data-goto="2" aria-selected="false"><span class="engine-dot-num">03</span><span class="engine-dot-label">Systems</span></button>
-        <button class="engine-dot" type="button" data-goto="3" aria-selected="false"><span class="engine-dot-num">04</span><span class="engine-dot-label">Full Build</span></button>
+      <div class="engine-chapter" data-chapter="1">
+        <p class="engine-chapter-eyebrow">01 / Video Creative</p>
+        <h2 class="engine-chapter-heading">Ads that earn attention.</h2>
+        <p class="engine-chapter-sub">Short-form video built to stop the scroll, not just fill it.</p>
+      </div>
+      <div class="engine-chapter" data-chapter="2">
+        <p class="engine-chapter-eyebrow">02 / Websites</p>
+        <h2 class="engine-chapter-heading">A site that does the work.</h2>
+        <p class="engine-chapter-sub">Structured to turn interest into an actual inquiry.</p>
+      </div>
+      <div class="engine-chapter" data-chapter="3">
+        <p class="engine-chapter-eyebrow">03 / Systems</p>
+        <h2 class="engine-chapter-heading">Nothing falls through.</h2>
+        <p class="engine-chapter-sub">Intake, booking, payment and follow-up, connected.</p>
+      </div>
+      <div class="engine-chapter" data-chapter="4">
+        <p class="engine-chapter-eyebrow">04 / Full Build</p>
+        <h2 class="engine-chapter-heading">One engine. Every piece connected.</h2>
+        <p class="engine-chapter-sub">Website, systems and creative — working together from day one.</p>
       </div>
     </div>
+
+    <div class="engine-scroll-hint" id="engineScrollHint">Scroll to explore ↓</div>
   </div>
 </section>
 
