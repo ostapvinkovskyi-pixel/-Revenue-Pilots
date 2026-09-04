@@ -124,6 +124,7 @@ export default {
       "starter",
       "website_rescue",
       "website_build",
+      "video_creative",
       "systems",
       "full_build",
       "not_sure"

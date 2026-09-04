@@ -1,0 +1,116 @@
+/* =========================================================================
+   REVENUE PILOTS — hero service switcher.
+
+   Three service objects live in the DOM from first paint. Exactly one is
+   featured; the other two occupy the left/right slots. Clicking a side
+   object (or a mobile tab) rotates the positional classes and updates the
+   copy in the same frame. No sources are swapped on click, so there is no
+   asset flash and the cycle is exactly reversible.
+
+   Vanilla, no dependencies, CSP-safe (script-src 'self').
+   ========================================================================= */
+(function () {
+  "use strict";
+
+  var ORDER = ["creative", "websites", "systems"];
+
+  var COPY = {
+    creative: {
+      name: "CREATIVE",
+      promise: "Get attention worth converting.",
+      desc: "Short-form advertising built around hooks, offers and testing.",
+      price: "Video Creative — <strong>$1,200</strong>"
+    },
+    websites: {
+      name: "WEBSITES",
+      promise: "Turn attention into action.",
+      desc: "Premium websites designed around leads, bookings and sales.",
+      price: "Conversion Website — <strong>$2,500</strong>"
+    },
+    systems: {
+      name: "SYSTEMS",
+      promise: "Don't lose the opportunity after the click.",
+      desc: "Lead capture, follow-up, booking and workflow automation.",
+      price: "Revenue Systems — <strong>$1,500</strong>"
+    }
+  };
+
+  function ready(fn) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", fn, { once: true });
+    } else { fn(); }
+  }
+
+  ready(function () {
+    var objects = Array.prototype.slice.call(document.querySelectorAll(".v2-object"));
+    var tabs = Array.prototype.slice.call(document.querySelectorAll(".v2-tab"));
+    var elName = document.getElementById("v2ServiceName");
+    var elPromise = document.getElementById("v2Promise");
+    var elDesc = document.getElementById("v2Desc");
+    var elPrice = document.getElementById("v2Price");
+    if (!objects.length || !elName) return;
+
+    var active = null;
+
+    function show(service) {
+      if (!COPY[service] || service === active) return;
+      active = service;
+
+      var i = ORDER.indexOf(service);
+      var left = ORDER[(i + 2) % 3];
+      var right = ORDER[(i + 1) % 3];
+
+      objects.forEach(function (el) {
+        var s = el.getAttribute("data-service");
+        el.classList.toggle("is-featured", s === service);
+        el.classList.toggle("is-left", s === left);
+        el.classList.toggle("is-right", s === right);
+        // the featured object is not a control any more, the side ones are
+        el.setAttribute("aria-pressed", String(s === service));
+        el.disabled = (s === service);
+      });
+
+      tabs.forEach(function (t) {
+        t.setAttribute("aria-selected", String(t.getAttribute("data-service") === service));
+      });
+
+      var c = COPY[service];
+      elName.textContent = c.name;
+      elPromise.textContent = c.promise;
+      elDesc.textContent = c.desc;
+      elPrice.innerHTML = c.price;
+    }
+
+    objects.forEach(function (el) {
+      el.addEventListener("click", function () {
+        show(el.getAttribute("data-service"));
+      });
+    });
+    tabs.forEach(function (t) {
+      t.addEventListener("click", function () {
+        show(t.getAttribute("data-service"));
+      });
+    });
+
+    /* ?service=websites deep-links straight to a state. Useful for sharing
+       a specific service and for deterministic screenshot capture. */
+    var q = /[?&]service=(creative|websites|systems)/.exec(location.search);
+    show(q ? q[1] : "creative");
+    document.documentElement.classList.add("v2-ready");
+
+    /* Selected Work clips: poster only until asked for. Native controls are
+       hidden up front because they look like a browser chrome bar sitting on
+       the work; they appear once the viewer actually starts a clip. */
+    Array.prototype.forEach.call(document.querySelectorAll(".v2-clip"), function (fig) {
+      var video = fig.querySelector("video");
+      var btn = fig.querySelector(".v2-play");
+      if (!video || !btn) return;
+      btn.addEventListener("click", function () {
+        fig.classList.add("is-playing");
+        video.controls = true;
+        var p = video.play();
+        if (p && p.catch) p.catch(function () { /* autoplay policy: poster stays */ });
+      });
+    });
+  });
+})();
