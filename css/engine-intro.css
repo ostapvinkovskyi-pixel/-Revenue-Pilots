@@ -1,5 +1,5 @@
 /* =========================================================================
-   REVENUE ENGINE — cinematic WebGL intro.
+   REVENUE ENGINE — persistent WebGL world.
 
    Progressive enhancement, by design:
    - Default (no JS, prefers-reduced-motion, or no WebGL): the 5 chapters
@@ -9,7 +9,15 @@
    - js/engine-intro.js adds `engine-3d-active` (and `engine-3d-mobile` on
      small screens) to <html> ONLY after confirming prefers-reduced-motion
      is off AND a WebGL context is actually available. Only then do the
-     pin/canvas/scroll-driven rules below take effect.
+     rules below take effect.
+
+   Architecture: the canvas is a single position:fixed, full-viewport
+   layer sitting behind the ENTIRE page (not just the hero). It is NOT
+   confined to .engine-intro -- that section only pins the hero's own
+   chapter text while the scroll-driven camera in js/engine-intro.js
+   keeps moving through the rest of the page, easing into a dimmed
+   "atmosphere" framing that persists behind every later section instead
+   of disappearing after the hero.
    ========================================================================= */
 
 .engine-intro{
@@ -19,20 +27,22 @@
 
 .engine-intro-sticky{
   position:relative;
-  overflow:hidden;
 }
 
 .engine-canvas{
   display:none;
-  position:absolute;
+  position:fixed;
   inset:0;
   width:100%;
   height:100%;
+  z-index:0;
 }
 
 .engine-intro-poster{
-  position:absolute;
+  display:none;
+  position:fixed;
   inset:0;
+  z-index:0;
   background:
     radial-gradient(closest-side, rgba(197,154,60,.16), transparent 62%),
     radial-gradient(120% 90% at 50% 60%, rgba(197,154,60,.06), transparent 70%);
@@ -94,6 +104,15 @@ html.engine-3d-active .engine-intro-sticky{
   top:0;
   height:100vh;
   min-height:600px;
+  overflow:hidden;
+}
+
+/* The canvas paints the whole page's background, so the body's own flat
+   fill is turned off -- everything else on the page already sits on
+   near-transparent section backgrounds (see body::before's grain layer
+   using the same pattern), so this is a drop-in swap, not a rework. */
+html.engine-3d-active body{
+  background:transparent;
 }
 
 html.engine-3d-active .engine-canvas{
@@ -101,6 +120,7 @@ html.engine-3d-active .engine-canvas{
 }
 
 html.engine-3d-active .engine-intro-poster{
+  display:block;
   opacity:1;
 }
 html.engine-3d-active .engine-intro-poster.is-hidden{
@@ -149,6 +169,23 @@ html.engine-3d-active .engine-scroll-hint{
 }
 html.engine-3d-active .engine-scroll-hint.is-hidden{ opacity:0; }
 
+/* ---------- legibility scrim ----------
+   Past the hero the engine settles into a dimmed, distant "atmosphere"
+   framing (handled in JS: camera pulls back, lights/canvas opacity ease
+   down) -- it stays visible, not hidden, per the brief. This scrim is a
+   second, independent safety margin so body copy over it never gets
+   close to a contrast problem. It's deliberately subtle: a section still
+   reads mostly "engine behind glass", not "engine hidden behind a card". */
+html.engine-3d-active #services,
+html.engine-3d-active #work,
+html.engine-3d-active #packages,
+html.engine-3d-active #how,
+html.engine-3d-active .section-trust,
+html.engine-3d-active #faq,
+html.engine-3d-active #contact{
+  background:linear-gradient(180deg, rgba(7,9,13,.62), rgba(7,9,13,.72));
+}
+
 @media(max-width:760px){
   html.engine-3d-active .engine-chapter{
     left:20px;
@@ -164,9 +201,18 @@ html.engine-3d-active .engine-scroll-hint.is-hidden{ opacity:0; }
   /* belt and suspenders: even if the class were somehow added, collapse
      straight back to the static, unpinned experience. */
   html.engine-3d-active .engine-intro{ height:auto; }
-  html.engine-3d-active .engine-intro-sticky{ position:relative; height:auto; min-height:0; }
+  html.engine-3d-active .engine-intro-sticky{ position:relative; height:auto; min-height:0; overflow:visible; }
+  html.engine-3d-active body{ background:var(--bg); }
   html.engine-3d-active .engine-canvas{ display:none; }
+  html.engine-3d-active .engine-intro-poster{ display:none; }
   html.engine-3d-active .engine-chapters{ position:relative; max-width:640px; margin:0 auto; padding:clamp(72px,10vw,120px) var(--pad) clamp(48px,7vw,88px); display:flex; flex-direction:column; gap:clamp(72px,12vw,140px); }
   html.engine-3d-active .engine-chapter{ position:static; opacity:1; transform:none; }
   html.engine-3d-active .engine-scroll-hint{ display:none; }
+  html.engine-3d-active #services,
+  html.engine-3d-active #work,
+  html.engine-3d-active #packages,
+  html.engine-3d-active #how,
+  html.engine-3d-active .section-trust,
+  html.engine-3d-active #faq,
+  html.engine-3d-active #contact{ background:none; }
 }
