@@ -1,23 +1,18 @@
 /* =========================================================================
-   REVENUE ENGINE — persistent WebGL world.
+   REVENUE ENGINE — 2.5D hero stage.
 
-   Progressive enhancement, by design:
-   - Default (no JS, prefers-reduced-motion, or no WebGL): the 5 chapters
-     render as normal stacked static text. No pin, no canvas, no wasted
-     scroll height. This is what ships to a user who never gets the
-     "engine-3d-active" class.
-   - js/engine-intro.js adds `engine-3d-active` (and `engine-3d-mobile` on
-     small screens) to <html> ONLY after confirming prefers-reduced-motion
-     is off AND a WebGL context is actually available. Only then do the
-     rules below take effect.
+   High-quality supplied plates composited in a CSS 3D space. Code handles
+   position, perspective, camera movement, parallax, scale and focus; it
+   does not draw the hardware.
 
-   Architecture: the canvas is a single position:fixed, full-viewport
-   layer sitting behind the ENTIRE page (not just the hero). It is NOT
-   confined to .engine-intro -- that section only pins the hero's own
-   chapter text while the scroll-driven camera in js/engine-intro.js
-   keeps moving through the rest of the page, easing into a dimmed
-   "atmosphere" framing that persists behind every later section instead
-   of disappearing after the hero.
+   Lifecycle, deliberately bounded:
+     Overview -> Video -> Websites -> Systems -> Full Build -> fade out
+   After Full Build the stage fades to zero and is detached, and the page
+   continues as a normal opaque document. The engine is a set-piece at the
+   top of the page, NOT a background behind the whole site.
+
+   Progressive enhancement: default (no JS / reduced motion) renders the five
+   chapters as plain stacked text with no stage at all.
    ========================================================================= */
 
 .engine-intro{
@@ -29,26 +24,8 @@
   position:relative;
 }
 
-.engine-canvas{
-  display:none;
-  position:fixed;
-  inset:0;
-  width:100%;
-  height:100%;
-  z-index:0;
-}
-
-.engine-intro-poster{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:0;
-  background:
-    radial-gradient(closest-side, rgba(197,154,60,.16), transparent 62%),
-    radial-gradient(120% 90% at 50% 60%, rgba(197,154,60,.06), transparent 70%);
-  opacity:0;
-  transition:opacity .6s var(--ease);
-}
+/* stage hidden until JS opts in */
+.engine-stage{ display:none; }
 
 /* ---------- chapter copy: static by default ---------- */
 .engine-chapters{
@@ -90,16 +67,17 @@
 .engine-scroll-hint{ display:none; }
 
 /* =========================================================================
-   ENHANCED MODE — only when JS has confirmed WebGL + no reduced-motion.
+   ENHANCED MODE
    ========================================================================= */
-html.engine-3d-active .engine-intro{
-  height:450vh;
-}
-html.engine-3d-mobile .engine-intro{
-  height:320vh;
-}
+/* The hero section is position:relative, so with z-index:auto it paints in
+   the same layer as the fixed stage but later in DOM order -- an opaque
+   background here covers the stage completely (everything except the
+   transparent header). It must be transparent while the stage is live.
+   This applies to the hero only; no other section is made transparent. */
+html.engine-25d .engine-intro{ height:450vh; background:transparent; }
+html.engine-25d-mobile .engine-intro{ height:330vh; }
 
-html.engine-3d-active .engine-intro-sticky{
+html.engine-25d .engine-intro-sticky{
   position:sticky;
   top:0;
   height:100vh;
@@ -107,27 +85,173 @@ html.engine-3d-active .engine-intro-sticky{
   overflow:hidden;
 }
 
-/* The canvas paints the whole page's background, so the body's own flat
-   fill is turned off -- everything else on the page already sits on
-   near-transparent section backgrounds (see body::before's grain layer
-   using the same pattern), so this is a drop-in swap, not a rework. */
-html.engine-3d-active body{
-  background:transparent;
-}
-
-html.engine-3d-active .engine-canvas{
+html.engine-25d .engine-stage{
   display:block;
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  background:var(--bg);
+  will-change:opacity;
 }
-
-html.engine-3d-active .engine-intro-poster{
-  display:block;
-  opacity:1;
-}
-html.engine-3d-active .engine-intro-poster.is-hidden{
+/* released after Full Build: faded out and non-rendering */
+html.engine-25d .engine-stage.is-released{
   opacity:0;
+  visibility:hidden;
 }
 
-html.engine-3d-active .engine-chapters{
+/* Scene coordinate space matches the world plate's aspect (4800x2510).
+   Everything inside is positioned in these units and scaled as one. */
+.engine-scene{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:2400px;
+  height:1255px;
+  margin:-627px 0 0 -1200px;
+  transform-origin:50% 50%;
+  will-change:transform;
+}
+
+.engine-layer{
+  position:absolute;
+  will-change:transform;
+}
+
+.engine-world{
+  inset:0;
+  /* jpg first as the universal fallback, then webp for browsers that
+     support image-set -- roughly half the bytes for the same plate */
+  background-image:url("../assets/engine/engine-world-2400.jpg");
+  background-image:image-set(
+    url("../assets/engine/engine-world-2400.webp") type("image/webp"),
+    url("../assets/engine/engine-world-2400.jpg") type("image/jpeg"));
+  background-size:100% 100%;
+}
+
+/* ---- modules: sized in their own asset pixel space so screen quads
+   measured against the source map 1:1 ---- */
+.engine-mod{ transform-origin:0 0; }
+.engine-mod .mod-plate{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.engine-mod-web{
+  left:245px; top:430px;
+  width:1540px; height:1260px;
+  --scale:.455;
+}
+.engine-mod-vid{
+  left:1330px; top:210px;
+  width:1460px; height:1340px;
+  --scale:.425;
+}
+.engine-mod-sys{
+  left:1520px; top:680px;
+  width:620px; height:360px;
+  --scale:1.02;
+  z-index:3;
+}
+
+/* screens: absolutely placed in module pixel space, then mapped onto the
+   measured four-corner quad with a homography (matrix3d set from JS) */
+.mod-screen{
+  position:absolute;
+  left:0; top:0;
+  transform-origin:0 0;
+  overflow:hidden;
+  backface-visibility:hidden;
+}
+.mod-screen img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* glass sheen, re-applied over the composited screens */
+.mod-glare{
+  position:absolute; inset:0;
+  pointer-events:none;
+  background:linear-gradient(112deg,
+    rgba(255,255,255,0) 34%,
+    rgba(255,255,255,.055) 42%,
+    rgba(255,255,255,.085) 47%,
+    rgba(255,255,255,0) 56%);
+  mix-blend-mode:screen;
+}
+
+/* contact shadow so modules sit on the floor rather than hover */
+.engine-mod-web::after,
+.engine-mod-vid::after{
+  content:"";
+  position:absolute;
+  left:8%; right:8%;
+  bottom:-2%;
+  height:9%;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,.62), rgba(0,0,0,0) 70%);
+  filter:blur(6px);
+  z-index:-1;
+}
+
+/* ---- systems: live HTML/SVG, never a baked asset ---- */
+.sys-wires{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.sys-wires .sys-pulse{
+  stroke-dasharray:60 900;
+  stroke-dashoffset:960;
+  opacity:.9;
+  filter:drop-shadow(0 0 6px rgba(226,189,100,.75));
+}
+html.engine-25d .sys-wires .sys-pulse{ animation:sysPulse 5.2s linear infinite; }
+@keyframes sysPulse{ to{ stroke-dashoffset:0; } }
+
+.sys-tiles{ position:absolute; inset:0; margin:0; padding:0; list-style:none; }
+.sys-tile{
+  position:absolute;
+  left:var(--tx); top:var(--ty);
+  transform:translate(-50%,-50%);
+  display:flex; align-items:center; justify-content:center;
+  width:112px; height:46px;
+  border-radius:10px;
+  border:1px solid rgba(226,189,100,.45);
+  background:linear-gradient(180deg, rgba(24,26,32,.96), rgba(10,12,16,.96));
+  box-shadow:0 6px 18px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.sys-tile span{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:13px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:#EFE9DC;
+  white-space:nowrap;
+}
+
+/* ---- logo: the real asset, unaltered, mounted upright on the hub ---- */
+.engine-logo{
+  left:1200px; top:716px;
+  width:132px; height:132px;
+  margin:-66px 0 0 -66px;
+  --scale:1;
+}
+/* mounted as a medallion on the hub plate: the bitmap itself is untouched,
+   the bezel and seat around it are CSS */
+.engine-logo img{
+  width:100%; height:100%;
+  display:block;
+  border-radius:50%;
+  box-shadow:
+    0 0 0 3px rgba(197,154,60,.85),
+    0 0 0 5px rgba(10,12,16,.9),
+    0 12px 26px rgba(0,0,0,.65),
+    0 0 26px rgba(197,154,60,.3);
+}
+
+/* ---- chapter copy in enhanced mode ---- */
+html.engine-25d .engine-chapters{
   position:absolute;
   inset:0;
   z-index:2;
@@ -137,7 +261,7 @@ html.engine-3d-active .engine-chapters{
   display:block;
   pointer-events:none;
 }
-html.engine-3d-active .engine-chapter{
+html.engine-25d .engine-chapter{
   position:absolute;
   left:clamp(24px,6vw,80px);
   bottom:14%;
@@ -145,13 +269,14 @@ html.engine-3d-active .engine-chapter{
   opacity:0;
   transform:translateY(10px);
   transition:opacity .45s var(--ease), transform .45s var(--ease);
+  text-shadow:0 2px 18px rgba(0,0,0,.75);
 }
-html.engine-3d-active .engine-chapter.is-active{
+html.engine-25d .engine-chapter.is-active{
   opacity:1;
   transform:translateY(0);
 }
 
-html.engine-3d-active .engine-scroll-hint{
+html.engine-25d .engine-scroll-hint{
   display:block;
   position:absolute;
   left:50%;
@@ -167,52 +292,34 @@ html.engine-3d-active .engine-scroll-hint{
   transition:opacity .4s var(--ease);
   pointer-events:none;
 }
-html.engine-3d-active .engine-scroll-hint.is-hidden{ opacity:0; }
+html.engine-25d .engine-scroll-hint.is-hidden{ opacity:0; }
 
-/* ---------- legibility scrim ----------
-   Past the hero the engine settles into a dimmed, distant "atmosphere"
-   framing (handled in JS: camera pulls back, lights/canvas opacity ease
-   down) -- it stays visible, not hidden, per the brief. This scrim is a
-   second, independent safety margin so body copy over it never gets
-   close to a contrast problem. It's deliberately subtle: a section still
-   reads mostly "engine behind glass", not "engine hidden behind a card". */
-html.engine-3d-active #services,
-html.engine-3d-active #work,
-html.engine-3d-active #packages,
-html.engine-3d-active #how,
-html.engine-3d-active .section-trust,
-html.engine-3d-active #faq,
-html.engine-3d-active #contact{
-  background:linear-gradient(180deg, rgba(7,9,13,.62), rgba(7,9,13,.72));
-}
-
+/* =========================================================================
+   MOBILE — pan + scale only. No yaw, no perspective, no blur: CSS 3D on a
+   long scrolling page is where mobile compositors stutter.
+   ========================================================================= */
 @media(max-width:760px){
-  html.engine-3d-active .engine-chapter{
-    left:20px;
-    right:20px;
-    max-width:none;
-    bottom:12%;
+  html.engine-25d .engine-chapters{ padding:0; }
+  html.engine-25d .engine-chapter{
+    left:16px; right:16px; width:auto; max-width:none; bottom:11%;
   }
-  html.engine-3d-active .engine-chapter-heading{ font-size:clamp(26px,7vw,36px); }
-  html.engine-3d-active .engine-chapter-sub{ font-size:14.5px; }
+  html.engine-25d .engine-chapter-sub{ max-width:30ch; }
+  html.engine-25d .engine-chapter-heading{ font-size:clamp(23px,6.2vw,32px); }
+  html.engine-25d .engine-chapter-sub{ font-size:14.5px; }
+  .sys-tile{ width:96px; height:40px; }
+  .sys-tile span{ font-size:10.5px; }
 }
 
 @media(prefers-reduced-motion:reduce){
-  /* belt and suspenders: even if the class were somehow added, collapse
-     straight back to the static, unpinned experience. */
-  html.engine-3d-active .engine-intro{ height:auto; }
-  html.engine-3d-active .engine-intro-sticky{ position:relative; height:auto; min-height:0; overflow:visible; }
-  html.engine-3d-active body{ background:var(--bg); }
-  html.engine-3d-active .engine-canvas{ display:none; }
-  html.engine-3d-active .engine-intro-poster{ display:none; }
-  html.engine-3d-active .engine-chapters{ position:relative; max-width:640px; margin:0 auto; padding:clamp(72px,10vw,120px) var(--pad) clamp(48px,7vw,88px); display:flex; flex-direction:column; gap:clamp(72px,12vw,140px); }
-  html.engine-3d-active .engine-chapter{ position:static; opacity:1; transform:none; }
-  html.engine-3d-active .engine-scroll-hint{ display:none; }
-  html.engine-3d-active #services,
-  html.engine-3d-active #work,
-  html.engine-3d-active #packages,
-  html.engine-3d-active #how,
-  html.engine-3d-active .section-trust,
-  html.engine-3d-active #faq,
-  html.engine-3d-active #contact{ background:none; }
+  html.engine-25d .engine-intro{ height:auto; }
+  html.engine-25d .engine-intro-sticky{ position:relative; height:auto; min-height:0; overflow:visible; }
+  html.engine-25d .engine-stage{ display:none; }
+  html.engine-25d .engine-chapters{
+    position:relative; max-width:640px; margin:0 auto;
+    padding:clamp(72px,10vw,120px) var(--pad) clamp(48px,7vw,88px);
+    display:flex; flex-direction:column; gap:clamp(72px,12vw,140px);
+  }
+  html.engine-25d .engine-chapter{ position:static; opacity:1; transform:none; text-shadow:none; }
+  html.engine-25d .engine-scroll-hint{ display:none; }
+  html.engine-25d .sys-wires .sys-pulse{ animation:none; }
 }

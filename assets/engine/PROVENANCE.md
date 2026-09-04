@@ -42,3 +42,28 @@ No third-party content, no client work, no invented metrics.
 The two supplied module PNGs (`video-module`, `website-module`) are omitted:
 they are being re-rendered in the photoreal style of the world plate and the
 flat line-art versions are superseded.
+
+## video-module / website-module (added in the 2.5D integration commit)
+Source: `Revenue_Pilots_Photoreal_Module_Assets.zip`, supplied by the owner.
+
+Retouched mechanically (approved), no redesign:
+- **Alpha feathered.** The supplied mattes were hard-edged polygons cut around
+  each device, leaving opaque near-black regions outside the hardware. A 2px
+  blur on the alpha channel softens those cuts so they read as shadow rather
+  than as pasted cards.
+- **Clipped bases faded.** Both silhouettes ran off the bottom (and right)
+  edge of their canvas, ending in a straight cut. A smoothstep alpha ramp over
+  the last 130 rows (and 70 columns on the right) fades them into the floor.
+- Contact shadows are CSS, not baked, so they stay adjustable.
+
+Two automated cutout approaches were tried first and rejected because both
+destroyed the hardware: a flood fill from the transparent regions leaked
+through gaps in the gold bezels and ate the screens, and a luminance key
+removed the phone bodies outright — these are black devices with gold trim, so
+they cannot be separated from a black background by luminance. The screens
+themselves do not need rescuing: they are replaced at runtime by real
+Revenue Pilots content.
+
+WebP derivatives were produced through a browser canvas (the local ffmpeg has
+no WebP encoder), alpha verified intact. They cut the two module plates from
+1.9 MB to 215 KB combined.

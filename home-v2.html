@@ -26,11 +26,58 @@
 <script src="js/main.js" defer></script>
 <script src="js/portfolio-v3.js" defer></script>
 <script src="js/site-v2.js" defer></script>
-<script type="module" src="js/engine-intro.js"></script>
+<script src="js/engine-intro.js" defer></script>
 </head>
 <body>
-<canvas id="engineCanvas" class="engine-canvas" aria-hidden="true"></canvas>
-<div id="engineIntroPoster" class="engine-intro-poster" aria-hidden="true"></div>
+<!-- 2.5D Revenue Engine stage. Fixed while the hero is on screen, then faded
+     out and detached entirely so the rest of the page is a normal opaque
+     document -- the engine is a bounded set-piece, not a page background. -->
+<div class="engine-stage" id="engineStage" aria-hidden="true">
+  <div class="engine-scene" id="engineScene">
+    <div class="engine-layer engine-world"></div>
+
+    <div class="engine-layer engine-mod engine-mod-web" id="modWeb">
+      <picture>
+        <source srcset="assets/engine/website-module.webp" type="image/webp">
+        <img class="mod-plate" src="assets/engine/website-module.png" alt="" decoding="async">
+      </picture>
+      <div class="mod-screen" data-quad="web"><img src="assets/engine/northline-screen-1280.jpg" alt="" decoding="async"></div>
+      <div class="mod-glare"></div>
+    </div>
+
+    <div class="engine-layer engine-mod engine-mod-sys" id="modSys">
+      <svg class="sys-wires" viewBox="0 0 620 360" fill="none" aria-hidden="true">
+        <path d="M70 300 L190 205 L330 150 L470 205 L560 300" stroke="url(#sysGold)" stroke-width="3" stroke-linecap="round"/>
+        <defs><linearGradient id="sysGold" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#8a6b28"/><stop offset=".5" stop-color="#E2BD64"/><stop offset="1" stop-color="#8a6b28"/>
+        </linearGradient></defs>
+        <path class="sys-pulse" d="M70 300 L190 205 L330 150 L470 205 L560 300" stroke="#FFC871" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <ul class="sys-tiles">
+        <li class="sys-tile" style="--tx:70px;  --ty:300px"><span>Intake</span></li>
+        <li class="sys-tile" style="--tx:190px; --ty:205px"><span>Booking</span></li>
+        <li class="sys-tile" style="--tx:330px; --ty:150px"><span>Payment</span></li>
+        <li class="sys-tile" style="--tx:470px; --ty:205px"><span>Follow-up</span></li>
+        <li class="sys-tile" style="--tx:560px; --ty:300px"><span>CRM</span></li>
+      </ul>
+    </div>
+
+    <div class="engine-layer engine-mod engine-mod-vid" id="modVid">
+      <picture>
+        <source srcset="assets/engine/video-module.webp" type="image/webp">
+        <img class="mod-plate" src="assets/engine/video-module.png" alt="" decoding="async">
+      </picture>
+      <div class="mod-screen" data-quad="vidL"><img src="assets/posters/01-home-services-roofing.jpg" alt="" decoding="async"></div>
+      <div class="mod-screen" data-quad="vidC"><img src="assets/posters/02-hospitality-restaurant.jpg" alt="" decoding="async"></div>
+      <div class="mod-screen" data-quad="vidR"><img src="assets/posters/03-ecommerce-beauty-product.jpg" alt="" decoding="async"></div>
+      <div class="mod-glare mod-glare-phones"></div>
+    </div>
+
+    <div class="engine-layer engine-logo">
+      <img src="assets/brand/rp-monogram.png" alt="" width="320" height="320" decoding="async">
+    </div>
+  </div>
+</div>
 <a class="skip-link" href="#main">Skip to content</a>
 
 <header class="site-header" id="siteHeader">
