@@ -27,7 +27,7 @@
     weekly: "STRIPE_WEEKLY_URL"
   };
   var PLAN_LABELS = {
-    starter: "Starter ($249)",
+    starter: "Video Creative ($1,500)",
     growth: "Growth ($499)",
     weekly: "Weekly Ad Engine ($999/mo)"
   };

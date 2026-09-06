@@ -300,7 +300,7 @@
   /* ---------------------------------------------------------------------
      PACKAGES CONFIGURATOR
      Three real, pre-rendered panes (Creative / Websites / Systems) swap
-     visibility. Content — including the live Stripe Starter Pilot button —
+     visibility. Content — including the live Stripe Video Creative button —
      lives in the HTML from first paint, so the one-time [data-plan] wiring
      in main.js always finds it; this only ever toggles `hidden` + a fade.
      --------------------------------------------------------------------- */

@@ -19,19 +19,19 @@
       name: "CREATIVE",
       promise: "Get attention worth converting.",
       desc: "Short-form advertising built around hooks, offers and testing.",
-      price: "Video Creative — <strong>$1,200</strong>"
+      price: "Video Creative — <strong>$1,500</strong>"
     },
     websites: {
       name: "WEBSITES",
       promise: "Turn attention into action.",
       desc: "Premium websites designed around leads, bookings and sales.",
-      price: "Conversion Website — <strong>$2,500</strong>"
+      price: "Conversion Website — <strong>$3,500</strong>"
     },
     systems: {
       name: "SYSTEMS",
       promise: "Don't lose the opportunity after the click.",
       desc: "Lead capture, follow-up, booking and workflow automation.",
-      price: "Revenue Systems — <strong>$1,500</strong>"
+      price: "Revenue Systems — <strong>$3,500</strong>"
     }
   };
 

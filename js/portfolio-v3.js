@@ -20,9 +20,9 @@
        lead endpoints. It also contains old homepage SEO/DOM compatibility
        transforms, so this page restores the v3 copy after those transforms run. */
     document.title = "Revenue Pilots — Performance Video Creative for Meta, Reels & TikTok";
-    setMeta('meta[name="description"]',"name","description").setAttribute("content","Short-form paid-social creative for brands, local businesses and agencies. Start with 3 custom vertical ads and 3 distinct hooks for $249 one-time.");
+    setMeta('meta[name="description"]',"name","description").setAttribute("content","Short-form paid-social creative for brands, local businesses and agencies. Start with 3 custom vertical ads and 3 distinct hooks for $1,500 one-time.");
     setMeta('meta[property="og:title"]',"property","og:title").setAttribute("content","Revenue Pilots — Performance-Minded Paid-Social Creative");
-    setMeta('meta[property="og:description"]',"property","og:description").setAttribute("content","3 custom vertical ads. 3 distinct hooks. $249 one-time. No contract.");
+    setMeta('meta[property="og:description"]',"property","og:description").setAttribute("content","3 custom vertical ads. 3 distinct hooks. $1,500 one-time. No contract.");
     setMeta('meta[property="og:image"]',"property","og:image").setAttribute("content","https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/2324d222-1827-46b2-b203-106b55bee686.jpg");
 
     var schema = document.getElementById("rp-structured-data");
@@ -31,7 +31,7 @@
         "@context":"https://schema.org",
         "@graph":[
           {"@type":"Organization","@id":"https://www.revenuepilot.company/#organization","name":"Revenue Pilots","url":"https://www.revenuepilot.company/","logo":"https://www.revenuepilot.company/assets/brand/revenue-pilots-monogram-logo.png"},
-          {"@type":"Service","@id":"https://www.revenuepilot.company/#creative-pilot","name":"Short-form paid-social creative","serviceType":"Vertical video advertising creative","provider":{"@id":"https://www.revenuepilot.company/#organization"},"areaServed":"United States","url":"https://www.revenuepilot.company/#pricing","description":"A one-time pilot with three custom 9:16 video ads and three distinct creative hooks built around the buyer's real offer and brand.","offers":[{"@type":"Offer","name":"Starter Pilot","price":"249","priceCurrency":"USD","url":"https://www.revenuepilot.company/#pricing"}]}
+          {"@type":"Service","@id":"https://www.revenuepilot.company/#creative-pilot","name":"Short-form paid-social creative","serviceType":"Vertical video advertising creative","provider":{"@id":"https://www.revenuepilot.company/#organization"},"areaServed":"United States","url":"https://www.revenuepilot.company/#pricing","description":"A one-time pilot with three custom 9:16 video ads and three distinct creative hooks built around the buyer's real offer and brand.","offers":[{"@type":"Offer","name":"Video Creative","price":"249","priceCurrency":"USD","url":"https://www.revenuepilot.company/#pricing"}]}
         ]
       });
     }
@@ -65,11 +65,11 @@
 
     var contactSub = document.querySelector(".contact-pitch .section-sub");
     var contactMicro = document.querySelector(".contact-pitch .hero-micro");
-    if(contactSub) contactSub.textContent = "3 custom vertical ads and 3 distinct hooks for $249 one-time.";
+    if(contactSub) contactSub.textContent = "3 custom vertical ads and 3 distinct hooks for $1,500 one-time.";
     if(contactMicro) contactMicro.textContent = "No contract. You control and pay your own ad budget.";
 
     var packageSelect = document.getElementById("lf-package");
-    if(packageSelect) packageSelect.innerHTML = '<option value="not_sure">Not sure yet</option><option value="starter">Starter Pilot — $249</option>';
+    if(packageSelect) packageSelect.innerHTML = '<option value="not_sure">Not sure yet</option><option value="starter">Video Creative — $1,500</option>';
   }
 
   ready(function(){
