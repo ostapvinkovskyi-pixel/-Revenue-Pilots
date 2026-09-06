@@ -28,7 +28,7 @@
       promise: "Turn attention into action.",
       desc: "Premium websites designed around leads, bookings and sales.",
       price: "Conversion Website — <strong>$3,500 total</strong> · $1,750 project deposit",
-      cta: "Start Website — $1,750 deposit",
+      cta: "Start Website — $1,750",
       checkout: "/api/checkout?plan=website&term=deposit"
     },
     systems: {
@@ -36,7 +36,7 @@
       promise: "Don't lose the opportunity after the click.",
       desc: "Lead capture, follow-up, booking and workflow automation.",
       price: "Revenue Systems — <strong>$3,500 total</strong> · $1,750 project deposit",
-      cta: "Start Revenue Systems — $1,750 deposit",
+      cta: "Start Revenue Systems — $1,750",
       checkout: "/api/checkout?plan=systems&term=deposit"
     }
   };
