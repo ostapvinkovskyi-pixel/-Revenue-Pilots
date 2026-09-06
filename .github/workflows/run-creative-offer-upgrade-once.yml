@@ -1,0 +1,33 @@
+name: Run creative offer upgrade once
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run-creative-offer-upgrade-once.yml'
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply creative offer upgrade
+        run: |
+          python scripts/creative_offer_upgrade.py
+          git diff --check
+          grep -q 'creative-offers.css' home-v2.html
+          grep -q 'Creative Sprint' home-v2.html
+          grep -q 'Creative Engine' home-v2.html
+          grep -q 'Creative Scale' home-v2.html
+          grep -q 'creative_engine' video-ads/index.html
+          grep -q '8 original ads' video-ads/index.html
+      - name: Commit
+        run: |
+          git config user.name 'Revenue Pilots Site Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add home-v2.html video-ads/index.html short-form-video-ads/index.html ai-ugc-video-ads/index.html beauty-video-ads/index.html ecommerce-product-video-ads/index.html meta-ad-creative/index.html restaurant-video-ads/index.html video-ads-for-home-services/index.html video-ads-for-roofing/index.html white-label-ad-creative/index.html
+          git commit -m 'Upgrade creative offers and monthly ladder'
+          git push origin main
