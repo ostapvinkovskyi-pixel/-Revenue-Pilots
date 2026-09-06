@@ -415,19 +415,23 @@
 /* xs: too small for an asymmetric split -- collapse to a centered mark +
    headline fragment with a small Operations Core silhouette above it,
    matching "keep the silhouette, simplify detail, no unreadable microcopy" */
-.rp-altura-xs{ font-size:7px; }
-.rp-altura-xs .rp-altura-h1{ font-size:2em; max-width:9ch; }
+/* The Packages media box is ~470x320 at desktop, so this variant is NOT a
+   thumbnail -- a fixed 7px base sized the whole component for a box about a
+   third of that and forced the headline into a 9ch column. Scale with the
+   box like the other variants do. */
+.rp-altura-xs{ font-size:clamp(7px,.78vw,11px); }
+.rp-altura-xs .rp-altura-h1{ font-size:1.85em; max-width:16ch; }
 .rp-altura-xs .rp-altura-hero{
   align-items:center; text-align:center; max-width:100%;
-  justify-content:center; padding:0 6%;
+  justify-content:flex-end; padding:0 8% 9%;
 }
-.rp-altura-xs .rp-altura-badge{ margin-top:5.5em; }
+.rp-altura-xs .rp-altura-badge{ margin-bottom:.9em; }
 .rp-altura-xs .rp-altura-nav{ top:1.2em; left:1.2em; right:1.2em; }
 .rp-altura-xs .orv-grid,
 .rp-altura-xs .orv-hud{ display:none; }
 .rp-altura-xs .orv-core{
-  top:1.4em; left:50%; right:auto; bottom:auto;
-  width:6.6em; height:6.6em; transform:translateX(-50%);
+  top:2.4em; left:50%; right:auto; bottom:auto;
+  width:8.6em; height:8.6em; transform:translateX(-50%);
 }
 /* at thumbnail scale only the silhouette + lit core read -- drop the
    micro-detail rather than render it as sub-pixel mush */
