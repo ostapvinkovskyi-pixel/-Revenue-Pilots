@@ -1,0 +1,31 @@
+name: Run deposit label polish once
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run-polish-deposit-labels-once.yml'
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Polish deposit labels
+        run: |
+          python scripts/polish_deposit_labels.py
+          git diff --check
+          grep -q '$1,750 project deposit' home-v2.html
+          grep -q '$1,750 remaining before launch' home-v2.html
+          ! grep -q '50% project deposit' home-v2.html
+      - name: Commit
+        run: |
+          git config user.name 'Revenue Pilots Site Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add '*.html' */'*.html' */*/'*.html' || true
+          git add -u
+          git commit -m 'Polish project deposit messaging'
+          git push origin main
