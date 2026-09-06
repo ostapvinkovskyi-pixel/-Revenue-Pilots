@@ -104,6 +104,24 @@ export default {
           subscription_id: safe(session.subscription),
           verified: true
         }, webhookSecret);
+      } else if (event.type === "invoice.paid") {
+        const invoice = event.data.object;
+        // checkout.session.completed already records the first subscription payment.
+        // Only send a separate revenue event for later successful renewals.
+        if (invoice.billing_reason !== "subscription_create" && invoice.subscription) {
+          await notifyMake({
+            event_type: "subscription_renewal",
+            stripe_event_id: event.id,
+            stripe_event_type: event.type,
+            payment_status: safe(invoice.status || "paid"),
+            amount: typeof invoice.amount_paid === "number" ? invoice.amount_paid / 100 : "",
+            currency: safe(invoice.currency || "usd"),
+            customer_email: safe(invoice.customer_email),
+            stripe_customer_id: safe(invoice.customer),
+            subscription_id: safe(invoice.subscription),
+            verified: true
+          }, webhookSecret);
+        }
       } else if (event.type === "invoice.payment_failed" || event.type === "customer.subscription.deleted") {
         const object = event.data.object;
         await notifyMake({
