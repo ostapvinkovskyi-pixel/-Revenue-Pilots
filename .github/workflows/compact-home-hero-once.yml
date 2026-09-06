@@ -28,7 +28,6 @@ jobs:
           text = path.read_text()
           marker = '/* COMPACT DESKTOP HERO — Sep 6 */'
           block = textwrap.dedent(r'''
-          
           /* COMPACT DESKTOP HERO — Sep 6 */
           @media (min-width: 1024px){
             .v2-hero{
@@ -112,7 +111,7 @@ jobs:
           ''')
           if marker in text:
               raise SystemExit('Compact hero marker already present; refusing duplicate append')
-          path.write_text(text.rstrip() + block + '\n')
+          path.write_text(text.rstrip() + '\n\n' + block.strip() + '\n')
           PY
 
       - name: Verify stylesheet diff
