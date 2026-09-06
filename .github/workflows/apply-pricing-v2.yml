@@ -18,173 +18,142 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Align all public pricing
+      - name: Apply approved pricing
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
-          def read(rel):
-              return Path(rel).read_text()
-
-          def write(rel, text):
-              Path(rel).write_text(text)
-
-          def req(text, old, new, label):
-              if old not in text:
-                  raise SystemExit(f'Expected text not found: {label}')
-              return text.replace(old, new)
-
-          # Homepage — one public price per service.
-          p = Path('home-v2.html')
-          s = p.read_text()
-          s = req(s,
-              'Video Creative $1,200 · Conversion Website $2,500 · Revenue Systems $1,500 · Full Revenue Build $4,900.',
-              'Video Creative $1,500 · Conversion Website $3,500 · Revenue Systems $3,500 · Full Revenue Build $7,500.',
-              'homepage meta prices')
-          s = req(s, 'Video Creative — <strong>$1,200</strong>', 'Video Creative — <strong>$1,500</strong>', 'hero creative price')
-          s = req(s, '<p class="v4-tier-kicker">Start small</p>', '<p class="v4-tier-kicker">Creative package</p>', 'creative kicker')
-          s = req(s, '<h3 class="v4-tier-name">Starter Creative Pilot</h3>', '<h3 class="v4-tier-name">Video Creative</h3>', 'creative package name')
-          s = req(s, '<p class="v4-tier-price">$249</p>', '<p class="v4-tier-price">$1,500</p>', 'creative package price')
-          s = req(s, 'Start a Pilot &mdash; $249', 'Start Video Creative &mdash; $1,500', 'creative CTA')
-          s = req(s, '                <p class="v4-pkg-sub">Need more volume? <a href="#contact">Video Creative &mdash; $1,200 &rarr;</a></p>\n', '', 'duplicate creative price')
-          s = req(s, '<p class="v4-tier-price">$2,500</p>', '<p class="v4-tier-price">$3,500</p>', 'website package price')
-          s = req(s, '<h3 class="v4-tier-name">Revenue Systems</h3>\n                <p class="v4-tier-price">$1,500</p>', '<h3 class="v4-tier-name">Revenue Systems</h3>\n                <p class="v4-tier-price">$3,500</p>', 'systems package price')
-          s = req(s, '<p class="v4-build-amount">$4,900</p>', '<p class="v4-build-amount">$7,500</p>', 'full build price')
-          s = req(s, '<p class="v4-build-copy">All three layers scoped, built and connected as one system.</p>', '<p class="v4-build-copy">All three layers scoped, built and connected as one system. $1,000 less than buying all three separately.</p>', 'full build bundle copy')
-          s = req(s, '          <option value="starter">Starter Creative Pilot ($249)</option>\n', '', 'duplicate starter form option')
-          s = req(s, '<option value="website_build">Conversion Website ($2,500)</option>', '<option value="website_build">Conversion Website ($3,500)</option>', 'website form price')
-          s = req(s, '<option value="video_creative">Video Creative ($1,200)</option>', '<option value="video_creative">Video Creative ($1,500)</option>', 'creative form price')
-          s = req(s, '<option value="systems">Revenue Systems ($1,500)</option>', '<option value="systems">Revenue Systems ($3,500)</option>', 'systems form price')
-          s = req(s, '<option value="full_build">Full Revenue Build ($4,900)</option>', '<option value="full_build">Full Revenue Build ($7,500)</option>', 'full form price')
-          p.write_text(s)
-
-          # Dynamic hero copy — preserve all current About/ORVYN behavior.
-          p = Path('js/hero-switcher.js')
-          s = p.read_text()
-          s = req(s, 'price: "Video Creative — <strong>$1,200</strong>"', 'price: "Video Creative — <strong>$1,500</strong>"', 'hero JS creative')
-          s = req(s, 'price: "Conversion Website — <strong>$2,500</strong>"', 'price: "Conversion Website — <strong>$3,500</strong>"', 'hero JS website')
-          s = req(s, 'price: "Revenue Systems — <strong>$1,500</strong>"', 'price: "Revenue Systems — <strong>$3,500</strong>"', 'hero JS systems')
-          p.write_text(s)
-
-          # Stripe direct checkout — keep the internal plan=starter route key so existing wiring stays compatible.
-          p = Path('api/checkout.js')
-          s = p.read_text()
-          s = req(s, 'const STARTER = {', 'const VIDEO_CREATIVE = {', 'checkout constant')
-          s = req(s, 'name: "Revenue Pilots — Starter Pilot",', 'name: "Revenue Pilots — Video Creative",', 'checkout product')
-          s = req(s, 'amount: 24900,', 'amount: 150000,', 'checkout amount')
-          s = req(s, 'description: "One-time pilot: 3 custom vertical video ads, 3 distinct hooks/creative angles, branding + CTA copy, social-ready 9:16 exports, and 1 revision round. First drafts within 72 hours after required assets are received. No subscription. Ad spend not included."', 'description: "One-time Video Creative package: 3 custom vertical video ads, 3 distinct hooks/creative angles, creative direction, branding + CTA copy, social-ready 9:16 exports, and 1 revision round. First drafts within 72 hours after required usable assets are received. No subscription. Ad spend not included."', 'checkout description')
-          s = req(s, 'return json({ error: "Only the Starter Pilot is available." }, 400);', 'return json({ error: "Only Video Creative is available for direct checkout." }, 400);', 'checkout plan error')
-          s = req(s, 'return json({ error: "The Starter Pilot is a one-time purchase, not a subscription." }, 400);', 'return json({ error: "Video Creative is a one-time purchase, not a subscription." }, 400);', 'checkout term error')
-          s = req(s, 'launch_offer_version: "starter-pilot-v1"', 'launch_offer_version: "video-creative-v2",\n      offer: "video_creative"', 'checkout metadata')
-          s = req(s, 'unit_amount: STARTER.amount,', 'unit_amount: VIDEO_CREATIVE.amount,', 'checkout amount ref')
-          s = req(s, 'name: STARTER.name,', 'name: VIDEO_CREATIVE.name,', 'checkout name ref')
-          s = req(s, 'description: STARTER.description', 'description: VIDEO_CREATIVE.description', 'checkout description ref')
-          p.write_text(s)
-
-          # Checkout fallback label.
-          p = Path('js/main.js')
-          s = p.read_text()
-          s = req(s, 'starter: "Starter ($249)"', 'starter: "Video Creative ($1,500)"', 'main checkout label')
-          p.write_text(s)
-
-          # /video-ads/ runtime copy.
-          p = Path('js/portfolio-v3.js')
-          s = p.read_text().replace('$249', '$1,500').replace('Starter Pilot', 'Video Creative').replace('starter pilot', 'Video Creative').replace('Start the Pilot', 'Start Video Creative')
-          p.write_text(s)
-
-          # All public creative landing pages use the same package and price.
-          creative_pages = [
-              'video-ads/index.html', 'ai-ugc-video-ads/index.html', 'beauty-video-ads/index.html',
-              'ecommerce-product-video-ads/index.html', 'meta-ad-creative/index.html',
-              'restaurant-video-ads/index.html', 'short-form-video-ads/index.html',
-              'video-ads-for-home-services/index.html', 'video-ads-for-roofing/index.html'
-          ]
-          for rel in creative_pages:
+          def edit(rel, pairs):
               p = Path(rel)
               s = p.read_text()
-              s = s.replace('$249', '$1,500')
-              s = s.replace('Starter Creative Pilot', 'Video Creative').replace('Starter Pilot', 'Video Creative').replace('starter pilot', 'Video Creative')
-              s = s.replace('Start the Pilot', 'Start Video Creative').replace('Start a Pilot', 'Start Video Creative').replace('Start Starter Pilot', 'Start Video Creative')
-              s = s.replace("One low-risk way to see if we're a fit.", "One focused way to see if we're a fit.")
-              s = s.replace('One $1,500 Video Creative.', 'One focused $1,500 Video Creative package.')
+              for old, new in pairs:
+                  if old not in s:
+                      raise SystemExit(f'Expected text not found in {rel}: {old[:90]}')
+                  s = s.replace(old, new)
               p.write_text(s)
 
-          # Remove obsolete public Starter wording from the agency page too.
-          p = Path('white-label-ad-creative/index.html')
-          s = p.read_text().replace('public Starter Pilot', 'public Video Creative package')
-          p.write_text(s)
+          # Homepage: exactly one price per service.
+          edit('home-v2.html', [
+              ('Video Creative $1,200 · Conversion Website $2,500 · Revenue Systems $1,500 · Full Revenue Build $4,900.', 'Video Creative $1,500 · Conversion Website $3,500 · Revenue Systems $3,500 · Full Revenue Build $7,500.'),
+              ('Video Creative — <strong>$1,200</strong>', 'Video Creative — <strong>$1,500</strong>'),
+              ('<p class="v4-tier-kicker">Start small</p>', '<p class="v4-tier-kicker">Creative package</p>'),
+              ('<h3 class="v4-tier-name">Starter Creative Pilot</h3>', '<h3 class="v4-tier-name">Video Creative</h3>'),
+              ('<p class="v4-tier-price">$249</p>', '<p class="v4-tier-price">$1,500</p>'),
+              ('Start a Pilot &mdash; $249', 'Start Video Creative &mdash; $1,500'),
+              ('                <p class="v4-pkg-sub">Need more volume? <a href="#contact">Video Creative &mdash; $1,200 &rarr;</a></p>\n', ''),
+              ('<h3 class="v4-tier-name">Conversion Website</h3>\n                <p class="v4-tier-price">$2,500</p>', '<h3 class="v4-tier-name">Conversion Website</h3>\n                <p class="v4-tier-price">$3,500</p>'),
+              ('<h3 class="v4-tier-name">Revenue Systems</h3>\n                <p class="v4-tier-price">$1,500</p>', '<h3 class="v4-tier-name">Revenue Systems</h3>\n                <p class="v4-tier-price">$3,500</p>'),
+              ('<p class="v4-build-amount">$4,900</p>', '<p class="v4-build-amount">$7,500</p>'),
+              ('All three layers scoped, built and connected as one system.', 'All three layers scoped, built and connected as one system. $1,000 less than buying all three separately.'),
+              ('          <option value="starter">Starter Creative Pilot ($249)</option>\n', ''),
+              ('<option value="website_build">Conversion Website ($2,500)</option>', '<option value="website_build">Conversion Website ($3,500)</option>'),
+              ('<option value="video_creative">Video Creative ($1,200)</option>', '<option value="video_creative">Video Creative ($1,500)</option>'),
+              ('<option value="systems">Revenue Systems ($1,500)</option>', '<option value="systems">Revenue Systems ($3,500)</option>'),
+              ('<option value="full_build">Full Revenue Build ($4,900)</option>', '<option value="full_build">Full Revenue Build ($7,500)</option>')
+          ])
 
-          # Website page — one core offer at $3,500, no cheap rescue ladder.
-          p = Path('websites/index.html')
-          s = p.read_text()
-          s = req(s, '<title>Website Repair, Redesign &amp; Builds — Revenue Pilots</title>', '<title>Conversion Website — $3,500 — Revenue Pilots</title>', 'website title')
-          s = req(s, '<meta name="description" content="Website Rescue, full conversion-focused builds, or a website paired with customer systems. Fix intake and trust problems or start fresh — scoped after a real review.">', '<meta name="description" content="Revenue Pilots builds premium conversion-focused business websites for $3,500: custom visual direction, responsive build, conversion architecture, lead capture and core integrations.">', 'website meta')
-          s = req(s, '<meta property="og:description" content="Repair, redesign, or a full conversion-focused build. Website Rescue from $500. Full builds from $1.5k.">', '<meta property="og:description" content="Conversion Website — $3,500. Premium responsive design, conversion architecture, lead capture and core integrations.">', 'website OG')
-          s = s.replace('Get a website review', 'Start a website project')
-          s = req(s, 'Repair a small number of concrete problems, or build a new conversion-focused site from scratch. Every quote follows a real review of what you have now — no unverified performance claims.', 'A premium conversion-focused site built around your real offer, customers and next action. The core Conversion Website is $3,500, with scope confirmed before work begins and no unverified performance claims.', 'website hero copy')
-          new_levels = '''<section class="section" id="levels">
-  <div class="shell">
-    <header class="section-head"><p class="eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>Conversion Website · $3,500</p><h2 class="section-title">One clear core build.</h2><p class="section-sub">No cheap rescue tier beside a premium build. The core website package is $3,500; genuinely custom additions are quoted before work begins.</p></header>
-    <div class="service-grid is-3col">
-      <div class="service-card reveal"><span class="service-card-num">01</span><h3>Strategy &amp; structure</h3><p>We shape the pages, hierarchy, CTA path and customer journey around the real offer instead of dropping copy into a generic template.</p></div>
-      <div class="service-card reveal is-flagship"><span class="service-card-num">02</span><h3>Premium responsive build</h3><p>Custom visual direction and a polished mobile-first build designed to make the business feel credible before the first conversation.</p></div>
-      <div class="service-card reveal"><span class="service-card-num">03</span><h3>Conversion &amp; handoff</h3><p>Lead capture, core integrations, launch QA and a clear path from interest to the next action your business actually needs.</p></div>
-    </div>
-  </div>
-</section>'''
-          s, n = re.subn(r'<section class="section" id="levels">.*?</section>', new_levels, s, count=1, flags=re.S)
-          if n != 1: raise SystemExit('Could not replace website levels section')
-          s = req(s, '<h2 class="section-title">Tell us what\'s wrong with the site — or what you want built.</h2><p class="section-sub">We review what you have, then send an exact quote. No pressure toward the biggest package.</p>', '<h2 class="section-title">Tell us what you want the new site to do.</h2><p class="section-sub">Conversion Website is $3,500. We review the business and confirm the exact scope before work begins.</p>', 'website contact pitch')
-          s = req(s, '<h3 class="form-heading">Request a website review</h3>', '<h3 class="form-heading">Start a website project</h3>', 'website form heading')
-          s = req(s, '          <option value="website_rescue">Website Rescue</option>\n          <option value="website_build" selected>Website Build</option>\n          <option value="systems">Website + Systems</option>\n          <option value="not_sure">Not sure yet</option>', '          <option value="website_build" selected>Conversion Website ($3,500)</option>\n          <option value="full_build">Full Revenue Build ($7,500)</option>\n          <option value="not_sure">Not sure yet</option>', 'website form options')
-          p.write_text(s)
+          edit('js/hero-switcher.js', [
+              ('Video Creative — <strong>$1,200</strong>', 'Video Creative — <strong>$1,500</strong>'),
+              ('Conversion Website — <strong>$2,500</strong>', 'Conversion Website — <strong>$3,500</strong>'),
+              ('Revenue Systems — <strong>$1,500</strong>', 'Revenue Systems — <strong>$3,500</strong>')
+          ])
 
-          # Systems page — fixed $3,500 core implementation; truthful scope caveat stays.
-          p = Path('systems/index.html')
-          s = p.read_text()
-          s = req(s, '<title>Booking, Intake &amp; Follow-Up Systems — Revenue Pilots</title>', '<title>Revenue Systems — $3,500 — Revenue Pilots</title>', 'systems title')
-          s = req(s, '<meta name="description" content="Custom-scoped booking, intake, payment flow and follow-up workflows for a business whose traffic already exists but whose follow-up doesn\'t.">', '<meta name="description" content="Revenue Systems — $3,500. Lead capture, follow-up, booking, payment handoff and core CRM/workflow integrations, scoped to what your stack actually supports.">', 'systems meta')
-          s = req(s, '<meta property="og:description" content="Capture the lead. Follow up automatically. Custom-scoped booking, intake and workflow support.">', '<meta property="og:description" content="Revenue Systems — $3,500. Capture the lead, follow up, book and keep the workflow connected.">', 'systems OG')
-          s = req(s, 'For a business that already has traffic or a working site, but where intake, booking or follow-up is where inquiries quietly disappear. Every project is scoped to what\'s actually supported — nothing promised that isn\'t backed by a real implementation.', 'For a business that already has traffic or a working site, but where intake, booking or follow-up is where inquiries quietly disappear. Revenue Systems is $3,500 for the core implementation, scoped to what your stack actually supports.', 'systems hero')
-          s = req(s, '<p class="eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>What\'s supported</p>', '<p class="eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>Revenue Systems · $3,500</p>', 'systems price eyebrow')
-          s = req(s, '<p class="section-sub">Each project uses only what\'s actually in scope for your stack — explained plainly before anything is built.</p>', '<p class="section-sub">The core implementation is $3,500. Each project uses only what is actually supported by your stack — explained plainly before anything is built.</p>', 'systems section price')
-          s = req(s, '<p class="section-sub">We review your current stack, then send a custom scope and price — no generic package.</p>', '<p class="section-sub">The core Revenue Systems package is $3,500. We review your current stack and confirm what is included before work begins.</p>', 'systems contact')
-          s = req(s, '<option value="systems" selected>Systems &amp; Automation</option>', '<option value="systems" selected>Revenue Systems ($3,500)</option>', 'systems form')
-          p.write_text(s)
+          # Direct checkout remains on the existing internal plan=starter route key,
+          # but the actual product and charge are now Video Creative at $1,500.
+          edit('api/checkout.js', [
+              ('const STARTER = {', 'const VIDEO_CREATIVE = {'),
+              ('name: "Revenue Pilots — Starter Pilot",', 'name: "Revenue Pilots — Video Creative",'),
+              ('amount: 24900,', 'amount: 150000,'),
+              ('description: "One-time pilot: 3 custom vertical video ads, 3 distinct hooks/creative angles, branding + CTA copy, social-ready 9:16 exports, and 1 revision round. First drafts within 72 hours after required assets are received. No subscription. Ad spend not included."', 'description: "One-time Video Creative package: 3 custom vertical video ads, 3 distinct hooks/creative angles, creative direction, branding + CTA copy, social-ready 9:16 exports, and 1 revision round. First drafts within 72 hours after required usable assets are received. No subscription. Ad spend not included."'),
+              ('Only the Starter Pilot is available.', 'Only Video Creative is available for direct checkout.'),
+              ('The Starter Pilot is a one-time purchase, not a subscription.', 'Video Creative is a one-time purchase, not a subscription.'),
+              ('launch_offer_version: "starter-pilot-v1"', 'launch_offer_version: "video-creative-v2",\n      offer: "video_creative"'),
+              ('unit_amount: STARTER.amount', 'unit_amount: VIDEO_CREATIVE.amount'),
+              ('name: STARTER.name', 'name: VIDEO_CREATIVE.name'),
+              ('description: STARTER.description', 'description: VIDEO_CREATIVE.description')
+          ])
 
-          # Full Build — fixed $7,500 bundle.
-          p = Path('full-build/index.html')
-          s = p.read_text()
-          s = req(s, '<title>Full Revenue Build — From $10k — Revenue Pilots</title>', '<title>Full Revenue Build — $7,500 — Revenue Pilots</title>', 'full title')
-          s = req(s, '<meta name="description" content="One build. Website, customer system, and launch creative — from $10k, custom scope. For a business that wants one partner instead of three vendors.">', '<meta name="description" content="Full Revenue Build — $7,500. Website, customer system and launch creative built together for a business that wants one connected partner instead of three vendors.">', 'full meta')
-          s = req(s, '<meta property="og:description" content="Website, customer system, and launch creative — one build, from $10k, custom scope.">', '<meta property="og:description" content="Website, customer system and launch creative — one connected Full Revenue Build for $7,500.">', 'full OG')
-          s = req(s, 'The flagship package for a business that wants one partner instead of three vendors who don\'t talk to each other. The exact build depends on your existing stack, business model and required integrations — quoted from $10k after a discovery conversation, not promised as an identical deliverable for every business.', 'The flagship package for a business that wants one partner instead of three vendors who don\'t talk to each other. The core Full Revenue Build is $7,500 — $1,000 less than buying Video Creative, the Conversion Website and Revenue Systems separately.', 'full hero')
-          s = req(s, 'Scope, timeline and price are confirmed together before any work begins. "From $10k" is a starting point, not a fixed price for every business.', 'The core Full Revenue Build is $7,500. Scope and timeline are confirmed before work begins; genuinely custom additions outside the core build are quoted separately.', 'full disclosure')
-          s = req(s, '<option value="full_build" selected>Full Revenue Build ($10k+)</option>', '<option value="full_build" selected>Full Revenue Build ($7,500)</option>', 'full form')
-          s = req(s, 'Website, customer system and launch creative, from $10k, custom scope. No performance guarantee.', 'Website, customer system and launch creative — $7,500 core build. No performance guarantee.', 'full footer')
-          p.write_text(s)
+          edit('js/main.js', [('starter: "Starter ($249)"', 'starter: "Video Creative ($1,500)"')])
 
-          # Maintenance-only wording so future edits do not resurrect the retired Starter label.
-          for rel in ['js/v4.js', 'css/v4.css']:
-              p = Path(rel)
-              p.write_text(p.read_text().replace('Starter Pilot', 'Video Creative'))
+          # Dynamic /video-ads copy.
+          for rel in ['js/portfolio-v3.js']:
+              p = Path(rel); s = p.read_text(); s = s.replace('$249', '$1,500').replace('Starter Pilot', 'Video Creative').replace('starter pilot', 'Video Creative'); p.write_text(s)
 
-          # Guards: no retired public price points remain in aligned pages.
+          # All creative landing pages: one package, one $1,500 price.
+          creative_pages = [
+              'video-ads/index.html','ai-ugc-video-ads/index.html','beauty-video-ads/index.html',
+              'ecommerce-product-video-ads/index.html','meta-ad-creative/index.html','restaurant-video-ads/index.html',
+              'short-form-video-ads/index.html','video-ads-for-home-services/index.html','video-ads-for-roofing/index.html'
+          ]
+          for rel in creative_pages:
+              p = Path(rel); s = p.read_text()
+              s = s.replace('$249', '$1,500').replace('Starter Creative Pilot', 'Video Creative').replace('Starter Pilot', 'Video Creative').replace('starter pilot', 'Video Creative')
+              s = s.replace('Start the Pilot', 'Start Video Creative').replace('Start a Pilot', 'Start Video Creative').replace('Start Starter Pilot', 'Start Video Creative')
+              s = s.replace("One low-risk way to see if we're a fit.", "One focused way to see if we're a fit.")
+              p.write_text(s)
+
+          p = Path('white-label-ad-creative/index.html'); p.write_text(p.read_text().replace('public Starter Pilot', 'public Video Creative package'))
+
+          # Website page: remove cheap tier anchoring and make $3,500 the only website price.
+          edit('websites/index.html', [
+              ('<title>Website Repair, Redesign &amp; Builds — Revenue Pilots</title>', '<title>Conversion Website — $3,500 — Revenue Pilots</title>'),
+              ('Website Rescue, full conversion-focused builds, or a website paired with customer systems. Fix intake and trust problems or start fresh — scoped after a real review.', 'Premium conversion-focused business websites for $3,500: custom visual direction, responsive build, conversion architecture, lead capture and core integrations.'),
+              ('Repair, redesign, or a full conversion-focused build. Website Rescue from $500. Full builds from $1.5k.', 'Conversion Website — $3,500. Premium responsive design, conversion architecture, lead capture and core integrations.'),
+              ('Repair a small number of concrete problems, or build a new conversion-focused site from scratch. Every quote follows a real review of what you have now — no unverified performance claims.', 'A premium conversion-focused site built around your real offer, customers and next action. The core Conversion Website is $3,500, with scope confirmed before work begins.'),
+              ('<span class="eyebrow-dash" aria-hidden="true"></span>Three levels', '<span class="eyebrow-dash" aria-hidden="true"></span>Conversion Website · $3,500'),
+              ('Fix it, rebuild it, or connect it to systems.', 'One clear core website build.'),
+              ('<h3>Website Rescue</h3>', '<h3>Strategy &amp; structure</h3>'),
+              ('Fix a small number of concrete website or intake problems: a weak CTA, a broken mobile flow, inconsistent contact info, an obvious template issue.', 'Shape the pages, hierarchy, CTA path and customer journey around the real offer.'),
+              ('        <span class="service-card-price">From $500</span>\n', ''),
+              ('<h3>Website Build</h3>', '<h3>Conversion Website</h3>'),
+              ('<span class="service-card-price">From $1.5k–$3k+, scope-dependent</span>', '<span class="service-card-price">$3,500</span>'),
+              ('<h3>Website + Systems</h3>', '<h3>Core integrations</h3>'),
+              ('A new or repaired site connected to booking, intake and follow-up — so the site doesn\'t just look better, it captures more of what it earns.', 'Lead capture and core integrations that move an interested visitor toward the next real action.'),
+              ('        <span class="service-card-price">Scoped together with Systems</span>\n', ''),
+              ('<option value="website_rescue">Website Rescue</option>\n          <option value="website_build" selected>Website Build</option>\n          <option value="systems">Website + Systems</option>', '<option value="website_build" selected>Conversion Website ($3,500)</option>\n          <option value="full_build">Full Revenue Build ($7,500)</option>')
+          ])
+
+          # Systems: core price is $3,500, while implementation caveats remain truthful.
+          edit('systems/index.html', [
+              ('<title>Booking, Intake &amp; Follow-Up Systems — Revenue Pilots</title>', '<title>Revenue Systems — $3,500 — Revenue Pilots</title>'),
+              ('Custom-scoped booking, intake, payment flow and follow-up workflows for a business whose traffic already exists but whose follow-up doesn\'t.', 'Revenue Systems — $3,500. Lead capture, follow-up, booking, payment handoff and core CRM/workflow integrations, scoped to what your stack actually supports.'),
+              ('Capture the lead. Follow up automatically. Custom-scoped booking, intake and workflow support.', 'Revenue Systems — $3,500. Capture the lead, follow up, book and keep the workflow connected.'),
+              ('Every project is scoped to what\'s actually supported — nothing promised that isn\'t backed by a real implementation.', 'Revenue Systems is $3,500 for the core implementation, scoped to what your stack actually supports.'),
+              ('<span class="eyebrow-dash" aria-hidden="true"></span>What\'s supported', '<span class="eyebrow-dash" aria-hidden="true"></span>Revenue Systems · $3,500'),
+              ('Each project uses only what\'s actually in scope for your stack — explained plainly before anything is built.', 'The core implementation is $3,500. Each project uses only what is actually in scope for your stack — explained plainly before anything is built.'),
+              ('We review your current stack, then send a custom scope and price — no generic package.', 'The core Revenue Systems package is $3,500. We review your current stack and confirm what is included before work begins.'),
+              ('<option value="systems" selected>Systems &amp; Automation</option>', '<option value="systems" selected>Revenue Systems ($3,500)</option>')
+          ])
+
+          # Full build: fixed $7,500 core bundle.
+          edit('full-build/index.html', [
+              ('<title>Full Revenue Build — From $10k — Revenue Pilots</title>', '<title>Full Revenue Build — $7,500 — Revenue Pilots</title>'),
+              ('One build. Website, customer system, and launch creative — from $10k, custom scope. For a business that wants one partner instead of three vendors.', 'Full Revenue Build — $7,500. Website, customer system and launch creative built together for a business that wants one connected partner instead of three vendors.'),
+              ('Website, customer system, and launch creative — one build, from $10k, custom scope.', 'Website, customer system and launch creative — one connected Full Revenue Build for $7,500.'),
+              ('The flagship package for a business that wants one partner instead of three vendors who don\'t talk to each other. The exact build depends on your existing stack, business model and required integrations — quoted from $10k after a discovery conversation, not promised as an identical deliverable for every business.', 'The flagship package for a business that wants one partner instead of three vendors who don\'t talk to each other. The core Full Revenue Build is $7,500 — $1,000 less than buying Video Creative, the Conversion Website and Revenue Systems separately.'),
+              ('Scope, timeline and price are confirmed together before any work begins. "From $10k" is a starting point, not a fixed price for every business.', 'The core Full Revenue Build is $7,500. Scope and timeline are confirmed before work begins; genuinely custom additions outside the core build are quoted separately.'),
+              ('Full Revenue Build ($10k+)', 'Full Revenue Build ($7,500)'),
+              ('Website, customer system and launch creative, from $10k, custom scope.', 'Website, customer system and launch creative — $7,500 core build.')
+          ])
+
+          # Maintenance comments only; no behavior change.
+          for rel in ['js/v4.js','css/v4.css']:
+              p = Path(rel); p.write_text(p.read_text().replace('Starter Pilot', 'Video Creative'))
+
+          # Guard against retired public pricing in aligned files.
           audit = ['home-v2.html','js/hero-switcher.js','js/main.js','js/portfolio-v3.js','api/checkout.js','websites/index.html','systems/index.html','full-build/index.html','white-label-ad-creative/index.html'] + creative_pages
           forbidden = ['$249','$1,200','$2,500','$4,900','$10k','From $500','From $1.5k','Starter Creative Pilot','Starter Pilot']
           for rel in audit:
               text = Path(rel).read_text()
               for needle in forbidden:
                   if needle in text:
-                      raise SystemExit(f'Stale pricing text {needle!r} remains in {rel}')
-
+                      raise SystemExit(f'Stale pricing text {needle} remains in {rel}')
           if 'amount: 150000' not in Path('api/checkout.js').read_text():
-              raise SystemExit('Stripe checkout amount is not $1,500')
-          print('Pricing alignment checks passed.')
+              raise SystemExit('Checkout amount did not update to $1,500')
+          print('Pricing migration passed.')
           PY
 
-      - name: Syntax and diff checks
+      - name: Verify syntax and diff
         run: |
           node --check js/hero-switcher.js
           node --check js/main.js
@@ -192,7 +161,7 @@ jobs:
           node --check api/checkout.js
           git diff --check
 
-      - name: Commit pricing alignment
+      - name: Commit pricing migration
         run: |
           git config user.name "Revenue Pilots Site Bot"
           git config user.email "actions@users.noreply.github.com"
