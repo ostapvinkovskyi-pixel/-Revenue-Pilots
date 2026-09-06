@@ -21,12 +21,53 @@
 <link rel="stylesheet" href="css/portfolio-v3.css">
 <link rel="stylesheet" href="css/site-v2.css">
 <link rel="stylesheet" href="css/v2.css">
+<link rel="stylesheet" href="css/v4.css">
+<link rel="stylesheet" href="css/altura.css">
+<link rel="stylesheet" href="css/final-showcase.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.revenuepilot.company/#organization","name":"Revenue Pilots","url":"https://www.revenuepilot.company/","logo":"https://www.revenuepilot.company/assets/brand/revenue-pilots-monogram-logo.png"},{"@type":"WebSite","@id":"https://www.revenuepilot.company/#website","url":"https://www.revenuepilot.company/","name":"Revenue Pilots","publisher":{"@id":"https://www.revenuepilot.company/#organization"}}]}</script>
 <script src="config/site-config.js" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/hero-switcher.js" defer></script>
+<script src="js/v4.js" defer></script>
+<script src="js/altura.js" defer></script>
+<script src="js/final-showcase.js" defer></script>
 </head>
 <body>
+<!-- Moving line background. Native animated SVG: crisp at any size, ~2KB,
+     graded to brand gold. .v4-bg-video is the one-file swap slot for an
+     owner-supplied clip (set its src to switch). -->
+<div class="v4-bg" aria-hidden="true">
+  <video class="v4-bg-video" autoplay muted loop playsinline preload="metadata"
+         poster="assets/background/revenue-lines-poster.jpg">
+    <source media="(max-width: 760px)" src="assets/background/revenue-lines-mobile.mp4" type="video/mp4">
+    <source src="assets/background/revenue-lines-desktop.mp4" type="video/mp4">
+  </video>
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="v4LineGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#C59A3C" stop-opacity=".05"/>
+        <stop offset=".45" stop-color="#E2BD64" stop-opacity=".55"/>
+        <stop offset="1" stop-color="#C59A3C" stop-opacity=".06"/>
+      </linearGradient>
+    </defs>
+    <g class="v4-drift-a" stroke-width="1">
+      <path d="M-120 250 C 220 180, 470 300, 760 214 S 1180 120, 1360 190"/>
+      <path d="M-120 300 C 230 232, 480 350, 770 266 S 1190 176, 1360 244"/>
+      <path d="M-120 352 C 240 286, 490 402, 780 320 S 1200 232, 1360 300"/>
+      <path d="M-120 406 C 250 342, 500 456, 790 376 S 1210 290, 1360 358"/>
+    </g>
+    <g class="v4-drift-b" stroke-width=".85">
+      <path d="M-120 470 C 260 400, 520 520, 800 436 S 1220 348, 1360 414"/>
+      <path d="M-120 524 C 270 456, 530 574, 810 492 S 1230 404, 1360 470"/>
+      <path d="M-120 580 C 280 512, 540 630, 820 548 S 1240 462, 1360 528"/>
+    </g>
+    <g class="v4-drift-c" stroke-width=".7">
+      <path d="M-120 120 C 210 60, 460 176, 750 96 S 1170 8, 1360 74"/>
+      <path d="M-120 646 C 290 578, 550 696, 830 614 S 1250 528, 1360 594"/>
+      <path d="M-120 704 C 300 636, 560 754, 840 672 S 1260 586, 1360 652"/>
+    </g>
+  </svg>
+</div>
 <a class="skip-link" href="#main">Skip to content</a>
 
 <header class="site-header" id="siteHeader">
@@ -37,10 +78,10 @@
     </a>
     <nav class="nav-desktop" aria-label="Primary">
       <a href="#work">Work</a>
-      <a href="#services">Services</a>
+      <a href="#hero">Services</a>
       <a href="#packages">Packages</a>
       <a href="#how">How it works</a>
-      <a href="/about/">About</a>
+      <a href="#about">About</a>
       <a href="#contact">Contact</a>
     </nav>
     <div class="header-actions">
@@ -52,10 +93,10 @@
   </div>
   <div class="nav-mobile" id="navMobile" hidden>
     <a href="#work">Work</a>
-    <a href="#services">Services</a>
+    <a href="#hero">Services</a>
     <a href="#packages">Packages</a>
     <a href="#how">How it works</a>
-    <a href="/about/">About</a>
+    <a href="#about">About</a>
     <a href="#contact">Contact</a>
   </div>
 </header>
@@ -90,10 +131,11 @@
 
   <div class="v2-stage v2-entrance" style="--d:460ms">
     <button type="button" class="v2-object" data-service="creative" aria-label="Show Creative" aria-pressed="true">
-      <span class="v2-phone">
-        <span class="v2-phone-screen">
-          <img src="assets/posters/02-hospitality-restaurant.jpg" alt="Vertical short-form advertising creative by Revenue Pilots" width="540" height="960" decoding="async">
-        </span>
+      <span class="v2-media-panel">
+        <video src="assets/hero/hero-creative.mp4"
+               poster="assets/hero/hero-creative-poster.jpg"
+               autoplay muted loop playsinline preload="metadata"
+               aria-label="Revenue Pilots spec creative showreel. Silent video."></video>
       </span>
       <span class="v2-object-label">Creative</span>
     </button>
@@ -102,22 +144,36 @@
       <span class="v2-browser">
         <span class="v2-browser-bar"><i></i><i></i><i></i></span>
         <span class="v2-browser-screen">
-          <img src="assets/engine/northline-screen-1280.jpg" alt="Conversion-focused website concept built by Revenue Pilots" width="1280" height="800" loading="lazy" decoding="async">
+          <!-- Real internal fictional demo (ORVYN), not a wireframe or a
+               real client. Same component mounted at 3 sizes/locations by
+               js/altura.js + js/final-showcase.js. -->
+          <span class="rp-altura-mount" data-altura-size="sm" role="img" aria-label="ORVYN, a fictional concept website demonstrating premium composition"></span>
         </span>
       </span>
       <span class="v2-object-label">Websites</span>
     </button>
 
     <button type="button" class="v2-object" data-service="systems" aria-label="Show Systems" aria-pressed="false">
-      <span class="v2-systems">
-        <svg viewBox="0 0 400 250" role="img" aria-label="Lead to Follow-up to Booking to CRM pipeline">
-          <path class="v2-sys-line" d="M54 152 L166 112 L282 152 L360 112"/>
-          <path class="v2-sys-flow" d="M54 152 L166 112 L282 152 L360 112"/>
-          <g class="v2-sys-node"><rect x="12" y="135" width="84" height="34" rx="17"/><text x="54" y="152">LEAD</text></g>
-          <g class="v2-sys-node"><rect x="108" y="95" width="116" height="34" rx="17"/><text x="166" y="112">FOLLOW-UP</text></g>
-          <g class="v2-sys-node"><rect x="236" y="135" width="92" height="34" rx="17"/><text x="282" y="152">BOOKING</text></g>
-          <g class="v2-sys-node"><rect x="330" y="95" width="60" height="34" rx="17"/><text x="360" y="112">CRM</text></g>
-        </svg>
+      <span class="v4-net v4-net-xl" aria-hidden="true">
+        <span class="v4-net-3d">
+          <span class="v4-net-ring v4-net-ring-1" aria-hidden="true"></span>
+          <span class="v4-net-ring v4-net-ring-2" aria-hidden="true"></span>
+          <span class="v4-net-line" data-a="-90.00" style="--a:-90.00deg"><span class="v4-net-pulse" style="animation-delay:0.0s"></span></span>
+          <span class="v4-net-line" data-a="-38.57" style="--a:-38.57deg"><span class="v4-net-pulse" style="animation-delay:0.5s"></span></span>
+          <span class="v4-net-line" data-a="12.86" style="--a:12.86deg"><span class="v4-net-pulse" style="animation-delay:1.0s"></span></span>
+          <span class="v4-net-line" data-a="64.29" style="--a:64.29deg"><span class="v4-net-pulse" style="animation-delay:1.5s"></span></span>
+          <span class="v4-net-line" data-a="115.71" style="--a:115.71deg"><span class="v4-net-pulse" style="animation-delay:2.0s"></span></span>
+          <span class="v4-net-line" data-a="167.14" style="--a:167.14deg"><span class="v4-net-pulse" style="animation-delay:2.5s"></span></span>
+          <span class="v4-net-line" data-a="218.57" style="--a:218.57deg"><span class="v4-net-pulse" style="animation-delay:3.0s"></span></span>
+          <span class="v4-net-node" style="--a:-90.00deg"><span class="v4-net-node-inner" data-a="-90.00" style="animation-delay:0.0s"><b>Lead Capture</b><span class="v4-net-desc">Turns an inquiry into structured customer data.</span></span></span>
+          <span class="v4-net-node" style="--a:-38.57deg"><span class="v4-net-node-inner" data-a="-38.57" style="animation-delay:0.4s"><b>Follow-up</b><span class="v4-net-desc">Responds while the lead is still warm.</span></span></span>
+          <span class="v4-net-node" style="--a:12.86deg"><span class="v4-net-node-inner" data-a="12.86" style="animation-delay:0.8s"><b>Booking</b><span class="v4-net-desc">Moves interest into a real appointment.</span></span></span>
+          <span class="v4-net-node" style="--a:64.29deg"><span class="v4-net-node-inner" data-a="64.29" style="animation-delay:1.2s"><b>Payments</b><span class="v4-net-desc">Creates a clean path to deposit or checkout.</span></span></span>
+          <span class="v4-net-node" style="--a:115.71deg"><span class="v4-net-node-inner" data-a="115.71" style="animation-delay:1.6s"><b>CRM</b><span class="v4-net-desc">Keeps the customer record and stage in sync.</span></span></span>
+          <span class="v4-net-node" style="--a:167.14deg"><span class="v4-net-node-inner" data-a="167.14" style="animation-delay:2.0s"><b>Reviews</b><span class="v4-net-desc">Requests feedback after the job is complete.</span></span></span>
+          <span class="v4-net-node" style="--a:218.57deg"><span class="v4-net-node-inner" data-a="218.57" style="animation-delay:2.4s"><b>Analytics</b><span class="v4-net-desc">Shows where inquiries and handoffs are moving.</span></span></span>
+          <span class="v4-net-core"><b>Revenue<br>System</b></span>
+        </span>
       </span>
       <span class="v2-object-label">Systems</span>
     </button>
@@ -149,34 +205,127 @@
           <p class="v2-work-num">01 / Creative</p>
           <h3 class="v2-work-title">Short-form advertising built to be tested.</h3>
         </div>
-        <p class="v2-work-note">Vertical creative &middot; three angles</p>
+        <p class="v2-work-note">Vertical creative &middot; seven angles</p>
       </div>
-      <div class="v2-work-strip">
-        <figure class="v2-clip">
-          <video src="assets/videos/card/01-home-services-roofing.mp4" poster="assets/posters/01-home-services-roofing.jpg" preload="none" playsinline muted loop></video><button type="button" class="v2-play" aria-label="Play this creative"></button>
-          <figcaption>Home services &mdash; problem-led hook</figcaption>
-        </figure>
-        <figure class="v2-clip">
-          <video src="assets/videos/card/02-hospitality-restaurant.mp4" poster="assets/posters/02-hospitality-restaurant.jpg" preload="none" playsinline muted loop></video><button type="button" class="v2-play" aria-label="Play this creative"></button>
-          <figcaption>Hospitality &mdash; craving-led hook</figcaption>
-        </figure>
-        <figure class="v2-clip">
-          <video src="assets/videos/card/03-ecommerce-beauty-product.mp4" poster="assets/posters/03-ecommerce-beauty-product.jpg" preload="none" playsinline muted loop></video><button type="button" class="v2-play" aria-label="Play this creative"></button>
-          <figcaption>E-commerce &mdash; routine-led hook</figcaption>
-        </figure>
+      <div class="v4-carousel">
+        <div class="v4-track-mask">
+          <div class="v4-track">
+          <div class="v4-slide">
+            <figure>
+              <video src="https://d8j0ntlcm91z4.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/hf_20260830_191658_39583a0f-9f8e-4b1f-9e55-9c6564ce0257.mp4" poster="https://d8j0ntlcm91z4.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/hf_20260830_191552_9b3dc7ad-e9c9-47f1-aa3f-bc63190c0b68.png"
+                     muted loop playsinline preload="none" aria-label="Spec UGC skincare problem and solution ad. Silent video."></video>
+              <figcaption>UGC Problem / Solution</figcaption>
+            </figure>
+          </div>
+          <div class="v4-slide">
+            <figure>
+              <video src="https://d8j0ntlcm91z4.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/hf_20260830_191701_29362170-4a98-451c-b580-185cfde0f964.mp4" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/78458219-28a8-4a6f-b65a-fa5ae3f7693e_resize.jpg"
+                     muted loop playsinline preload="none" aria-label="Spec founder and mobile app demo ad. Silent video."></video>
+              <figcaption>Founder + App Demo</figcaption>
+            </figure>
+          </div>
+          <div class="v4-slide">
+            <figure>
+              <video src="https://d8j0ntlcm91z4.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/hf_20260830_191700_984e67a9-79bb-41c0-a4f5-53c68bb57f48.mp4" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/4325d99e-2890-4135-911e-e0d7c4ad5db5_resize.jpg"
+                     muted loop playsinline preload="none" aria-label="Spec UGC testimonial ad. Silent video."></video>
+              <figcaption>UGC Testimonial</figcaption>
+            </figure>
+          </div>
+          <div class="v4-slide">
+            <figure>
+              <video src="https://d8j0ntlcm91z4.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/hf_20260830_191700_dc5e570b-0d14-4c1f-9ee3-aa2e4714fe04.mp4" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/c4775a35-f0f1-41e5-9efe-90aed19bafa8_resize.jpg"
+                     muted loop playsinline preload="none" aria-label="Spec before and after home-service transformation ad. Silent video."></video>
+              <figcaption>Before / After</figcaption>
+            </figure>
+          </div>
+          <div class="v4-slide">
+            <figure>
+              <video src="https://d8j0ntlcm91z4.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/hf_20260830_191701_6db5c743-9646-4ff9-a001-57994d1d06d3.mp4" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/0e80e430-7dc4-44a7-a074-93416ce589c4_resize.jpg"
+                     muted loop playsinline preload="none" aria-label="Spec wellness product problem and solution ad. Silent video."></video>
+              <figcaption>Problem / Solution — Wellness</figcaption>
+            </figure>
+          </div>
+          <div class="v4-slide">
+            <figure>
+              <video src="https://d8j0ntlcm91z4.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/hf_20260830_192427_204525cc-4d92-41e7-8c1f-2b17445530fd.mp4" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/2324d222-1827-46b2-b203-106b55bee686.jpg"
+                     muted loop playsinline preload="none" aria-label="Spec high-motion beverage product ad. Silent video."></video>
+              <figcaption>High-Motion Product Ad</figcaption>
+            </figure>
+          </div>
+          <div class="v4-slide">
+            <figure>
+              <video src="https://d8j0ntlcm91z4.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/hf_20260830_191700_7292fa89-25d4-4b1e-a82f-1d0ad8c511bc.mp4" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/57ea6b2e-1ce1-4229-829c-92bd6d9b6cb9_resize.jpg"
+                     muted loop playsinline preload="none" aria-label="Spec luxury skincare cinematic product concept. Silent video."></video>
+              <figcaption>Cinematic Product Film</figcaption>
+            </figure>
+          </div>
+          </div>
+        </div>
+        <div class="v4-carousel-foot">
+          <div class="v4-dots" role="group" aria-label="Carousel position"></div>
+          <div class="v4-arrows">
+            <button type="button" class="v4-arrow v4-shiny v4-shiny-sm" data-carousel-prev aria-label="Previous creative">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 L5 8 L10 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="v4-arrow v4-shiny v4-shiny-sm" data-carousel-next aria-label="Next creative">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3 L11 8 L6 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="v2-work">
-      <div class="v2-work-head">
-        <div>
-          <p class="v2-work-num">02 / Websites</p>
-          <h3 class="v2-work-title">A site built around one decision.</h3>
-        </div>
-        <p class="v2-work-note">Northline Heating &amp; Air &middot; concept build</p>
+    <div class="v2-work v4-sys-work">
+      <div class="v4-sys-copy">
+        <p class="v2-work-num">02 / Websites</p>
+        <h3 class="v2-work-title">Built to convert, not just to look good.</h3>
+        <p class="v4-sys-body">Every page has one job: turn attention into a booked call, a form fill or a sale. No decoration without a reason.</p>
+        <ul class="v4-sys-outcomes">
+          <li>Clarity</li>
+          <li>One CTA</li>
+          <li>Fast load</li>
+          <li>Real data</li>
+        </ul>
       </div>
-      <div class="v2-work-media">
-        <img src="assets/engine/northline-screen-1280.jpg" alt="Northline Heating and Air concept website by Revenue Pilots" width="1280" height="800" loading="lazy" decoding="async">
+      <div class="v4-flow-frame">
+        <span class="v4-flow-chrome" aria-hidden="true"><i></i><i></i><i></i><b>revenuepilot.company/demo/altura</b></span>
+        <div class="rp-altura-mount" data-altura-size="lg" data-altura-interactive="true" data-altura-lazy="true" role="img" aria-label="ORVYN, a fictional concept website demonstrating premium composition, hierarchy and motion"></div>
+      </div>
+      <a class="v4-flow-live" href="demo/altura/" target="_blank" rel="noopener">Open the live demo &#8599;</a>
+    </div>
+
+    <div class="v2-work v4-sys-work">
+      <div class="v4-sys-copy">
+        <p class="v2-work-num">03 / Systems</p>
+        <h3 class="v2-work-title">The follow-up that never gets forgotten.</h3>
+        <p class="v4-sys-body">New leads get captured, followed up, booked and recorded automatically &mdash; nothing waits on someone remembering to check a shared inbox.</p>
+        <ul class="v4-sys-outcomes">
+          <li>Capture</li>
+          <li>Follow up</li>
+          <li>Book</li>
+          <li>Record</li>
+        </ul>
+      </div>
+      <div class="v4-net v4-net-lg" role="group" aria-label="Revenue System network: Lead Capture, Follow-up, Booking, Payments, CRM, Reviews and Analytics connected to one central system">
+        <span class="v4-net-3d">
+          <span class="v4-net-ring v4-net-ring-1" aria-hidden="true"></span>
+          <span class="v4-net-ring v4-net-ring-2" aria-hidden="true"></span>
+          <span class="v4-net-line" data-a="-90.00" style="--a:-90.00deg"><span class="v4-net-pulse" style="animation-delay:0.0s"></span></span>
+          <span class="v4-net-line" data-a="-38.57" style="--a:-38.57deg"><span class="v4-net-pulse" style="animation-delay:0.5s"></span></span>
+          <span class="v4-net-line" data-a="12.86" style="--a:12.86deg"><span class="v4-net-pulse" style="animation-delay:1.0s"></span></span>
+          <span class="v4-net-line" data-a="64.29" style="--a:64.29deg"><span class="v4-net-pulse" style="animation-delay:1.5s"></span></span>
+          <span class="v4-net-line" data-a="115.71" style="--a:115.71deg"><span class="v4-net-pulse" style="animation-delay:2.0s"></span></span>
+          <span class="v4-net-line" data-a="167.14" style="--a:167.14deg"><span class="v4-net-pulse" style="animation-delay:2.5s"></span></span>
+          <span class="v4-net-line" data-a="218.57" style="--a:218.57deg"><span class="v4-net-pulse" style="animation-delay:3.0s"></span></span>
+          <span class="v4-net-node" style="--a:-90.00deg"><span class="v4-net-node-inner" data-a="-90.00" tabindex="0" style="animation-delay:0.0s"><b>Lead Capture</b><span class="v4-net-desc">Turns an inquiry into structured customer data.</span></span></span>
+          <span class="v4-net-node" style="--a:-38.57deg"><span class="v4-net-node-inner" data-a="-38.57" tabindex="0" style="animation-delay:0.4s"><b>Follow-up</b><span class="v4-net-desc">Responds while the lead is still warm.</span></span></span>
+          <span class="v4-net-node" style="--a:12.86deg"><span class="v4-net-node-inner" data-a="12.86" tabindex="0" style="animation-delay:0.8s"><b>Booking</b><span class="v4-net-desc">Moves interest into a real appointment.</span></span></span>
+          <span class="v4-net-node" style="--a:64.29deg"><span class="v4-net-node-inner" data-a="64.29" tabindex="0" style="animation-delay:1.2s"><b>Payments</b><span class="v4-net-desc">Creates a clean path to deposit or checkout.</span></span></span>
+          <span class="v4-net-node" style="--a:115.71deg"><span class="v4-net-node-inner" data-a="115.71" tabindex="0" style="animation-delay:1.6s"><b>CRM</b><span class="v4-net-desc">Keeps the customer record and stage in sync.</span></span></span>
+          <span class="v4-net-node" style="--a:167.14deg"><span class="v4-net-node-inner" data-a="167.14" tabindex="0" style="animation-delay:2.0s"><b>Reviews</b><span class="v4-net-desc">Requests feedback after the job is complete.</span></span></span>
+          <span class="v4-net-node" style="--a:218.57deg"><span class="v4-net-node-inner" data-a="218.57" tabindex="0" style="animation-delay:2.4s"><b>Analytics</b><span class="v4-net-desc">Shows where inquiries and handoffs are moving.</span></span></span>
+          <span class="v4-net-core"><b>Revenue<br>System</b></span>
+        </span>
       </div>
     </div>
 
@@ -186,102 +335,125 @@
 
 <hr class="v2-rule">
 
-<!-- ===================== 4. SERVICES / PRICING ===================== -->
-<section class="v2-section" id="services">
-  <div class="shell">
-    <h2 class="v2-lead">What we build.</h2>
-
-    <div class="v2-svc">
-      <div>
-        <p class="v2-svc-num">01 / Video Creative</p>
-        <h3 class="v2-svc-name">Creative</h3>
-        <p class="v2-svc-promise">Get attention worth converting.</p>
-      </div>
-      <ul class="v2-svc-list">
-        <li>6 short-form advertising creatives</li>
-        <li>Hook and angle development</li>
-        <li>Vertical delivery formats</li>
-        <li>Delivery-ready exports</li>
-      </ul>
-      <div class="v2-svc-side">
-        <p class="v2-svc-price">$1,200</p>
-        <a class="btn btn-ghost btn-sm" href="/video-ads/">View Creative</a>
-      </div>
-    </div>
-
-    <div class="v2-svc">
-      <div>
-        <p class="v2-svc-num">02 / Conversion Website</p>
-        <h3 class="v2-svc-name">Websites</h3>
-        <p class="v2-svc-promise">Turn attention into action.</p>
-      </div>
-      <ul class="v2-svc-list">
-        <li>Custom visual direction</li>
-        <li>Responsive build</li>
-        <li>Conversion architecture</li>
-        <li>Lead capture</li>
-        <li>Basic integrations</li>
-      </ul>
-      <div class="v2-svc-side">
-        <p class="v2-svc-price">$2,500</p>
-        <a class="btn btn-ghost btn-sm" href="/websites/">View Websites</a>
-      </div>
-    </div>
-
-    <div class="v2-svc">
-      <div>
-        <p class="v2-svc-num">03 / Revenue Systems</p>
-        <h3 class="v2-svc-name">Systems</h3>
-        <p class="v2-svc-promise">Don't lose the opportunity after the click.</p>
-      </div>
-      <ul class="v2-svc-list">
-        <li>Lead capture workflow</li>
-        <li>Automated follow-up</li>
-        <li>Booking integration</li>
-        <li>Pipeline / basic CRM</li>
-        <li>Core automation</li>
-      </ul>
-      <div class="v2-svc-side">
-        <p class="v2-svc-price">$1,500</p>
-        <a class="btn btn-ghost btn-sm" href="/systems/">View Systems</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== 5. FULL REVENUE BUILD ===================== -->
-<section class="v2-section" id="full-build">
-  <div class="shell">
-    <div class="v2-build">
-      <p class="v2-eyebrow">The connected build</p>
-      <h2 class="v2-lead">One connected build.</h2>
-      <div class="v2-chain">
-        <span>Creative</span><i>&rarr;</i><span>Website</span><i>&rarr;</i><span>Systems</span>
-      </div>
-      <p class="v2-body">You don't need three vendors trying to make three disconnected pieces work together.</p>
-      <p class="v2-body">We build the path from attention to conversion to follow-up as one system.</p>
-      <p class="v2-build-price">Full Revenue Build — <strong>$4,900</strong></p>
-      <a class="btn btn-gold" href="#contact">Start a Project</a>
-      <p class="v2-build-alt">Need something different? <a href="#contact">Custom Build &mdash; custom quote</a></p>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== 6. STARTER PILOT (live $249 SKU) ===================== -->
+<!-- ===================== 4. PACKAGES / OFFERS (single buying-decision section) ===================== -->
 <section class="v2-section" id="packages">
   <div class="shell">
-    <div class="v2-pilot">
-      <div>
-        <p class="v2-eyebrow">Start small</p>
-        <h2 class="v2-lead" style="margin-bottom:14px">Not ready for a full build?</h2>
-        <p class="v2-body" style="margin-bottom:0">A small paid engagement to see how we think and work before committing to a larger project.</p>
+    <p class="v2-eyebrow">Packages</p>
+    <h2 class="v2-lead">What we build.</h2>
+
+    <div class="v4-config">
+      <div class="v4-tabs" role="tablist" aria-label="Choose a package">
+        <span class="v4-tab-pill" aria-hidden="true"></span>
+        <button type="button" class="v4-ptab" role="tab" data-package="creative" aria-selected="true">Creative</button>
+        <button type="button" class="v4-ptab" role="tab" data-package="websites" aria-selected="false">Websites</button>
+        <button type="button" class="v4-ptab" role="tab" data-package="systems" aria-selected="false">Systems</button>
       </div>
-      <div>
-        <p class="v2-pilot-price">Starter Creative Pilot &mdash; <strong style="color:var(--gold-hi)">$249</strong></p>
-        <button type="button" class="btn btn-gold btn-block" data-plan="starter">Start a Pilot</button>
+
+      <div class="v4-config-body">
+        <div class="v4-panes">
+          <div class="v4-fade v4-pkg-pane is-active" data-pkg-pane="creative">
+            <div class="v4-pkg-media">
+              <span class="v4-pkg-media-label">Selected creative</span>
+              <video src="https://d8j0ntlcm91z4.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/hf_20260830_191658_39583a0f-9f8e-4b1f-9e55-9c6564ce0257.mp4"
+                     poster="https://d8j0ntlcm91z4.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/hf_20260830_191552_9b3dc7ad-e9c9-47f1-aa3f-bc63190c0b68.png"
+                     muted loop playsinline preload="none" aria-label="Spec UGC skincare problem and solution ad. Silent video."></video>
+            </div>
+            <div class="v4-pkg-tiers">
+              <div class="v4-tier">
+                <p class="v4-tier-kicker">Start small</p>
+                <h3 class="v4-tier-name">Starter Creative Pilot</h3>
+                <p class="v4-tier-price">$249</p>
+                <ul class="v4-tier-list">
+                  <li>3 custom vertical 9:16 ads</li>
+                  <li>3 distinct hooks / creative angles</li>
+                  <li>Built around your real offer, service area and brand</li>
+                  <li>Branding + CTA copy</li>
+                  <li>Social-ready exports</li>
+                  <li>1 revision round</li>
+                  <li>First drafts within 72 hours after required usable assets are received</li>
+                  <li>No contract or subscription</li>
+                  <li>Ad spend separate</li>
+                </ul>
+                <button type="button" class="btn btn-gold btn-block" data-plan="starter">Start a Pilot &mdash; $249</button>
+                <p class="v4-pkg-sub">Need more volume? <a href="#contact">Video Creative &mdash; $1,200 &rarr;</a></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="v4-fade v4-pkg-pane" data-pkg-pane="websites" hidden>
+            <div class="v4-pkg-media v4-pkg-media-mini">
+              <span class="rp-altura-mount" data-altura-size="xs" data-altura-canvas="false" role="img" aria-label="ORVYN, a fictional concept website demonstrating premium composition" aria-hidden="true"></span>
+            </div>
+            <div class="v4-pkg-tiers">
+              <div class="v4-tier">
+                <h3 class="v4-tier-name">Conversion Website</h3>
+                <p class="v4-tier-price">$2,500</p>
+                <ul class="v4-tier-list">
+                  <li>Custom visual direction</li>
+                  <li>Responsive build</li>
+                  <li>Conversion architecture</li>
+                  <li>Lead capture</li>
+                  <li>Basic integrations</li>
+                </ul>
+                <a class="btn btn-gold btn-block" href="#contact">Start a Project</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="v4-fade v4-pkg-pane" data-pkg-pane="systems" hidden>
+            <div class="v4-pkg-media v4-pkg-media-mini">
+              <span class="v4-net v4-net-sm" role="img" aria-label="Revenue System network: Lead Capture, Follow-up, Booking, Payments, CRM, Reviews and Analytics connected to one central system" aria-hidden="true">
+                  <span class="v4-net-3d">
+                    <span class="v4-net-ring v4-net-ring-1" aria-hidden="true"></span>
+                    <span class="v4-net-ring v4-net-ring-2" aria-hidden="true"></span>
+                    <span class="v4-net-line" data-a="-90.00" style="--a:-90.00deg"><span class="v4-net-pulse" style="animation-delay:0.0s"></span></span>
+                    <span class="v4-net-line" data-a="-38.57" style="--a:-38.57deg"><span class="v4-net-pulse" style="animation-delay:0.5s"></span></span>
+                    <span class="v4-net-line" data-a="12.86" style="--a:12.86deg"><span class="v4-net-pulse" style="animation-delay:1.0s"></span></span>
+                    <span class="v4-net-line" data-a="64.29" style="--a:64.29deg"><span class="v4-net-pulse" style="animation-delay:1.5s"></span></span>
+                    <span class="v4-net-line" data-a="115.71" style="--a:115.71deg"><span class="v4-net-pulse" style="animation-delay:2.0s"></span></span>
+                    <span class="v4-net-line" data-a="167.14" style="--a:167.14deg"><span class="v4-net-pulse" style="animation-delay:2.5s"></span></span>
+                    <span class="v4-net-line" data-a="218.57" style="--a:218.57deg"><span class="v4-net-pulse" style="animation-delay:3.0s"></span></span>
+                    <span class="v4-net-node" style="--a:-90.00deg"><span class="v4-net-node-inner" data-a="-90.00" style="animation-delay:0.0s"><b>Lead Capture</b></span></span>
+                    <span class="v4-net-node" style="--a:-38.57deg"><span class="v4-net-node-inner" data-a="-38.57" style="animation-delay:0.4s"><b>Follow-up</b></span></span>
+                    <span class="v4-net-node" style="--a:12.86deg"><span class="v4-net-node-inner" data-a="12.86" style="animation-delay:0.8s"><b>Booking</b></span></span>
+                    <span class="v4-net-node" style="--a:64.29deg"><span class="v4-net-node-inner" data-a="64.29" style="animation-delay:1.2s"><b>Payments</b></span></span>
+                    <span class="v4-net-node" style="--a:115.71deg"><span class="v4-net-node-inner" data-a="115.71" style="animation-delay:1.6s"><b>CRM</b></span></span>
+                    <span class="v4-net-node" style="--a:167.14deg"><span class="v4-net-node-inner" data-a="167.14" style="animation-delay:2.0s"><b>Reviews</b></span></span>
+                    <span class="v4-net-node" style="--a:218.57deg"><span class="v4-net-node-inner" data-a="218.57" style="animation-delay:2.4s"><b>Analytics</b></span></span>
+                    <span class="v4-net-core"><b>Revenue<br>System</b></span>
+                  </span>
+                </span>
+            </div>
+            <div class="v4-pkg-tiers">
+              <div class="v4-tier">
+                <h3 class="v4-tier-name">Revenue Systems</h3>
+                <p class="v4-tier-price">$1,500</p>
+                <ul class="v4-tier-list">
+                  <li>Lead capture workflow</li>
+                  <li>Automated follow-up</li>
+                  <li>Booking integration</li>
+                  <li>Pipeline / basic CRM</li>
+                  <li>Core automation</li>
+                </ul>
+                <a class="btn btn-gold btn-block" href="#contact">Start a Project</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="config-notice" id="checkoutNotice" role="status" aria-live="polite" hidden></div>
+
+    <!-- Full Revenue Build: one separate premium block, shown once, not
+         beside every service state. -->
+    <div class="v4-fullbuild">
+      <p class="v4-build-chain">Creative &rarr; Website &rarr; Systems</p>
+      <h3 class="v4-build-name">Full Revenue Build</h3>
+      <p class="v4-build-amount">$4,900</p>
+      <p class="v4-build-copy">All three layers scoped, built and connected as one system.</p>
+      <a class="btn btn-gold btn-block" href="#contact">Build My System</a>
+      <p class="v4-pkg-sub">Need something different? <a href="#contact">Custom Build &mdash; custom quote</a></p>
+    </div>
   </div>
 </section>
 
@@ -314,10 +486,16 @@
 
 <hr class="v2-rule">
 
-<section class="section section-contact" id="contact">
+<section class="v2-section" id="about">
   <div class="shell contact-grid">
-    <div class="contact-pitch reveal"><p class="eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>Get started</p><h2 class="section-title">Not sure which piece fits?<br>Tell us what's broken or what you want to build.</h2><p class="section-sub">One form. We'll route it to the right conversation.</p><div class="contact-ctas"><a class="btn btn-gold btn-lg" href="#services">See pricing</a></div><p class="hero-micro">Every module is scoped with you before anything is billed.</p></div>
-    <div class="contact-form-wrap reveal">
+    <div class="v2-about-copy reveal">
+      <p class="v2-eyebrow"><span class="eyebrow-dash" aria-hidden="true"></span>About Revenue Pilots</p>
+      <h2 class="v2-lead">Built so the pieces work together.</h2>
+      <p class="v2-body">I&rsquo;m Ostap Vinkovskyi, founder of Revenue Pilots. I built the company around a simple frustration: creative, websites and follow-up are often treated like separate jobs even though a customer experiences them as one path. Revenue Pilots brings those pieces together when a business needs the full system &mdash; and can still build them one at a time.</p>
+      <p class="v2-body">We&rsquo;re early, so the promise is straightforward: clear scope, direct communication, honest proof and work built around the actual offer rather than a generic template.</p>
+      <p class="v2-about-line">Based in the Charlotte / Fort Mill area.</p>
+    </div>
+    <div class="contact-form-wrap reveal" id="contact">
       <h3 class="form-heading">Tell us what you need</h3>
       <form class="lead-form" id="leadForm" novalidate>
         <div class="field"><label for="lf-name">Name <span class="req" aria-hidden="true">*</span></label><input type="text" id="lf-name" name="name" autocomplete="name" required><p class="field-error" id="err-name" hidden></p></div>
@@ -340,20 +518,10 @@
   </div>
 </section>
 
-<!-- ===================== 8. FINAL CTA ===================== -->
-<section class="v2-final">
-  <div class="shell">
-    <img class="v2-final-mark" src="assets/brand/rp-monogram.png" alt="" width="320" height="320" loading="lazy" decoding="async">
-    <h2 class="v2-lead">Your marketing shouldn't end at the click.</h2>
-    <p class="v2-body">Let's build what happens next.</p>
-    <p style="margin-top:26px"><a class="btn btn-gold" href="#contact">Start a Project</a></p>
-  </div>
-</section>
-
 </main>
 
-<footer class="site-footer"><div class="shell footer-inner"><div class="footer-brand"><span class="brand-badge brand-badge-sm"><img src="assets/brand/rp-monogram.png" alt="" width="320" height="320" loading="lazy" decoding="async"></span><span class="brand-name">Revenue Pilots</span></div><p class="footer-contact"><a href="/about/">About</a> · <a href="#contact">Ask a question</a></p><p class="footer-disclosure">Websites, video creative and customer systems. Ad spend not included. No performance guarantee.</p><p class="footer-copy">&copy; <span id="year">2026</span> Revenue Pilots</p></div></footer>
+<footer class="site-footer"><div class="shell footer-inner"><div class="footer-brand"><span class="brand-badge brand-badge-sm"><img src="assets/brand/rp-monogram.png" alt="" width="320" height="320" loading="lazy" decoding="async"></span><span class="brand-name">Revenue Pilots</span></div><p class="footer-contact"><a href="#about">About</a> · <a href="#contact">Ask a question</a></p><p class="footer-disclosure">Websites, video creative and customer systems. Ad spend not included. No performance guarantee.</p><p class="footer-copy">&copy; <span id="year">2026</span> Revenue Pilots</p></div></footer>
 
-<div class="mobile-revenue-bar" aria-label="Quick navigation"><p class="mobile-revenue-copy"><strong>Not sure where to start?</strong>See all four modules</p><a class="btn btn-gold" href="#services">Browse</a></div>
+<div class="mobile-revenue-bar" aria-label="Quick navigation"><p class="mobile-revenue-copy"><strong>Not sure where to start?</strong>See all four modules</p><a class="btn btn-gold" href="#packages">Browse</a></div>
 </body>
 </html>

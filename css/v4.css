@@ -1,0 +1,1140 @@
+/* =========================================================================
+   REVENUE PILOTS — V4 final assembly
+
+   Adds: moving line background, premium navbar, shiny black/gold buttons,
+   enlarged hero objects, portfolio carousel, interactive pricing
+   configurator. Static CSS/JS only — no React, no WebGL, no build step.
+   ========================================================================= */
+
+/* =========================================================================
+   1. MOVING BACKGROUND
+   Native animated SVG rather than a video: crisp at any size, ~2KB, graded
+   to brand gold, and it carries no third-party screen capture. The supplied
+   video remains wired as a one-file swap (see .v4-bg-video).
+   ========================================================================= */
+.v4-bg{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(197,154,60,.07), transparent 60%),
+    var(--bg);
+}
+.v4-bg svg{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:190%;
+  height:190%;
+  transform:translate(-50%,-50%);
+  opacity:.5;
+}
+.v4-bg path{
+  fill:none;
+  stroke:url(#v4LineGrad);
+  stroke-linecap:round;
+  vector-effect:non-scaling-stroke;
+}
+/* slow organic drift — the "feeling" reference, not a particle field */
+.v4-drift-a{ animation:v4DriftA 34s ease-in-out infinite alternate; }
+.v4-drift-b{ animation:v4DriftB 46s ease-in-out infinite alternate; }
+.v4-drift-c{ animation:v4DriftC 58s ease-in-out infinite alternate; }
+@keyframes v4DriftA{ from{ transform:translate3d(0,0,0) } to{ transform:translate3d(-3.5%,2.2%,0) } }
+@keyframes v4DriftB{ from{ transform:translate3d(0,0,0) } to{ transform:translate3d(3%,-2.6%,0) } }
+@keyframes v4DriftC{ from{ transform:translate3d(0,0,0) } to{ transform:translate3d(-1.8%,-1.4%,0) } }
+
+/* one-file swap slot for an owner-supplied background clip */
+.v4-bg-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:.34;
+  display:none;
+}
+.v4-bg.has-video .v4-bg-video{ display:block; }
+.v4-bg.has-video svg{ display:none; }
+
+/* keeps headline and objects legible over the motion */
+.v4-bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(70% 55% at 50% 45%, rgba(7,9,13,.72), transparent 72%),
+    linear-gradient(180deg, rgba(7,9,13,.55), rgba(7,9,13,.2) 34%, rgba(7,9,13,.9));
+}
+
+/* page content rides above the background layer */
+body > header,
+body > main,
+body > footer{ position:relative; z-index:1; }
+
+/* the hero's own base colour must not hide the moving background */
+html.v2-ready .v2-hero{ background:transparent; }
+html.v2-ready .v2-hero::after{ opacity:.55; }
+
+/* =========================================================================
+   2. SHINY BLACK / GOLD BUTTONS
+   The reference component is React + @property conic animation. Recreated
+   here with the same conic-gradient border sweep, in brand gold, with a
+   static fallback where @property is unsupported.
+   ========================================================================= */
+@property --v4-angle{ syntax:"<angle>"; initial-value:0deg; inherits:false; }
+
+.btn-gold,
+.v4-shiny{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  border:1px solid transparent;
+  color:#F6F1E4;
+  background:
+    linear-gradient(#0b0d11,#0b0d11) padding-box,
+    conic-gradient(from var(--v4-angle),
+      rgba(197,154,60,0) 0deg,
+      rgba(197,154,60,.15) 60deg,
+      #C59A3C 130deg,
+      #F0D89A 160deg,
+      #C59A3C 190deg,
+      rgba(197,154,60,.15) 260deg,
+      rgba(197,154,60,0) 360deg) border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 10px 30px rgba(0,0,0,.5);
+  animation:v4Spin 5.5s linear infinite;
+  transition:color .3s var(--ease), box-shadow .3s var(--ease), transform .2s var(--ease);
+}
+@keyframes v4Spin{ to{ --v4-angle:360deg; } }
+
+/* champagne wash that lifts on hover */
+.btn-gold::after,
+.v4-shiny::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(115deg, transparent 26%, rgba(240,216,154,.16) 46%, transparent 62%);
+  opacity:0;
+  transition:opacity .4s var(--ease);
+  pointer-events:none;
+  z-index:-1;
+}
+.btn-gold:hover,
+.v4-shiny:hover{
+  color:#FFF7E6;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 14px 40px rgba(197,154,60,.2);
+  transform:translateY(-1px);
+}
+.btn-gold:hover::after,
+.v4-shiny:hover::after{ opacity:1; }
+.btn-gold:active,
+.v4-shiny:active{ transform:translateY(0); }
+.btn-gold:focus-visible,
+.v4-shiny:focus-visible{ outline:2px solid var(--gold-hi); outline-offset:3px; }
+
+/* compact variant for carousel / menu controls — restrained, not a big pill */
+.v4-shiny-sm{
+  animation-duration:7s;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 6px 16px rgba(0,0,0,.45);
+}
+
+@supports not (background: conic-gradient(from 0deg, red, blue)){
+  .btn-gold,.v4-shiny{ background:#0b0d11; border-color:var(--gold); }
+}
+
+/* =========================================================================
+   3. PREMIUM NAVBAR
+   ========================================================================= */
+.site-header{
+  height:auto;
+  background:rgba(7,9,13,.22)!important;
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  border-bottom:1px solid transparent;
+  transition:background .4s var(--ease), backdrop-filter .4s var(--ease), border-color .4s var(--ease);
+}
+.site-header.is-stuck{
+  background:rgba(7,9,13,.78)!important;
+  backdrop-filter:blur(16px) saturate(140%);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  border-bottom-color:rgba(255,255,255,.07);
+}
+.site-header .header-inner{ min-height:82px; }
+
+.nav-desktop{ position:relative; }
+.nav-desktop a{
+  position:relative;
+  color:var(--text-3);
+  font-size:14.5px;
+  letter-spacing:-.005em;
+  padding:8px 2px;
+  transition:color .32s var(--ease);
+}
+.nav-desktop a:hover,
+.nav-desktop a.is-active{ color:var(--text); }
+
+/* hand-drawn feeling gold underline that glides between items */
+.v4-nav-ink{
+  position:absolute;
+  bottom:2px;
+  height:9px;
+  pointer-events:none;
+  opacity:0;
+  transition:transform .42s var(--ease), width .42s var(--ease), opacity .3s var(--ease);
+}
+.v4-nav-ink.is-on{ opacity:1; }
+.v4-nav-ink svg{ width:100%; height:100%; display:block; overflow:visible; }
+.v4-nav-ink path{
+  fill:none;
+  stroke:var(--gold);
+  stroke-width:1.6;
+  stroke-linecap:round;
+  stroke-dasharray:120;
+  stroke-dashoffset:120;
+  animation:v4Ink .5s var(--ease) forwards;
+}
+@keyframes v4Ink{ to{ stroke-dashoffset:0 } }
+
+/* mobile panel */
+.nav-mobile{
+  background:rgba(9,11,15,.96);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:18px var(--pad) 26px;
+}
+.nav-mobile a{
+  display:block;
+  font-size:20px;
+  letter-spacing:-.025em;
+  padding:13px 0;
+  color:var(--text-2);
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.nav-mobile a:last-of-type{ border-bottom:0; }
+.nav-mobile a:hover{ color:var(--gold); }
+
+/* =========================================================================
+   4. LARGER HERO OBJECTS  (~1.9x the previous featured size)
+   ========================================================================= */
+.v2-stage{ min-height:clamp(440px,58vh,680px); margin-top:30px; }
+.v2-object{ width:min(64vw,1000px); }
+.v2-object.is-left{  transform:translate(-50%,-50%) translateX(-40vw) scale(.4) rotateY(15deg); }
+.v2-object.is-right{ transform:translate(-50%,-50%) translateX(40vw) scale(.4) rotateY(-15deg); }
+
+/* --- Creative: a clean video panel, no phone bezel/chrome --- */
+.v2-media-panel{
+  position:relative;
+  height:100%;
+  width:auto;
+  max-width:min(38vw,540px);
+  aspect-ratio:9/16;
+  border-radius:20px;
+  overflow:hidden;
+  background:#05070a;
+  box-shadow:
+    0 0 0 1px rgba(197,154,60,.28),
+    0 40px 90px rgba(0,0,0,.65);
+}
+.v2-media-panel video{
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.v2-browser{ border-radius:16px; }
+.v2-browser-bar{ height:34px; padding-left:16px; }
+.v2-browser-bar i{ width:7px; height:7px; }
+.v2-browser-screen{ inset:34px 0 0; display:flex; align-items:center; justify-content:center; padding:0 4%; }
+
+/* --- Websites: a fully designed premium website concept preview -- a
+   real homepage layout (nav, hero copy + CTA, soft "photo" visual, a
+   preview strip) instead of an abstract diagram. Original Revenue Pilots
+   concept, not a literal client site. Sized in em so one font-size swap
+   scales the whole composition; three variants: default (hero object),
+   .v4-site-sm (Packages mini), .v4-site-lg (Selected Work). --- */
+.v4-site{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  height:100%;
+  background:linear-gradient(160deg,#0e1218 0%, #080a0e 72%);
+  font-size:clamp(6px,.85vw,10px);
+  overflow:hidden;
+}
+.v4-site-nav{
+  display:flex;
+  align-items:center;
+  gap:1.2em;
+  padding:1.3em 1.8em;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  flex:none;
+}
+.v4-site-mark{
+  width:1.8em; height:1.8em;
+  border-radius:.5em;
+  background:linear-gradient(150deg,var(--gold-hi),var(--gold));
+  flex:none;
+}
+.v4-site-links{ display:flex; gap:1em; margin-left:.4em; }
+.v4-site-links i{ display:block; width:2.8em; height:.5em; border-radius:.3em; background:rgba(255,255,255,.14); }
+.v4-site-navcta{
+  margin-left:auto;
+  width:4.6em; height:1.7em;
+  border-radius:999px;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.16);
+}
+.v4-site-hero{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:2em;
+  padding:1.8em 1.8em 1.2em;
+  min-height:0;
+}
+.v4-site-copy{ flex:1 1 55%; display:flex; flex-direction:column; }
+.v4-site-eyebrow{
+  display:block;
+  width:5.5em; height:.55em;
+  border-radius:.3em;
+  background:rgba(197,154,60,.5);
+  margin-bottom:1.1em;
+}
+.v4-site-h{ display:block; height:1.15em; width:92%; border-radius:.35em; background:rgba(245,242,234,.92); margin-bottom:.5em; }
+.v4-site-h.short{ width:62%; margin-bottom:1.1em; }
+.v4-site-sub{ display:block; height:.55em; width:78%; border-radius:.3em; background:rgba(255,255,255,.14); margin-bottom:1.5em; }
+.v4-site-cta{
+  align-self:flex-start;
+  padding:.85em 1.7em;
+  border-radius:999px;
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold));
+  color:#14100a;
+  font-weight:700;
+  font-size:1.05em;
+  letter-spacing:.01em;
+}
+.v4-site-visual{
+  position:relative;
+  flex:1 1 45%;
+  aspect-ratio:4/3;
+}
+.v4-site-glow{
+  position:absolute;
+  inset:-16%;
+  border-radius:50%;
+  background:
+    radial-gradient(60% 60% at 30% 30%, rgba(197,154,60,.36), transparent 68%),
+    radial-gradient(60% 60% at 75% 75%, rgba(197,154,60,.16), transparent 65%);
+  animation:v4SiteDrift 12s ease-in-out infinite alternate;
+}
+.v4-site-card{
+  position:absolute;
+  border-radius:.9em;
+  background:linear-gradient(155deg,#1a1e25,#0c0e12);
+  border:1px solid rgba(197,154,60,.24);
+  box-shadow:0 1em 2.2em rgba(0,0,0,.5);
+}
+.v4-site-card-1{ inset:8% 14% 20% 4%; animation:v4SiteFloat1 7s ease-in-out infinite; }
+.v4-site-card-2{ width:46%; aspect-ratio:1/1; right:-6%; bottom:-8%; animation:v4SiteFloat2 8s ease-in-out infinite; }
+@keyframes v4SiteDrift{ from{ transform:translate3d(0,0,0) scale(1); } to{ transform:translate3d(-3%,3%,0) scale(1.06); } }
+@keyframes v4SiteFloat1{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+@keyframes v4SiteFloat2{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(5px); } }
+
+.v4-site-strip{ display:flex; gap:.8em; padding:0 1.8em 1.4em; flex:none; }
+.v4-site-chip{ flex:1; height:2.6em; border-radius:.7em; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); }
+
+.v4-site-sm{ font-size:7px; }
+.v4-site-lg{ font-size:clamp(8px,1.05vw,13px); }
+
+@media(prefers-reduced-motion:reduce){
+  .v4-site-glow,
+  .v4-site-card-1,
+  .v4-site-card-2{ animation:none; }
+}
+
+.v4-flow-frame{
+  position:relative;
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:linear-gradient(160deg,#12151b,#080a0e);
+  box-shadow:0 30px 70px rgba(0,0,0,.5);
+  padding:38px 0 0;
+}
+.v4-flow-frame .rp-altura-mount{
+  display:block;
+  width:100%;
+  aspect-ratio:16/10;
+}
+.v4-flow-chrome{
+  position:absolute;
+  top:0; left:0; right:0;
+  z-index:4;
+  height:38px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:0 16px;
+  background:rgba(10,11,14,.55);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.v4-flow-chrome i{
+  display:block;
+  width:8px; height:8px;
+  border-radius:50%;
+  background:rgba(255,255,255,.16);
+}
+.v4-flow-chrome b{
+  margin-left:10px;
+  font-weight:400;
+  font-size:11.5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--text-3);
+}
+.v4-flow-live{
+  display:inline-block;
+  margin-top:14px;
+  font-size:13px;
+  color:var(--text-2);
+  text-decoration:none;
+  border-bottom:1px solid transparent;
+  transition:color .25s var(--ease), border-color .25s var(--ease);
+}
+.v4-flow-live:hover{ color:var(--gold-hi); border-color:rgba(226,189,100,.5); }
+
+/* =========================================================================
+   5. PORTFOLIO CAROUSEL  — 3 large cards, step 1, infinite
+   ========================================================================= */
+.v4-carousel{ position:relative; margin-top:clamp(26px,3.4vw,44px); }
+.v4-track-mask{ overflow:hidden; }
+.v4-track{
+  display:flex;
+  gap:clamp(14px,1.8vw,26px);
+  will-change:transform;
+  cursor:grab;
+  touch-action:pan-y;
+}
+.v4-track.is-animating{ transition:transform .62s var(--ease); }
+.v4-track.is-dragging{ cursor:grabbing; transition:none; }
+.v4-slide{
+  flex:0 0 calc((100% - 2 * clamp(14px,1.8vw,26px)) / 3);
+  position:relative;
+}
+.v4-slide figure{ margin:0; }
+.v4-slide video,
+.v4-slide img{
+  width:100%;
+  aspect-ratio:9/16;
+  object-fit:cover;
+  display:block;
+  border-radius:var(--radius);
+  border:1px solid var(--line);
+  background:#05070a;
+  box-shadow:0 20px 50px rgba(0,0,0,.5);
+  pointer-events:none;
+}
+.v4-slide figcaption{
+  margin-top:12px;
+  font-size:13.5px;
+  color:var(--text-3);
+}
+.v4-carousel-foot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-top:22px;
+}
+.v4-dots{ display:flex; gap:8px; }
+.v4-dot{
+  width:26px; height:3px;
+  border:0; padding:0;
+  border-radius:2px;
+  background:rgba(255,255,255,.16);
+  cursor:pointer;
+  transition:background .3s var(--ease);
+}
+.v4-dot{ position:relative; }
+/* 44px tap target without changing the 3px bar */
+.v4-dot::before{ content:""; position:absolute; left:0; right:0; top:-20px; bottom:-20px; }
+.v4-dot[aria-current="true"]{ background:var(--gold); }
+.v4-dot:focus-visible{ outline:1px solid var(--gold); outline-offset:3px; }
+.v4-arrows{ display:flex; gap:10px; }
+.v4-arrow{
+  width:42px; height:42px;
+  border-radius:50%;
+  display:grid; place-items:center;
+  cursor:pointer;
+  color:var(--text-2);
+}
+.v4-arrow svg{ width:15px; height:15px; }
+
+/* =========================================================================
+   6. INTERACTIVE PRICING CONFIGURATOR
+   ========================================================================= */
+.v4-config{
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:
+    radial-gradient(90% 70% at 12% 0%, rgba(197,154,60,.06), transparent 60%),
+    var(--surface-3);
+  padding:clamp(24px,3.4vw,48px);
+  box-shadow:0 30px 80px rgba(0,0,0,.45);
+}
+.v4-tabs{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:0;
+  padding:5px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(9,11,15,.7);
+  max-width:520px;
+}
+.v4-tab-pill{
+  position:absolute;
+  top:5px; left:5px;
+  height:calc(100% - 10px);
+  border-radius:999px;
+  background:linear-gradient(180deg, rgba(197,154,60,.9), rgba(160,120,44,.9));
+  box-shadow:0 6px 18px rgba(197,154,60,.24);
+  transition:transform .42s var(--ease), width .42s var(--ease);
+  z-index:0;
+}
+.v4-ptab{
+  position:relative;
+  z-index:1;
+  border:0;
+  background:none;
+  padding:12px 10px;
+  border-radius:999px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:11.5px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--text-2);
+  cursor:pointer;
+  transition:color .3s var(--ease);
+}
+.v4-ptab[aria-selected="true"]{ color:#0a0c10; font-weight:700; }
+.v4-ptab:focus-visible{ outline:1px solid var(--gold-hi); outline-offset:2px; }
+
+.v4-config-body{
+  margin-top:clamp(26px,3.4vw,42px);
+}
+.v4-pkg-title{
+  font-size:clamp(28px,3.4vw,44px);
+  letter-spacing:-.035em;
+  font-weight:800;
+  margin:0 0 10px;
+  color:var(--text);
+}
+.v4-pkg-price{
+  font-size:clamp(38px,5vw,68px);
+  letter-spacing:-.04em;
+  font-weight:800;
+  line-height:1;
+  margin:0 0 20px;
+  color:var(--gold-hi);
+}
+.v4-pkg-list{ margin:0 0 24px; padding:0; list-style:none; }
+.v4-pkg-list li{
+  position:relative;
+  padding-left:22px;
+  margin-bottom:11px;
+  color:var(--text-2);
+  font-size:15.5px;
+  line-height:1.5;
+}
+.v4-pkg-list li::before{
+  content:""; position:absolute; left:0; top:10px;
+  width:9px; height:1px; background:var(--gold);
+}
+.v4-pkg-sub{ margin-top:14px; font-size:13.5px; color:var(--text-3); }
+.v4-pkg-sub a{ color:var(--gold); text-decoration:none; border-bottom:1px solid var(--gold-tint-2); }
+
+/* content swap animation */
+.v4-fade{ transition:opacity .26s var(--ease), transform .26s var(--ease); }
+.v4-fade.is-out{ opacity:0; transform:translateY(6px); }
+
+/* Full Revenue Build — one separate premium block below the selector,
+   not shown beside every service state. */
+.v4-fullbuild{
+  margin:clamp(28px,4vw,44px) auto 0;
+  max-width:600px;
+  text-align:center;
+  border:1px solid var(--gold-tint-2);
+  border-radius:16px;
+  padding:clamp(28px,4vw,44px);
+  background:
+    radial-gradient(100% 130% at 50% 0%, rgba(197,154,60,.12), transparent 66%),
+    rgba(10,13,18,.86);
+}
+.v4-fullbuild .btn-block{ max-width:340px; margin-left:auto; margin-right:auto; }
+.v4-build-chain{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:11px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin:0 0 12px;
+}
+.v4-build-name{
+  font-size:clamp(21px,2.3vw,28px);
+  letter-spacing:-.03em;
+  font-weight:800;
+  margin:0 0 6px;
+  color:var(--text);
+}
+.v4-build-amount{
+  font-size:clamp(30px,3.6vw,44px);
+  font-weight:800;
+  letter-spacing:-.035em;
+  color:var(--gold-hi);
+  margin:0 0 12px;
+}
+.v4-build-copy{ color:var(--text-2); font-size:15px; line-height:1.55; margin:0 0 20px; }
+
+/* =========================================================================
+   7. RESPONSIVE
+   ========================================================================= */
+@media(max-width:1080px){
+  .v2-object{ width:min(60vw,520px); }
+  .v4-slide{ flex-basis:calc((100% - clamp(14px,1.8vw,26px)) / 2); }
+}
+
+@media(max-width:760px){
+  .site-header .header-inner{ min-height:66px; }
+  /* the enlarged v4-net-xl can outgrow the peripheral (is-left/is-right)
+     objects' tight mobile offset; clip at the stage edge so a side object
+     never visually bleeds into the featured one. */
+  .v2-stage{ min-height:clamp(320px,44vh,420px); margin-top:20px; overflow:hidden; }
+  .v2-object{ width:min(74vw,340px); }
+  .v4-slide{ flex-basis:78%; }
+  .v4-tabs{ max-width:none; }
+  .v4-ptab{ font-size:10.5px; letter-spacing:.1em; padding:11px 4px; }
+  .v4-carousel-foot{ gap:14px; }
+  .v4-dots{ gap:7px; }
+  .v4-dot{ width:20px; }
+  .v4-bg svg{ width:280%; height:280%; }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .v4-drift-a,.v4-drift-b,.v4-drift-c{ animation:none; }
+  .btn-gold,.v4-shiny{ animation:none; background:#0b0d11; border-color:var(--gold); }
+  .v4-bg-video{ display:none!important; }
+  .v4-bg.has-video svg{ display:block; }
+  .v4-track.is-animating{ transition:none; }
+  .v4-nav-ink path{ animation:none; stroke-dashoffset:0; }
+  .v4-fade{ transition:none; }
+}
+
+/* =========================================================================
+   9. SELECTED-WORK WEBSITE FRAME (swap-ready)
+   The concept build is presented inside a restrained browser frame instead
+   of a raw full-bleed screenshot, so a replacement asset drops straight in.
+   ========================================================================= */
+.v2-work-media.v4-web-frame{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:linear-gradient(180deg,#0e1116,#0a0c10);
+  padding:0;
+  overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.55);
+}
+.v4-web-chrome{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:11px 16px;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+}
+.v4-web-chrome .d{
+  width:9px; height:9px; border-radius:50%;
+  background:rgba(245,242,234,.16);
+}
+.v4-web-url{
+  margin-left:12px;
+  font-size:11.5px;
+  letter-spacing:.04em;
+  color:var(--text-3);
+}
+.v4-web-shot{ position:relative; display:block; }
+.v4-web-shot img{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius:0;
+}
+/* soften the lower edge of the concept capture without hiding content */
+.v4-web-shot::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height:12%;
+  background:linear-gradient(180deg,rgba(7,9,13,0),rgba(7,9,13,.85));
+  pointer-events:none;
+}
+@media (max-width:760px){
+  .v4-web-chrome{ padding:9px 12px; }
+  .v4-web-url{ font-size:10.5px; margin-left:8px; }
+}
+
+/* =========================================================================
+   10. HERO VERTICAL RHYTHM
+   The enlarged V4 objects made the stacked hero taller than the viewport and
+   cut the featured object roughly in half at 900px. Compress the copy rhythm
+   so the headline, service copy and CTA all sit well above the fold and the
+   object crops only slightly at its base.
+   ========================================================================= */
+.v2-hero{ padding-top:clamp(34px,5.2vh,64px); padding-bottom:clamp(24px,4vh,56px); }
+.v2-hero .v2-eyebrow{ margin-bottom:14px; }
+.v2-h1{ font-size:clamp(38px,5.6vw,92px); line-height:.98; margin-bottom:14px; }
+.v2-service-copy{ margin-top:12px; }
+.v2-promise{ margin-bottom:6px; }
+.v2-price{ margin-top:6px; }
+.v2-hero-cta{ margin-top:14px; }
+.v2-stage{ margin-top:14px; }
+
+/* short viewports: trade a little object scale rather than crop the phone */
+@media (min-width:761px) and (max-height:820px){
+  .v2-h1{ font-size:clamp(34px,4.4vw,60px); }
+  .v2-stage{ min-height:clamp(320px,44vh,480px); }
+  .v2-object{ width:min(46vw,640px); }
+}
+
+/* Side objects: pull them in from the viewport edge so they read as
+   deliberate peripheral choices rather than accidental crops. */
+.v2-object.is-left{  transform:translate(-50%,-50%) translateX(-33vw) scale(.48) rotateY(12deg); }
+.v2-object.is-right{ transform:translate(-50%,-50%) translateX(33vw) scale(.48) rotateY(-12deg); }
+
+/* Keep the whole featured object above the fold on a standard laptop. */
+@media (min-width:761px){
+  .v2-stage{ min-height:clamp(380px,45vh,640px); }
+}
+
+/* =========================================================================
+   12. ALL HERO OBJECTS ARE HEIGHT-DRIVEN
+   .v2-browser and the systems SVG were width-driven (width:100% of the 660px
+   object box), so at the enlarged V4 size they grew taller than the stage and
+   the browser overlapped the hero CTA. Bound every object by the stage height
+   instead, so the three states occupy the same envelope.
+   ========================================================================= */
+.v2-object > *{ max-height:100%; }
+.v2-browser{
+  width:auto;
+  height:100%;
+  max-width:100%;
+  margin:0 auto;
+}
+.v2-hero{ padding-top:clamp(28px,4.4vh,56px); }
+@media (min-width:761px){
+  .v2-stage{ min-height:clamp(380px,45vh,640px); }
+}
+
+/* =========================================================================
+   16. SYSTEMS PROOF — compact editorial two-column story
+   Replaces the oversized bordered pipeline panel: a short left-column
+   explanation plus a compact automation timeline on the right, sized to
+   its content rather than a fixed full-width box. No SVG needed — plain
+   HTML/CSS cards connected by one animated gold signal.
+   ========================================================================= */
+.v4-sys-work{
+  display:grid;
+  grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+  gap:clamp(28px,4vw,56px);
+  align-items:center;
+}
+.v4-sys-body{
+  color:var(--text-2);
+  font-size:15px;
+  line-height:1.6;
+  margin:14px 0 20px;
+  max-width:44ch;
+}
+.v4-sys-outcomes{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+.v4-sys-outcomes li{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:10.5px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--gold-hi);
+  border:1px solid rgba(197,154,60,.32);
+  border-radius:999px;
+  padding:6px 13px;
+}
+
+/* --- Systems: a premium radial network -- one glowing "Revenue System"
+   core with 7 satellite nodes (Lead Capture / Follow-up / Booking /
+   Payments / CRM / Reviews / Analytics) connected by thin gold spokes,
+   set inside two slow-drifting decorative orbit rings for depth. Pointer
+   movement drives --tiltx/--tilty (set by js/final-showcase.js) for a
+   restrained 3D tilt; a node's connector brightens on hover/focus via
+   :has(), matched purely in CSS by its shared data-a angle -- no JS
+   pairing needed. Node position uses the standard
+   rotate->translate->counter-rotate trick so every label stays upright
+   regardless of its angle. Four size variants share one --r (radius)
+   custom property: default (hero object), .v4-net-sm (Packages mini),
+   .v4-net-lg (Selected Work), .v4-net-xl (hero, full width). --- */
+.v4-net{
+  --r:104px;
+  --tiltx:0deg;
+  --tilty:0deg;
+  position:relative;
+  width:100%;
+  height:100%;
+  min-height:calc(var(--r) * 2 + 110px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  perspective:1400px;
+}
+.v4-net-3d{
+  position:relative;
+  width:calc(var(--r) * 2 + 120px);
+  height:calc(var(--r) * 2 + 84px);
+  max-width:100%;
+  transform:rotateX(calc(9deg + var(--tiltx))) rotateY(var(--tilty));
+  transform-style:preserve-3d;
+  transition:transform .3s var(--ease);
+}
+.v4-net-ring{
+  position:absolute;
+  top:50%; left:50%;
+  border:1px solid rgba(197,154,60,.16);
+  border-radius:50%;
+  pointer-events:none;
+}
+.v4-net-ring-1{
+  width:calc(var(--r) * 2.34); height:calc(var(--r) * 2.34);
+  margin:calc(var(--r) * -1.17) 0 0 calc(var(--r) * -1.17);
+  animation:v4NetOrbit 90s linear infinite;
+}
+.v4-net-ring-2{
+  width:calc(var(--r) * 2.7); height:calc(var(--r) * 2.7);
+  margin:calc(var(--r) * -1.35) 0 0 calc(var(--r) * -1.35);
+  border-style:dashed;
+  border-color:rgba(197,154,60,.09);
+  animation:v4NetOrbit 140s linear infinite reverse;
+}
+@keyframes v4NetOrbit{ to{ transform:rotate(360deg); } }
+.v4-net-line{
+  position:absolute;
+  top:50%; left:50%;
+  height:1px;
+  width:var(--r);
+  background:linear-gradient(90deg, rgba(197,154,60,.55), rgba(197,154,60,0));
+  transform-origin:0 50%;
+  transform:rotate(var(--a));
+  transition:background .3s var(--ease), height .3s var(--ease);
+}
+.v4-net-3d:has(.v4-net-node-inner[data-a="-90.00"]:hover, .v4-net-node-inner[data-a="-90.00"]:focus-visible) .v4-net-line[data-a="-90.00"],
+.v4-net-3d:has(.v4-net-node-inner[data-a="-38.57"]:hover, .v4-net-node-inner[data-a="-38.57"]:focus-visible) .v4-net-line[data-a="-38.57"],
+.v4-net-3d:has(.v4-net-node-inner[data-a="12.86"]:hover, .v4-net-node-inner[data-a="12.86"]:focus-visible) .v4-net-line[data-a="12.86"],
+.v4-net-3d:has(.v4-net-node-inner[data-a="64.29"]:hover, .v4-net-node-inner[data-a="64.29"]:focus-visible) .v4-net-line[data-a="64.29"],
+.v4-net-3d:has(.v4-net-node-inner[data-a="115.71"]:hover, .v4-net-node-inner[data-a="115.71"]:focus-visible) .v4-net-line[data-a="115.71"],
+.v4-net-3d:has(.v4-net-node-inner[data-a="167.14"]:hover, .v4-net-node-inner[data-a="167.14"]:focus-visible) .v4-net-line[data-a="167.14"],
+.v4-net-3d:has(.v4-net-node-inner[data-a="218.57"]:hover, .v4-net-node-inner[data-a="218.57"]:focus-visible) .v4-net-line[data-a="218.57"]{
+  background:linear-gradient(90deg, rgba(226,189,100,.95), rgba(197,154,60,.1));
+  height:1.6px;
+}
+.v4-net-pulse{
+  position:absolute;
+  top:50%; left:0%;
+  width:5px; height:5px;
+  margin-top:-2.5px;
+  border-radius:50%;
+  background:var(--gold-hi);
+  box-shadow:0 0 8px rgba(226,189,100,.9);
+  opacity:0;
+  animation:v4NetPulse 3.5s ease-in-out infinite;
+}
+@keyframes v4NetPulse{
+  0%   { left:0%;   opacity:0; }
+  12%  { opacity:1; }
+  88%  { opacity:1; }
+  100% { left:100%; opacity:0; }
+}
+.v4-net-node{
+  position:absolute;
+  top:50%; left:50%;
+  width:0; height:0;
+  transform:rotate(var(--a)) translate(var(--r)) rotate(calc(-1 * var(--a)));
+  z-index:2;
+}
+.v4-net-node-inner{
+  position:absolute;
+  transform:translate(-50%,-50%) translateZ(0);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:.5em .85em;
+  border-radius:999px;
+  background:linear-gradient(160deg,#14171d,#0a0c10);
+  border:1px solid rgba(197,154,60,.4);
+  box-shadow:0 8px 18px rgba(0,0,0,.5), 0 0 14px rgba(197,154,60,.1);
+  white-space:nowrap;
+  cursor:default;
+  animation:v4NetDrift 6s ease-in-out infinite alternate;
+  transition:transform .28s var(--ease), border-color .28s var(--ease), box-shadow .28s var(--ease);
+}
+.v4-net-node-inner:hover,
+.v4-net-node-inner:focus-visible{
+  animation:none;
+  transform:translate(-50%,-50%) translateZ(30px) scale(1.08);
+  border-color:rgba(226,189,100,.85);
+  box-shadow:0 12px 26px rgba(0,0,0,.55), 0 0 22px rgba(197,154,60,.35);
+  outline:none;
+  z-index:5;
+}
+.v4-net-node-inner b{
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:-.01em;
+  color:var(--text-2);
+}
+@keyframes v4NetDrift{
+  from{ translate:0 0; }
+  to{ translate:0 -6px; }
+}
+.v4-net-desc{
+  position:absolute;
+  top:calc(100% + 10px);
+  left:50%;
+  transform:translate(-50%,4px);
+  width:max-content;
+  max-width:15em;
+  font-size:9.5px;
+  font-weight:500;
+  line-height:1.4;
+  letter-spacing:0;
+  color:var(--text-2);
+  background:rgba(10,12,16,.96);
+  border:1px solid rgba(197,154,60,.28);
+  border-radius:8px;
+  padding:.7em .85em;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s var(--ease), transform .22s var(--ease);
+  z-index:6;
+}
+.v4-net-node-inner:hover .v4-net-desc,
+.v4-net-node-inner:focus-visible .v4-net-desc{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+.v4-net-core{
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  z-index:2;
+  width:96px; height:96px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  background:radial-gradient(circle at 35% 30%, rgba(226,189,100,.95), rgba(197,154,60,.55) 55%, #0e1116 100%);
+  box-shadow:0 0 0 1px rgba(197,154,60,.5), 0 0 34px rgba(197,154,60,.45), 0 18px 34px rgba(0,0,0,.6);
+  animation:v4NetCore 4s ease-in-out infinite;
+}
+.v4-net-core b{
+  font-size:12.5px;
+  font-weight:800;
+  letter-spacing:-.01em;
+  color:#14100a;
+  line-height:1.15;
+}
+@keyframes v4NetCore{
+  0%,100%{ box-shadow:0 0 0 1px rgba(197,154,60,.5), 0 0 26px rgba(197,154,60,.38), 0 18px 34px rgba(0,0,0,.6); }
+  50%{ box-shadow:0 0 0 1px rgba(197,154,60,.6), 0 0 44px rgba(197,154,60,.6), 0 18px 34px rgba(0,0,0,.6); }
+}
+
+.v4-net-sm{ --r:56px; }
+.v4-net-sm .v4-net-core{ width:56px; height:56px; }
+.v4-net-sm .v4-net-core b{ font-size:8.5px; }
+.v4-net-sm .v4-net-node-inner{ padding:.4em .7em; }
+.v4-net-sm .v4-net-node-inner b{ font-size:8.5px; }
+.v4-net-sm .v4-net-desc{ display:none; }
+.v4-net-sm .v4-net-ring-2{ display:none; }
+
+.v4-net-lg{ --r:164px; }
+.v4-net-lg .v4-net-core{ width:132px; height:132px; }
+.v4-net-lg .v4-net-core b{ font-size:15px; }
+.v4-net-lg .v4-net-node-inner{ padding:.65em 1.1em; }
+.v4-net-lg .v4-net-node-inner b{ font-size:13.5px; }
+.v4-net-lg .v4-net-desc{ font-size:11px; max-width:17em; }
+
+/* xl lives inside the hero stage, whose own height is capped tighter than
+   Selected Work's frame -- --r tracks viewport height directly (rather
+   than a fixed px value) so the network never outgrows the stage's
+   vh-driven envelope at any window height. */
+.v4-net-xl{ --r:clamp(88px,15vh,164px); }
+.v4-net-xl .v4-net-core{ width:108px; height:108px; }
+.v4-net-xl .v4-net-core b{ font-size:12px; }
+.v4-net-xl .v4-net-node-inner{ padding:.6em .95em; }
+.v4-net-xl .v4-net-node-inner b{ font-size:12px; }
+.v4-net-xl .v4-net-desc{ font-size:11px; max-width:16em; }
+
+@media(max-width:1080px){
+  .v4-sys-work{ grid-template-columns:1fr; }
+}
+@media(max-width:760px){
+  .v4-net-lg{ --r:110px; }
+  .v4-net-xl{ --r:clamp(58px,11vh,86px); }
+  .v4-net-xl .v4-net-core{ width:84px; height:84px; }
+  .v4-net-xl .v4-net-core b{ font-size:10.5px; }
+}
+/* Narrow phones: the Selected Work network's nodes are positioned at
+   --r from the centre and carry their own label width, so they escape the
+   .v4-net-3d box (which is only max-width-clamped) and push the page into
+   horizontal scroll. Pull the radius in so the whole component fits. */
+@media(max-width:560px){
+  .v4-net-lg{ --r:66px; }
+  .v4-net-lg .v4-net-core{ width:78px; height:78px; }
+  .v4-net-lg .v4-net-core b{ font-size:10px; }
+  .v4-net-lg .v4-net-node-inner{ padding:.45em .7em; }
+  .v4-net-lg .v4-net-node-inner b{ font-size:9.5px; }
+}
+/* the hover description is a pointer affordance only -- it has no place on
+   touch/narrow layouts, where it would also overflow the viewport */
+@media(hover:none),(max-width:760px){
+  .v4-net-desc{ display:none; }
+}
+@media(prefers-reduced-motion:reduce){
+  .v4-net-pulse{ animation:none; opacity:0; }
+  .v4-net-node-inner,
+  .v4-net-core,
+  .v4-net-ring-1,
+  .v4-net-ring-2{ animation:none; }
+  .v4-net-3d{ transform:rotateX(9deg); }
+}
+
+/* =========================================================================
+   17. PACKAGES — tri-pane configurator (Creative / Websites / Systems)
+   Three fully static panes swap visibility; the Starter Pilot Stripe button
+   lives in the HTML from first paint so it is wired by the existing
+   one-time [data-plan] listener in main.js.
+   ========================================================================= */
+.v4-panes{ position:relative; }
+.v4-pkg-pane{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(20px,3vw,40px);
+  align-items:start;
+}
+.v4-pkg-pane[hidden]{ display:none; }
+
+.v4-pkg-media{
+  position:relative;
+  border-radius:16px;
+  overflow:hidden;
+  background:#0a0c10;
+  border:1px solid var(--line);
+  aspect-ratio:9/16;
+  max-height:520px;
+  margin:0 auto;
+  width:100%;
+}
+.v4-pkg-media video{ width:100%; height:100%; object-fit:cover; display:block; }
+.v4-pkg-media-label{
+  position:absolute;
+  top:14px; left:14px;
+  z-index:2;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:10px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(9,11,15,.72);
+  border:1px solid rgba(197,154,60,.35);
+  color:var(--gold-hi);
+}
+.v4-pkg-media.v4-pkg-media-mini{
+  aspect-ratio:auto;
+  min-height:260px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+}
+/* .rp-altura's internal layers are all position:absolute, so it has no
+   in-flow content to derive a height from inside this flex-centered,
+   auto-height box -- give it a definite size explicitly. */
+.v4-pkg-media-mini .rp-altura-mount{
+  width:100%;
+  aspect-ratio:16/11;
+}
+
+
+.v4-pkg-tiers{ display:flex; flex-direction:column; gap:22px; }
+.v4-tier-kicker{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:10.5px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin:0 0 8px;
+}
+.v4-tier-name{
+  font-size:clamp(19px,2vw,24px);
+  font-weight:800;
+  letter-spacing:-.02em;
+  margin:0 0 6px;
+  color:var(--text);
+}
+.v4-tier-price{
+  font-size:clamp(24px,2.6vw,30px);
+  font-weight:800;
+  color:var(--gold-hi);
+  margin:0 0 14px;
+}
+.v4-tier-list{ margin:0 0 18px; padding:0; list-style:none; display:grid; gap:8px; }
+.v4-tier-list li{
+  font-size:13.5px;
+  color:var(--text-2);
+  padding-left:16px;
+  position:relative;
+  line-height:1.5;
+}
+.v4-tier-list li::before{
+  content:"";
+  position:absolute;
+  left:0; top:.65em;
+  width:7px; height:1px;
+  background:var(--gold);
+}
+@media(max-width:1080px){
+  .v4-pkg-pane{ grid-template-columns:1fr; }
+  .v4-pkg-media{ max-width:340px; }
+}
+
+/* =========================================================================
+   18. ABOUT + CONTACT
+   ========================================================================= */
+.v2-about-line{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:11.5px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  margin-top:4px;
+}

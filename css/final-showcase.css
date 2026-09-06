@@ -1,0 +1,70 @@
+/* =========================================================================
+   REVENUE PILOTS — final showcase pass.
+   Loaded last: hero "Revenue Engine" ambient layer + pointer-tilt wiring,
+   shared across the hero stage and every .v4-net instance via --tiltx/
+   --tilty custom properties set by js/final-showcase.js.
+   ========================================================================= */
+.v2-stage{ --tiltx:0deg; --tilty:0deg; position:relative; }
+
+/* soft bleed of gold light behind the whole stage -- fills the dead space
+   around the objects on wide screens instead of leaving bare black */
+.v2-stage::before{
+  content:"";
+  position:absolute;
+  inset:-26% -14%;
+  z-index:-1;
+  pointer-events:none;
+  background:radial-gradient(48% 60% at 50% 50%, rgba(197,154,60,.18), transparent 70%);
+  filter:blur(50px);
+}
+
+.v2-engine-canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  pointer-events:none;
+  opacity:.95;
+  transform:scale(1.22);
+}
+
+.v2-object.is-featured{
+  transform:translate(-50%,-50%) scale(1) rotateX(var(--tiltx,0deg)) rotateY(var(--tilty,0deg));
+}
+
+/* the featured object's own frame gets a touch more presence now that the
+   stage is larger -- restrained, not a redesign of the component itself */
+.v2-browser{ box-shadow:
+    0 0 0 1px rgba(197,154,60,.28),
+    0 44px 100px rgba(0,0,0,.65),
+    inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+@media(max-width:760px){
+  .v2-engine-canvas{ opacity:.55; }
+}
+@media(prefers-reduced-motion:reduce){
+  .v2-object.is-featured{ transform:translate(-50%,-50%) scale(1); }
+}
+
+/* =========================================================================
+   CTA polish -- a restrained magnetic/shine response on pointer position.
+   Section reveals already exist via .reveal/.is-visible in js/main.js and
+   are left untouched.
+   ========================================================================= */
+.btn-gold,
+.v4-shiny{ position:relative; }
+.btn-gold::before,
+.v4-shiny::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:radial-gradient(120px 60px at var(--mx,50%) var(--my,50%), rgba(255,255,255,.16), transparent 60%);
+  opacity:0;
+  transition:opacity .3s var(--ease);
+  pointer-events:none;
+}
+.btn-gold:hover::before,
+.v4-shiny:hover::before{ opacity:1; }

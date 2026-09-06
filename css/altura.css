@@ -1,0 +1,467 @@
+/* =========================================================================
+   REVENUE PILOTS — "ALTURA" fictional demo component.
+   Shared by: standalone demo/altura/index.html, hero Websites state,
+   Selected Work showcase, Packages mini preview. Original composition,
+   sized in em so a single font-size variable scales the whole layout.
+   Composition/motion language (bottom-anchored hero, masked headline
+   reveal, liquid-glass nav/buttons, small stats row) is an original build
+   inspired only by the *level* of craft in a supplied premium reference —
+   no third-party name, copy, stats or media reused.
+   ========================================================================= */
+.rp-altura-mount{ display:block; width:100%; height:100%; }
+.rp-altura{
+  position:relative;
+  width:100%; height:100%;
+  min-height:120px;
+  overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 10%, #0d0d10, #050506 70%);
+  font-size:clamp(6px,.9vw,10px);
+  isolation:isolate;
+}
+.rp-altura-canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; z-index:0; }
+.rp-altura-veil{
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(60% 46% at 50% 100%, rgba(197,154,60,.14), transparent 72%),
+    linear-gradient(180deg, rgba(5,5,6,.4) 0%, rgba(5,5,6,.05) 32%, rgba(5,5,6,.35) 58%, rgba(5,5,6,.92) 100%);
+}
+.rp-altura-nav{
+  position:absolute; top:1.6em; left:1.6em; right:1.6em; z-index:3;
+  display:flex; align-items:center; justify-content:space-between; gap:1em;
+  opacity:0; transform:translateY(-.6em);
+  transition:opacity .7s var(--ease,ease), transform .7s var(--ease,ease);
+}
+.rp-altura.is-in .rp-altura-nav{ opacity:1; transform:translateY(0); }
+.rp-altura-mark{
+  font-family:var(--font,sans-serif); font-weight:800; font-size:1.05em;
+  letter-spacing:.01em; color:#fff; white-space:nowrap;
+}
+
+/* liquid-metal nav pills: brushed gradient + a shine sweep on hover */
+.rp-altura-links{
+  display:flex; gap:.35em;
+}
+.rp-altura-links i{
+  position:relative; overflow:hidden; isolation:isolate;
+  font-style:normal; font-size:.68em; color:#f3f3f3;
+  padding:.6em 1.05em; border-radius:999px; white-space:nowrap;
+  border:1px solid rgba(198,198,198,.4);
+  background:linear-gradient(105deg,#0a0a0a 0%,#2a2a2a 48%,#454545 100%);
+}
+.rp-altura-links i::before{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.16) 50%, transparent 70%);
+  transform:translateX(-120%);
+  transition:transform .6s ease;
+}
+.rp-altura-links i:hover::before{ transform:translateX(120%); }
+.rp-altura-links i:hover{ border-color:rgba(235,235,235,.9); background:linear-gradient(105deg,#111 0%,#3a3a3a 45%,#6a6a6a 100%); }
+.rp-altura-navcta{
+  position:relative; overflow:hidden; isolation:isolate;
+  font-size:.68em; font-weight:600; color:#111; white-space:nowrap;
+  padding:.7em 1.3em; border-radius:999px;
+  background:linear-gradient(180deg,#fff 0%,#e7e7e7 48%,#cfcfcf 100%);
+  border:1px solid #fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
+}
+
+.rp-altura-hero{
+  position:absolute; inset:0; z-index:2;
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end;
+  text-align:left; max-width:58%; padding:0 0 12% 8%;
+}
+.rp-altura-badge{
+  display:inline-flex; align-items:center; gap:.55em;
+  margin:0 0 1.3em; padding:.65em 1.05em; border-radius:999px;
+  background:linear-gradient(90deg,#6e6e6e 0%,#242424 52%,#0a0a0a 100%);
+  color:#f2f2f2; font-size:.66em; letter-spacing:.01em;
+  opacity:0; transform:translateY(.5em) scale(.92);
+  transition:opacity .7s var(--ease,ease) .05s, transform .7s var(--ease,ease) .05s;
+}
+.rp-altura-spark{
+  width:1.2em; height:1.2em; color:#fff;
+  filter:drop-shadow(0 0 3px rgba(255,255,255,.4));
+}
+.rp-altura.is-in .rp-altura-badge{ opacity:1; transform:translateY(0) scale(1); }
+
+.rp-altura-h1{
+  font-family:var(--font,sans-serif); font-weight:700;
+  font-size:2.7em; line-height:1.08; letter-spacing:-.03em; color:#fff;
+  margin:0 0 .5em;
+}
+.rp-altura-line{ display:block; overflow:hidden; padding:.08em 0; }
+.rp-altura-line span{
+  display:block;
+  opacity:0; transform:translateY(60%);
+  transition:opacity .8s var(--ease,ease), transform .8s var(--ease,ease);
+}
+.rp-altura-line:nth-child(1) span{ transition-delay:.15s; }
+.rp-altura-line:nth-child(2) span{ transition-delay:.3s; }
+.rp-altura.is-in .rp-altura-line span{ opacity:1; transform:translateY(0); }
+.rp-altura-h1 em{
+  font-family:"Instrument Serif","Times New Roman",serif;
+  font-style:italic; font-weight:400; color:#9a9a9a;
+}
+.rp-altura-sub{
+  font-size:.92em; line-height:1.55; color:rgba(255,255,255,.6);
+  max-width:26em; margin:0 0 1.5em;
+  opacity:0; transform:translateY(.6em);
+  transition:opacity .7s var(--ease,ease) .45s, transform .7s var(--ease,ease) .45s;
+}
+.rp-altura-ctas{
+  display:flex; gap:.7em; justify-content:flex-start;
+  opacity:0; transform:translateY(.6em);
+  transition:opacity .7s var(--ease,ease) .58s, transform .7s var(--ease,ease) .58s;
+}
+.rp-altura.is-in .rp-altura-sub,
+.rp-altura.is-in .rp-altura-ctas{ opacity:1; transform:translateY(0); }
+
+/* liquid-glass buttons: solid brushed-metal primary, frosted-glass ghost */
+.rp-altura-cta-1,
+.rp-altura-cta-2{
+  position:relative; overflow:hidden; isolation:isolate;
+  font-size:.85em; font-weight:600; padding:.85em 1.5em;
+  border-radius:999px; white-space:nowrap;
+}
+.rp-altura-cta-1::after,
+.rp-altura-cta-2::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(115deg, transparent 20%, rgba(255,255,255,.45) 48%, transparent 76%);
+  transform:translateX(-130%);
+  transition:transform .65s ease;
+}
+.rp-altura-cta-1:hover::after,
+.rp-altura-cta-2:hover::after{ transform:translateX(130%); }
+.rp-altura-cta-1{
+  color:#111;
+  background:linear-gradient(180deg,#fff 0%,#e7e7e7 48%,#cfcfcf 100%);
+  border:1px solid #fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
+  transition:box-shadow .35s ease, background .35s ease;
+}
+.rp-altura-cta-1:hover{
+  background:linear-gradient(180deg,#fff 0%,#f3f6ff 42%,#d5def2 100%);
+  box-shadow:inset 0 1px 0 #fff, 0 0 22px rgba(186,208,255,.35);
+}
+.rp-altura-cta-2{
+  color:#fff;
+  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(0,0,0,.5) 46%,rgba(150,170,200,.1));
+  border:1px solid rgba(198,198,198,.55);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+  transition:box-shadow .35s ease, border-color .35s ease;
+}
+.rp-altura-cta-2:hover{
+  border-color:rgba(220,230,255,.8);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 0 20px rgba(170,200,255,.22);
+}
+
+/* interaction-state pills -- tabindex="-1" (see altura.js), still fully
+   mouse/touch-clickable; a sighted visitor can drive the Operations Core
+   manually, everyone else sees it auto-cycle. */
+.orv-states{
+  display:flex; align-items:center; gap:.4em; flex-wrap:wrap;
+  margin-top:1.7em;
+  opacity:0; transform:translateY(.6em);
+  transition:opacity .7s var(--ease,ease) .7s, transform .7s var(--ease,ease) .7s;
+}
+.rp-altura.is-in .orv-states{ opacity:1; transform:translateY(0); }
+.orv-state{
+  font-family:inherit; cursor:pointer;
+  font-size:.6em; letter-spacing:.06em; text-transform:uppercase;
+  color:rgba(255,255,255,.55); background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.16); border-radius:999px;
+  padding:.6em 1.1em; white-space:nowrap;
+  transition:color .3s ease, border-color .3s ease, background .3s ease;
+}
+.orv-state[data-orv-active="true"]{
+  color:#0a0a0a; border-color:#fff;
+  background:linear-gradient(180deg,#fff 0%,#dcdcdc 100%);
+}
+.orv-state-note{
+  display:block; flex-basis:100%; margin-top:.7em;
+  font-size:.6em; letter-spacing:.01em; color:rgba(255,255,255,.4);
+}
+
+/* ---------- Operations Core: dimensional focal object ---------- */
+.orv-stage{ position:absolute; inset:0; z-index:0; overflow:hidden; }
+.orv-grid{
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.055) 1px, transparent 1px);
+  background-size:2.8em 2.8em;
+  -webkit-mask-image:radial-gradient(70% 65% at 72% 52%, #000 35%, transparent 82%);
+  mask-image:radial-gradient(70% 65% at 72% 52%, #000 35%, transparent 82%);
+}
+.orv-fx{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.orv-hud{
+  position:absolute; z-index:2;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.56em; letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(255,255,255,.32); text-align:right;
+}
+.orv-hud-tl{ top:7.2em; right:2.2em; }
+.orv-hud-br{ bottom:2.2em; right:2.2em; }
+
+.orv-core{
+  position:absolute; top:48%; right:5%; width:14.5em; height:14.5em;
+  transform:translateY(-50%);
+  perspective:44em;
+}
+/* viewed as a 3/4 industrial object standing in space -- deliberately NOT
+   the flat top-down tilt that made the previous version read as a diagram */
+.orv-core-3d{
+  position:relative; width:100%; height:100%;
+  transform-style:preserve-3d;
+  animation:orvIdle 16s ease-in-out infinite alternate;
+}
+@keyframes orvIdle{
+  from{ transform:rotateX(calc(-8deg + var(--orv-tiltx,0deg))) rotateY(calc(-27deg + var(--orv-tilty,0deg))); }
+  to{   transform:rotateX(calc(-4deg + var(--orv-tiltx,0deg))) rotateY(calc(-19deg + var(--orv-tilty,0deg))); }
+}
+.orv-core-3d > *{ position:absolute; transform-style:preserve-3d; }
+
+/* --- background mass: gives the machine a silhouette behind the chassis --- */
+.orv-back{
+  width:74%; height:72%; top:7%; left:17%;
+  border-radius:1em .35em 1em .35em;
+  background:linear-gradient(150deg,#2c3138 0%,#171a1e 55%,#0a0c0e 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 2em 3em rgba(0,0,0,.7);
+  transform:translateZ(-2.4em) rotateZ(-6deg);
+  transition:transform .62s cubic-bezier(.4,0,.2,1), box-shadow .5s ease;
+}
+
+/* --- machined fin stack: repeated functional detail, left side only --- */
+.orv-fins{
+  width:21%; height:50%; top:27%; left:-1%;
+  display:flex; flex-direction:column; justify-content:space-between;
+  transform:translateZ(-.5em) rotateY(17deg);
+  transition:transform .62s cubic-bezier(.4,0,.2,1);
+}
+.orv-fins i{
+  display:block; height:10%; border-radius:.12em;
+  background:linear-gradient(90deg,#8d959e 0%,#4a5058 42%,#1b1e22 100%);
+  box-shadow:0 .1em .18em rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.22);
+}
+
+/* --- chassis: the machined body, bevelled top edge, dark underside --- */
+.orv-chassis{
+  width:57%; height:64%; top:17%; left:21%;
+  border-radius:1.1em .5em 1.1em .5em;
+  background:linear-gradient(158deg,#525a63 0%,#333940 26%,#1b1e22 62%,#0d0f12 100%);
+  box-shadow:
+    inset 0 .13em 0 rgba(255,255,255,.28),
+    inset 0 -.13em 0 rgba(0,0,0,.8),
+    inset -.6em 0 1.2em rgba(0,0,0,.5),
+    0 2.2em 3.4em rgba(0,0,0,.75);
+  transition:transform .62s cubic-bezier(.4,0,.2,1);
+}
+.orv-vent{
+  position:absolute; right:11%; top:13%; width:27%; height:15%;
+  border-radius:.2em;
+  background:repeating-linear-gradient(180deg, rgba(0,0,0,.66) 0 2px, rgba(255,255,255,.09) 2px 3px);
+  box-shadow:inset 0 0 .3em rgba(0,0,0,.85);
+  transition:box-shadow .5s ease;
+}
+
+/* --- exposed illuminated internal core, sunk into a cut aperture --- */
+.orv-slot{
+  position:absolute; left:15%; top:21%; width:30%; height:58%;
+  border-radius:.45em;
+  background:#040508;
+  box-shadow:inset 0 0 .6em rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.12);
+  overflow:hidden;
+}
+.orv-core-glow{
+  position:absolute; left:20%; right:20%; top:11%; bottom:11%;
+  border-radius:.28em;
+  background:linear-gradient(180deg,#fff4d6 0%,#f0c96e 42%,#bd7a1c 100%);
+  box-shadow:0 0 1.3em .25em rgba(240,201,110,.7), 0 0 3em .7em rgba(226,160,60,.32);
+  transform-origin:50% 50%;
+  animation:orvPulse 3.4s ease-in-out infinite;
+  transition:transform .55s cubic-bezier(.4,0,.2,1), box-shadow .5s ease;
+}
+@keyframes orvPulse{
+  0%,100%{ opacity:.86; }
+  50%{ opacity:1; }
+}
+
+/* --- brushed silver strut: the visible data path across the machine --- */
+.orv-strut{
+  width:84%; height:5%; top:61%; left:5%;
+  border-radius:.2em;
+  background:repeating-linear-gradient(96deg,#d3dae1 0 1px,#98a1aa 1px 2px,#c2cad2 2px 3px,#7e868f 3px 4px);
+  box-shadow:0 .2em .4em rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.45);
+  transform:translateZ(1.7em) rotateZ(-9deg);
+  transition:transform .62s cubic-bezier(.4,0,.2,1), box-shadow .5s ease;
+}
+
+/* --- foreground armour shell: asymmetric, closest plane, sells the depth --- */
+.orv-shell{
+  width:45%; height:37%; bottom:7%; right:-3%;
+  border-radius:1em .35em 1.3em .35em;
+  background:linear-gradient(140deg,#6d757e 0%,#3a4048 30%,#1a1d21 70%,#0b0d0f 100%);
+  box-shadow:
+    inset 0 .11em 0 rgba(255,255,255,.36),
+    inset 0 -.11em 0 rgba(0,0,0,.75),
+    0 1.6em 2.6em rgba(0,0,0,.78);
+  transform:translateZ(2.8em) rotateY(-14deg) rotateZ(4deg);
+  transition:transform .62s cubic-bezier(.4,0,.2,1), box-shadow .5s ease;
+}
+
+.orv-leds{
+  width:auto; top:9%; right:4%;
+  display:flex; gap:.42em;
+  transform:translateZ(3.1em);
+}
+.orv-leds i{
+  width:.32em; height:.32em; border-radius:50%;
+  background:#5c646d; box-shadow:0 0 .25em rgba(255,255,255,.15);
+  transition:background .45s ease, box-shadow .45s ease;
+}
+
+/* ---- the four states physically reconfigure the machine ---- */
+
+/* WORKFLOWS — the route section opens: shell swings out, strut lights up */
+.rp-altura[data-orv-state="workflows"] .orv-shell{
+  transform:translateZ(4.6em) translateX(9%) rotateY(-25deg) rotateZ(7deg);
+}
+.rp-altura[data-orv-state="workflows"] .orv-strut{
+  box-shadow:0 .2em .4em rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.5), 0 0 1.1em rgba(240,201,110,.75);
+}
+.rp-altura[data-orv-state="workflows"] .orv-leds i:nth-child(1){
+  background:#f0c96e; box-shadow:0 0 .55em rgba(240,201,110,.9);
+}
+
+/* INTELLIGENCE — internal core drives harder, fins draw inward */
+.rp-altura[data-orv-state="intelligence"] .orv-core-glow{
+  transform:scaleY(1.14) scaleX(1.2);
+  box-shadow:0 0 2em .5em rgba(240,201,110,.9), 0 0 4.2em 1.1em rgba(226,160,60,.45);
+}
+.rp-altura[data-orv-state="intelligence"] .orv-fins{
+  transform:translateZ(-.5em) translateX(9%) rotateY(6deg);
+}
+.rp-altura[data-orv-state="intelligence"] .orv-leds i:nth-child(2){
+  background:#f0c96e; box-shadow:0 0 .55em rgba(240,201,110,.9);
+}
+
+/* ANALYTICS — instrumentation layer: back section re-orients, vent reads out */
+.rp-altura[data-orv-state="analytics"] .orv-back{
+  transform:translateZ(-1.5em) rotateZ(9deg) rotateY(10deg);
+}
+.rp-altura[data-orv-state="analytics"] .orv-vent{
+  box-shadow:inset 0 0 .3em rgba(0,0,0,.85), 0 0 .9em rgba(150,200,255,.55);
+}
+.rp-altura[data-orv-state="analytics"] .orv-leds i:nth-child(3){
+  background:#9cc9ff; box-shadow:0 0 .55em rgba(156,201,255,.9);
+}
+
+/* CONTROL — everything tightens flush into one aligned configuration */
+.rp-altura[data-orv-state="control"] .orv-shell{
+  transform:translateZ(1.5em) rotateY(-4deg) rotateZ(0deg);
+}
+.rp-altura[data-orv-state="control"] .orv-back{
+  transform:translateZ(-1.9em) rotateZ(0deg);
+}
+.rp-altura[data-orv-state="control"] .orv-fins{
+  transform:translateZ(-.5em) rotateY(5deg);
+}
+.rp-altura[data-orv-state="control"] .orv-strut{
+  transform:translateZ(1.7em) rotateZ(-3deg);
+}
+.rp-altura[data-orv-state="control"] .orv-leds i{
+  background:#e8edf2; box-shadow:0 0 .4em rgba(255,255,255,.6);
+}
+
+/* stats-style row: three short, honest, non-quantified taglines --
+   no fabricated numbers, matches the "non-claim interface labels" the
+   demo is allowed to use. */
+.rp-altura-stats{
+  display:flex; align-items:center; justify-content:flex-start; flex-wrap:wrap;
+  gap:1.6em .9em; margin-top:2.2em;
+  opacity:0; transform:translateY(.6em);
+  transition:opacity .7s var(--ease,ease) .72s, transform .7s var(--ease,ease) .72s;
+}
+.rp-altura.is-in .rp-altura-stats{ opacity:1; transform:translateY(0); }
+.rp-altura-stat{
+  display:inline-flex; align-items:center; gap:.55em;
+  font-size:.68em; letter-spacing:-.01em; color:#d8d8d8; white-space:nowrap;
+}
+.rp-altura-stat svg{ width:1.35em; height:1.35em; color:#e8e8e8; flex:none; }
+.rp-altura-stat i{ font-style:normal; }
+
+/* ---- size variants ---- */
+.rp-altura-full{ font-size:16px; min-height:100svh; }
+.rp-altura-full .rp-altura-h1{ font-size:3.6em; }
+.rp-altura-full .orv-core{ width:17.5em; height:17.5em; right:6%; }
+/* the standalone demo page adds its own fixed disclosure footnote below
+   this mount -- leave the hero column enough bottom clearance for it */
+.rp-altura-full .rp-altura-hero{ padding-bottom:16%; }
+/* lg sits in a fixed, comparatively short 16:10 frame (Selected Work) --
+   trim the stack (smaller headline, no descriptive note under the state
+   pills, less bottom padding) so it never pushes up into the nav row. */
+.rp-altura-lg{ font-size:clamp(8px,1.1vw,14px); }
+.rp-altura-lg .rp-altura-h1{ font-size:2.1em; }
+.rp-altura-lg .rp-altura-hero{ padding-bottom:5%; }
+.rp-altura-lg .rp-altura-badge{ margin-bottom:.9em; }
+.rp-altura-lg .orv-states{ margin-top:1.2em; }
+.rp-altura-lg .orv-state-note{ display:none; }
+.rp-altura-sm{ font-size:clamp(7px,.95vw,12px); }
+.rp-altura-sm .rp-altura-h1{ font-size:2.3em; }
+.rp-altura-sm .rp-altura-hero{ padding-bottom:9%; max-width:64%; }
+.rp-altura-sm .orv-core{ width:11em; height:11em; right:3%; }
+
+/* xs: too small for an asymmetric split -- collapse to a centered mark +
+   headline fragment with a small Operations Core silhouette above it,
+   matching "keep the silhouette, simplify detail, no unreadable microcopy" */
+.rp-altura-xs{ font-size:7px; }
+.rp-altura-xs .rp-altura-h1{ font-size:2em; max-width:9ch; }
+.rp-altura-xs .rp-altura-hero{
+  align-items:center; text-align:center; max-width:100%;
+  justify-content:center; padding:0 6%;
+}
+.rp-altura-xs .rp-altura-badge{ margin-top:5.5em; }
+.rp-altura-xs .rp-altura-nav{ top:1.2em; left:1.2em; right:1.2em; }
+.rp-altura-xs .orv-grid,
+.rp-altura-xs .orv-hud{ display:none; }
+.rp-altura-xs .orv-core{
+  top:1.4em; left:50%; right:auto; bottom:auto;
+  width:6.6em; height:6.6em; transform:translateX(-50%);
+}
+/* at thumbnail scale only the silhouette + lit core read -- drop the
+   micro-detail rather than render it as sub-pixel mush */
+.rp-altura-xs .orv-vent,
+.rp-altura-xs .orv-leds,
+.rp-altura-xs .orv-fins{ display:none; }
+
+/* xs has no canvas: a light static gradient stands in for the ribbon field */
+.rp-altura-xs{
+  background:
+    radial-gradient(80% 60% at 30% 20%, rgba(255,255,255,.05), transparent 60%),
+    radial-gradient(70% 60% at 75% 80%, rgba(197,154,60,.12), transparent 65%),
+    radial-gradient(120% 90% at 50% 10%, #0d0d10, #050506 70%);
+}
+.rp-altura-xs .rp-altura-veil{ background:none; }
+
+@media(max-width:760px){
+  .rp-altura-full .rp-altura-h1{ font-size:2.5em; }
+  .rp-altura-full .rp-altura-links{ display:none; }
+  .rp-altura-full .rp-altura-stats{ gap:.9em; padding-bottom:1.2em; }
+  .rp-altura-full .rp-altura-hero{ max-width:78%; padding-bottom:27%; }
+  .rp-altura-full .orv-core{ width:9em; height:9em; right:4%; }
+  .rp-altura-full .orv-hud-tl{ top:6.6em; }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .rp-altura-nav,
+  .rp-altura-badge,
+  .rp-altura-line span,
+  .rp-altura-sub,
+  .rp-altura-ctas,
+  .rp-altura-stats,
+  .orv-states{ transition:none; opacity:1; transform:none; }
+  .orv-core-3d,
+  .orv-core-glow{ animation:none; }
+  .orv-core-3d{ transform:rotateX(-6deg) rotateY(-23deg); }
+}

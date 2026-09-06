@@ -62,12 +62,27 @@
 
       objects.forEach(function (el) {
         var s = el.getAttribute("data-service");
-        el.classList.toggle("is-featured", s === service);
+        var isFeatured = s === service;
+        el.classList.toggle("is-featured", isFeatured);
         el.classList.toggle("is-left", s === left);
         el.classList.toggle("is-right", s === right);
         // the featured object is not a control any more, the side ones are
-        el.setAttribute("aria-pressed", String(s === service));
-        el.disabled = (s === service);
+        el.setAttribute("aria-pressed", String(isFeatured));
+        el.disabled = isFeatured;
+
+        // Any video inside a hero object must explicitly resume/pause on
+        // activation. Some browsers silently pause an autoplaying video
+        // once it scales down / moves off to a side slot and never resume
+        // it on their own -- relying on the `autoplay` attribute alone is
+        // not enough once the object has been switched away from and back.
+        var video = el.querySelector("video");
+        if (!video) return;
+        if (isFeatured) {
+          var p = video.play();
+          if (p && p.catch) p.catch(function () { /* autoplay policy: poster stays */ });
+        } else {
+          video.pause();
+        }
       });
 
       tabs.forEach(function (t) {
@@ -97,6 +112,21 @@
     var q = /[?&]service=(creative|websites|systems)/.exec(location.search);
     show(q ? q[1] : "creative");
     document.documentElement.classList.add("v2-ready");
+
+    /* Browsers routinely pause a playing video the instant a tab/window is
+       backgrounded (battery saving), and do not resume it on their own once
+       it is foregrounded again -- that is the single most common real-world
+       way a "muted autoplay loop" ends up silently frozen on a poster frame.
+       Explicitly resume whichever object is currently featured every time
+       the page becomes visible again. */
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState !== "visible" || !active) return;
+      var featured = document.querySelector('.v2-object[data-service="' + active + '"]');
+      var video = featured && featured.querySelector("video");
+      if (!video || !video.paused) return;
+      var p = video.play();
+      if (p && p.catch) p.catch(function () { /* still blocked: poster stays */ });
+    });
 
     /* Selected Work clips: poster only until asked for. Native controls are
        hidden up front because they look like a browser chrome bar sitting on
