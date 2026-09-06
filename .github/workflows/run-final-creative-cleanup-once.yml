@@ -1,0 +1,31 @@
+name: Run final creative consistency cleanup once
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run-final-creative-cleanup-once.yml'
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply final creative cleanup
+        run: |
+          python scripts/final_creative_cleanup.py
+          git diff --check
+          grep -q 'Creative Engine ($2,500 / month)' home-v2.html
+          grep -q 'Give us four weeks' video-ads/index.html
+          grep -q 'Reserve Full Revenue Build — $3,750' full-build/index.html
+          grep -q 'Creative Sprint' full-build/index.html
+      - name: Commit
+        run: |
+          git config user.name 'Revenue Pilots Site Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add home-v2.html video-ads/index.html full-build/index.html
+          git commit -m 'Finish creative offer consistency and Full Build deposit'
+          git push origin main
