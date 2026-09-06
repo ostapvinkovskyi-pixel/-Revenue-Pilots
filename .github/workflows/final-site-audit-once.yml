@@ -1,0 +1,132 @@
+name: Final buyer journey audit once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/final-site-audit-once.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Deep buyer-facing audit
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          import re, html
+
+          root = Path('.')
+          html_files = sorted(p for p in root.rglob('*.html') if '.git' not in p.parts)
+          errors=[]; warns=[]; funnel=[]; info=[]
+          def add(bucket, p, msg): bucket.append((str(p),msg))
+
+          # Vercel route model from repo: directory/index.html, root -> home-v2.html.
+          def route_target(source, raw):
+              raw = html.unescape(raw).strip()
+              if not raw or raw.startswith(('#','mailto:','tel:','javascript:','data:')): return None
+              u=urlsplit(raw)
+              if u.scheme or u.netloc: return None
+              path=u.path
+              if path.startswith('/api/'): return None
+              if path=='/': return root/'home-v2.html'
+              if path.startswith('/'):
+                  p=root/path.lstrip('/')
+              else:
+                  p=source.parent/path
+              if path.endswith('/'): p=p/'index.html'
+              elif not p.suffix and (p/'index.html').exists(): p=p/'index.html'
+              return p
+
+          current_prices={'$1,500','$3,500','$7,500'}
+          stale_price_tokens=['$249','$499','$999','$1,200','$2,500','$4,900']
+          explicit_buy_phrases=re.compile(r'(start|buy|checkout|purchase|order|get started)',re.I)
+
+          homepage=Path('home-v2.html')
+          home_text=homepage.read_text(errors='replace')
+          home_ids=set(re.findall(r'\bid=["\']([^"\']+)["\']',home_text))
+
+          for p in html_files:
+              t=p.read_text(errors='replace')
+              ids=re.findall(r'\bid=["\']([^"\']+)["\']',t)
+              for dup in sorted({x for x in ids if ids.count(x)>1}): add(errors,p,f'duplicate id #{dup}')
+              if '<title>' not in t: add(warns,p,'missing title')
+              if 'name="description"' not in t and 'previews/' not in str(p): add(warns,p,'missing meta description')
+              if 'rel="canonical"' not in t and not any(x in str(p) for x in ('previews/','demo/','order-success/')): add(warns,p,'missing canonical')
+              if 'target="_blank"' in t:
+                  for m in re.finditer(r'<a\b[^>]*target=["\']_blank["\'][^>]*>',t,re.I):
+                      if 'noopener' not in m.group(0): add(errors,p,'target=_blank missing rel=noopener')
+              if re.search(r'http://',t): add(warns,p,'contains non-HTTPS URL')
+              for tok in stale_price_tokens:
+                  if tok in t: add(errors,p,f'stale visible/structured price token {tok}')
+              if "this isn't an instant checkout" in t.lower() or 'this isn’t an instant checkout' in t.lower(): add(errors,p,'copy contradicts direct checkout')
+              if 'send an exact quote' in t.lower() and any(x in t for x in ('$1,500','$3,500','$7,500')): add(warns,p,'fixed-price page still says send an exact quote')
+
+              # internal links / anchors
+              local_ids=set(ids)
+              for m in re.finditer(r'<a\b([^>]*)>(.*?)</a>',t,re.I|re.S):
+                  attrs=m.group(1); label=re.sub('<[^>]+>',' ',m.group(2)); label=' '.join(html.unescape(label).split())
+                  hm=re.search(r'href=["\']([^"\']+)["\']',attrs,re.I)
+                  if not hm: add(warns,p,f'anchor without href: {label[:50]}'); continue
+                  href=html.unescape(hm.group(1))
+                  if href.startswith('#') and href[1:] not in local_ids: add(errors,p,f'broken local anchor {href} ({label})')
+                  if href.startswith('/#') and href[2:] not in home_ids: add(errors,p,f'broken homepage anchor {href} ({label})')
+                  target=route_target(p,href)
+                  if target is not None and not target.exists(): add(errors,p,f'broken internal href {href} -> {target}')
+
+                  # Conversion audit: explicit fixed-price Start CTA should not detour to form/packages.
+                  has_price=any(price in label for price in current_prices)
+                  looks_buy=bool(explicit_buy_phrases.search(label))
+                  if has_price and looks_buy and ('#contact' in href or '/#packages' in href or href=='#packages'):
+                      add(funnel,p,f'explicit priced CTA detours instead of checkout: "{label}" -> {href}')
+                  # $1,500 creative landing pages saying Start without direct checkout.
+                  if '$1,500' in t and looks_buy and href in ('/#packages','#packages') and ('Video' in label or 'ads' in label.lower() or 'creative' in label.lower() or 'Start for' in label):
+                      add(funnel,p,f'creative purchase CTA still detours to packages: "{label}" -> {href}')
+
+              # images without alt
+              for im in re.finditer(r'<img\b([^>]*)>',t,re.I):
+                  if not re.search(r'\balt=["\'][^"\']*["\']',im.group(1),re.I): add(warns,p,'img missing alt attribute')
+
+          # Server checkout integrity.
+          ck=Path('api/checkout.js').read_text(errors='replace')
+          for plan,amount in [('starter','150000'),('website','350000'),('systems','350000'),('full_build','750000')]:
+              if re.search(rf'\b{re.escape(plan)}\s*:\s*\{{',ck) is None: add(errors,'api/checkout.js',f'missing checkout plan {plan}')
+              # amount appears within offer block broadly
+              if amount not in ck: add(errors,'api/checkout.js',f'missing amount {amount}')
+          if 'order-success' not in ck: add(errors,'api/checkout.js','checkout success URL does not use order-success')
+
+          # Public package buttons must all have checkout links.
+          for plan in ('starter','website','systems','full_build'):
+              if f'plan={plan}' not in home_text: add(funnel,homepage,f'homepage missing direct checkout for {plan}')
+
+          # Check visible CTA consistency and insecure workflow artifacts.
+          for f in Path('.github/workflows').glob('*.yml') if Path('.github/workflows').exists() else []:
+              if any(k in f.name for k in ('once','trigger')): add(warns,f,'one-time workflow residue still in repository')
+
+          print('=== FINAL BUYER JOURNEY AUDIT ===')
+          print('HTML files:',len(html_files))
+          for title,bucket in [('ERRORS',errors),('FUNNEL',funnel),('WARNINGS',warns)]:
+              print('\n==',title,'==',len(bucket))
+              for p,msg in bucket: print(f'[{title[:-1]}] {p}: {msg}')
+          print('\n== SUMMARY ==')
+          print('ERRORS',len(errors)); print('FUNNEL',len(funnel)); print('WARNINGS',len(warns))
+          PY
+
+      - name: Syntax and security headers config
+        run: |
+          set -euo pipefail
+          for f in js/*.js api/*.js config/*.js; do node --check "$f"; done
+          grep -q "content-security-policy" vercel.json
+          grep -q "frame-ancestors 'none'" vercel.json
+          grep -q 'strict-transport-security' vercel.json
+          echo 'JS + security config: PASS'
