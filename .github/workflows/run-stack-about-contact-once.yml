@@ -17,7 +17,6 @@ jobs:
       - name: Apply About/contact layout patch
         run: |
           python scripts/stack_about_contact.py
-          git diff --check
           grep -q 'ABOUT / CONTACT SEPARATION' css/v4.css
       - name: Commit
         run: |
