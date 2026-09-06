@@ -27,17 +27,17 @@
       name: "WEBSITES",
       promise: "Turn attention into action.",
       desc: "Premium websites designed around leads, bookings and sales.",
-      price: "Conversion Website — <strong>$3,500</strong>",
-      cta: "Start Conversion Website — $3,500",
-      checkout: "/api/checkout?plan=website&term=one_time"
+      price: "Conversion Website — <strong>$3,500 total</strong> · $1,750 to start",
+      cta: "Reserve Website — $1,750 deposit",
+      checkout: "/api/checkout?plan=website&term=deposit"
     },
     systems: {
       name: "SYSTEMS",
       promise: "Don't lose the opportunity after the click.",
       desc: "Lead capture, follow-up, booking and workflow automation.",
-      price: "Revenue Systems — <strong>$3,500</strong>",
-      cta: "Start Revenue Systems — $3,500",
-      checkout: "/api/checkout?plan=systems&term=one_time"
+      price: "Revenue Systems — <strong>$3,500 total</strong> · $1,750 to start",
+      cta: "Reserve Revenue Systems — $1,750 deposit",
+      checkout: "/api/checkout?plan=systems&term=deposit"
     }
   };
 
@@ -73,15 +73,9 @@
         el.classList.toggle("is-featured", isFeatured);
         el.classList.toggle("is-left", s === left);
         el.classList.toggle("is-right", s === right);
-        // the featured object is not a control any more, the side ones are
         el.setAttribute("aria-pressed", String(isFeatured));
         el.disabled = isFeatured;
 
-        // Any video inside a hero object must explicitly resume/pause on
-        // activation. Some browsers silently pause an autoplaying video
-        // once it scales down / moves off to a side slot and never resume
-        // it on their own -- relying on the `autoplay` attribute alone is
-        // not enough once the object has been switched away from and back.
         var video = el.querySelector("video");
         if (!video) return;
         if (isFeatured) {
@@ -115,18 +109,10 @@
       });
     });
 
-    /* ?service=websites deep-links straight to a state. Useful for sharing
-       a specific service and for deterministic screenshot capture. */
     var q = /[?&]service=(creative|websites|systems)/.exec(location.search);
     show(q ? q[1] : "creative");
     document.documentElement.classList.add("v2-ready");
 
-    /* Browsers routinely pause a playing video the instant a tab/window is
-       backgrounded (battery saving), and do not resume it on their own once
-       it is foregrounded again -- that is the single most common real-world
-       way a "muted autoplay loop" ends up silently frozen on a poster frame.
-       Explicitly resume whichever object is currently featured every time
-       the page becomes visible again. */
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState !== "visible" || !active) return;
       var featured = document.querySelector('.v2-object[data-service="' + active + '"]');
@@ -136,9 +122,6 @@
       if (p && p.catch) p.catch(function () { /* still blocked: poster stays */ });
     });
 
-    /* Selected Work clips: poster only until asked for. Native controls are
-       hidden up front because they look like a browser chrome bar sitting on
-       the work; they appear once the viewer actually starts a clip. */
     Array.prototype.forEach.call(document.querySelectorAll(".v2-clip"), function (fig) {
       var video = fig.querySelector("video");
       var btn = fig.querySelector(".v2-play");
