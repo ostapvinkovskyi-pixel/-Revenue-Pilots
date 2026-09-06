@@ -22,6 +22,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import base64
 
           html = Path('home-v2.html')
           css = Path('css/v4.css')
@@ -31,115 +32,15 @@ jobs:
           new = '<a class="btn btn-gold btn-block v4-build-cta" href="#contact"><span>Start My Build</span><span class="v4-build-arrow" aria-hidden="true">→</span></a>'
           if old not in h:
               raise SystemExit('Expected Full Build CTA was not found; refusing broad edit')
-          h = h.replace(old, new, 1)
-          html.write_text(h)
+          html.write_text(h.replace(old, new, 1))
 
           c = css.read_text()
           marker = '/* FULL BUILD PRIMARY CTA — Sep 6 */'
           if marker in c:
               raise SystemExit('CTA CSS already present')
-
-          block = r'''
-
-/* FULL BUILD PRIMARY CTA — Sep 6 */
-.v4-fullbuild .v4-build-cta{
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  width:min(100%,360px);
-  max-width:360px;
-  min-height:58px;
-  margin-left:auto;
-  margin-right:auto;
-  padding:0 30px;
-  border-radius:15px;
-  border:1px solid rgba(244,211,126,.9);
-  color:#17130b;
-  background:
-    linear-gradient(180deg,#f4d886 0%,#e3ba59 48%,#c99734 100%) padding-box;
-  box-shadow:
-    0 14px 34px rgba(197,154,60,.20),
-    0 2px 0 rgba(255,255,255,.28) inset,
-    0 -1px 0 rgba(84,55,7,.24) inset;
-  font-size:16px;
-  font-weight:800;
-  letter-spacing:-.015em;
-  animation:none;
-  overflow:hidden;
-  transition:
-    transform .2s var(--ease),
-    box-shadow .25s var(--ease),
-    filter .25s var(--ease);
-}
-.v4-fullbuild .v4-build-cta::before{
-  content:"";
-  position:absolute;
-  inset:-1px;
-  border-radius:inherit;
-  background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.38) 47%,transparent 68%);
-  transform:translateX(-120%);
-  transition:transform .55s var(--ease);
-  pointer-events:none;
-}
-.v4-fullbuild .v4-build-cta::after{
-  content:"";
-  position:absolute;
-  left:12%; right:12%; bottom:-15px;
-  height:28px;
-  border-radius:50%;
-  background:rgba(224,177,68,.34);
-  filter:blur(18px);
-  opacity:.5;
-  z-index:-1;
-  transition:opacity .25s var(--ease), transform .25s var(--ease);
-}
-.v4-fullbuild .v4-build-cta > span{
-  position:relative;
-  z-index:1;
-}
-.v4-fullbuild .v4-build-arrow{
-  display:inline-block;
-  font-size:19px;
-  line-height:1;
-  transition:transform .22s var(--ease);
-}
-.v4-fullbuild .v4-build-cta:hover{
-  color:#120f09;
-  transform:translateY(-2px) scale(1.012);
-  filter:brightness(1.04) saturate(1.03);
-  box-shadow:
-    0 18px 42px rgba(197,154,60,.30),
-    0 2px 0 rgba(255,255,255,.34) inset,
-    0 -1px 0 rgba(84,55,7,.22) inset;
-}
-.v4-fullbuild .v4-build-cta:hover::before{ transform:translateX(120%); }
-.v4-fullbuild .v4-build-cta:hover::after{ opacity:.8; transform:scaleX(1.12); }
-.v4-fullbuild .v4-build-cta:hover .v4-build-arrow{ transform:translateX(4px); }
-.v4-fullbuild .v4-build-cta:active{
-  transform:translateY(0) scale(.995);
-}
-.v4-fullbuild .v4-build-cta:focus-visible{
-  outline:2px solid #f4d886;
-  outline-offset:4px;
-}
-@media(max-width:760px){
-  .v4-fullbuild .v4-build-cta{
-    width:100%;
-    min-height:56px;
-    font-size:15.5px;
-    padding:0 22px;
-  }
-}
-@media(prefers-reduced-motion:reduce){
-  .v4-fullbuild .v4-build-cta,
-  .v4-fullbuild .v4-build-cta::before,
-  .v4-fullbuild .v4-build-cta::after,
-  .v4-fullbuild .v4-build-arrow{ transition:none; }
-}
-'''
-          css.write_text(c.rstrip() + block + '\n')
+          encoded = 'LyogRlVMTCBCVUlMRCBQUklNQVJZIENUQSDigJQgU2VwIDYgKi8KLnY0LWZ1bGxidWlsZCAudjQtYnVpbGQtY3RhewogIHBvc2l0aW9uOnJlbGF0aXZlOwogIGRpc3BsYXk6ZmxleDsKICBhbGlnbi1pdGVtczpjZW50ZXI7CiAganVzdGlmeS1jb250ZW50OmNlbnRlcjsKICBnYXA6MTJweDsKICB3aWR0aDptaW4oMTAwJSwzNjBweCk7CiAgbWF4LXdpZHRoOjM2MHB4OwogIG1pbi1oZWlnaHQ6NThweDsKICBtYXJnaW4tbGVmdDphdXRvOwogIG1hcmdpbi1yaWdodDphdXRvOwogIHBhZGRpbmc6MCAzMHB4OwogIGJvcmRlci1yYWRpdXM6MTVweDsKICBib3JkZXI6MXB4IHNvbGlkIHJnYmEoMjQ0LDIxMSwxMjYsLjkpOwogIGNvbG9yOiMxNzEzMGI7CiAgYmFja2dyb3VuZDpsaW5lYXItZ3JhZGllbnQoMTgwZGVnLCNmNGQ4ODYgMCUsI2UzYmE1OSA0OCUsI2M5OTczNCAxMDAlKTsKICBib3gtc2hhZG93OgogICAgMCAxNHB4IDM0cHggcmdiYSgxOTcsMTU0LDYwLC4yMCksCiAgICAwIDJweCAwIHJnYmEoMjU1LDI1NSwyNTUsLjI4KSBpbnNldCwKICAgIDAgLTFweCAwIHJnYmEoODQsNTUsNywuMjQpIGluc2V0OwogIGZvbnQtc2l6ZToxNnB4OwogIGZvbnQtd2VpZ2h0OjgwMDsKICBsZXR0ZXItc3BhY2luZzotLjAxNWVtOwogIGFuaW1hdGlvbjpub25lOwogIG92ZXJmbG93OmhpZGRlbjsKICB0cmFuc2l0aW9uOnRyYW5zZm9ybSAuMnMgdmFyKC0tZWFzZSksYm94LXNoYWRvdyAuMjVzIHZhcigtLWVhc2UpLGZpbHRlciAuMjVzIHZhcigtLWVhc2UpOwp9Ci52NC1mdWxsYnVpbGQgLnY0LWJ1aWxkLWN0YTo6YmVmb3JlewogIGNvbnRlbnQ6IiI7CiAgcG9zaXRpb246YWJzb2x1dGU7CiAgaW5zZXQ6LTFweDsKICBib3JkZXItcmFkaXVzOmluaGVyaXQ7CiAgYmFja2dyb3VuZDpsaW5lYXItZ3JhZGllbnQoMTEwZGVnLHRyYW5zcGFyZW50IDIwJSxyZ2JhKDI1NSwyNTUsMjU1LC4zOCkgNDclLHRyYW5zcGFyZW50IDY4JSk7CiAgdHJhbnNmb3JtOnRyYW5zbGF0ZVgoLTEyMCUpOwogIHRyYW5zaXRpb246dHJhbnNmb3JtIC41NXMgdmFyKC0tZWFzZSk7CiAgcG9pbnRlci1ldmVudHM6bm9uZTsKfQoudjQtZnVsbGJ1aWxkIC52NC1idWlsZC1jdGE6OmFmdGVyewogIGNvbnRlbnQ6IiI7CiAgcG9zaXRpb246YWJzb2x1dGU7CiAgbGVmdDoxMiU7cmlnaHQ6MTIlO2JvdHRvbTotMTVweDsKICBoZWlnaHQ6MjhweDsKICBib3JkZXItcmFkaXVzOjUwJTsKICBiYWNrZ3JvdW5kOnJnYmEoMjI0LDE3Nyw2OCwuMzQpOwogIGZpbHRlcjpibHVyKDE4cHgpOwogIG9wYWNpdHk6LjU7CiAgei1pbmRleDotMTsKICB0cmFuc2l0aW9uOm9wYWNpdHkgLjI1cyB2YXIoLS1lYXNlKSx0cmFuc2Zvcm0gLjI1cyB2YXIoLS1lYXNlKTsKfQoudjQtZnVsbGJ1aWxkIC52NC1idWlsZC1jdGEgPiBzcGFue3Bvc2l0aW9uOnJlbGF0aXZlO3otaW5kZXg6MTt9Ci52NC1mdWxsYnVpbGQgLnY0LWJ1aWxkLWFycm93ewogIGRpc3BsYXk6aW5saW5lLWJsb2NrOwogIGZvbnQtc2l6ZToxOXB4OwogIGxpbmUtaGVpZ2h0OjE7CiAgdHJhbnNpdGlvbjp0cmFuc2Zvcm0gLjIycyB2YXIoLS1lYXNlKTsKfQoudjQtZnVsbGJ1aWxkIC52NC1idWlsZC1jdGE6aG92ZXJ7CiAgY29sb3I6IzEyMGYwOTsKICB0cmFuc2Zvcm06dHJhbnNsYXRlWSgtMnB4KSBzY2FsZSgxLjAxMik7CiAgZmlsdGVyOmJyaWdodG5lc3MoMS4wNCkgc2F0dXJhdGUoMS4wMyk7CiAgYm94LXNoYWRvdzoKICAgIDAgMThweCA0MnB4IHJnYmEoMTk3LDE1NCw2MCwuMzApLAogICAgMCAycHggMCByZ2JhKDI1NSwyNTUsMjU1LC4zNCkgaW5zZXQsCiAgICAwIC0xcHggMCByZ2JhKDg0LDU1LDcsLjIyKSBpbnNldDsKfQoudjQtZnVsbGJ1aWxkIC52NC1idWlsZC1jdGE6aG92ZXI6OmJlZm9yZXt0cmFuc2Zvcm06dHJhbnNsYXRlWCgxMjAlKTt9Ci52NC1mdWxsYnVpbGQgLnY0LWJ1aWxkLWN0YTpob3Zlcjo6YWZ0ZXJ7b3BhY2l0eTouODt0cmFuc2Zvcm06c2NhbGVYKDEuMTIpO30KLnY0LWZ1bGxidWlsZCAudjQtYnVpbGQtY3RhOmhvdmVyIC52NC1idWlsZC1hcnJvd3t0cmFuc2Zvcm06dHJhbnNsYXRlWCg0cHgpO30KLnY0LWZ1bGxidWlsZCAudjQtYnVpbGQtY3RhOmFjdGl2ZXt0cmFuc2Zvcm06dHJhbnNsYXRlWSgwKSBzY2FsZSguOTk1KTt9Ci52NC1mdWxsYnVpbGQgLnY0LWJ1aWxkLWN0YTpmb2N1cy12aXNpYmxle291dGxpbmU6MnB4IHNvbGlkICNmNGQ4ODY7b3V0bGluZS1vZmZzZXQ6NHB4O30KQG1lZGlhKG1heC13aWR0aDo3NjBweCl7CiAgLnY0LWZ1bGxidWlsZCAudjQtYnVpbGQtY3Rhe3dpZHRoOjEwMCU7bWluLWhlaWdodDo1NnB4O2ZvbnQtc2l6ZToxNS41cHg7cGFkZGluZzowIDIycHg7fQp9CkBtZWRpYShwcmVmZXJzLXJlZHVjZWQtbW90aW9uOnJlZHVjZSl7CiAgLnY0LWZ1bGxidWlsZCAudjQtYnVpbGQtY3RhLAogIC52NC1mdWxsYnVpbGQgLnY0LWJ1aWxkLWN0YTo6YmVmb3JlLAogIC52NC1mdWxsYnVpbGQgLnY0LWJ1aWxkLWN0YTo6YWZ0ZXIsCiAgLnY0LWZ1bGxidWlsZCAudjQtYnVpbGQtYXJyb3d7dHJhbnNpdGlvbjpub25lO30KfQ=='
+          block = base64.b64decode(encoded).decode()
+          css.write_text(c.rstrip() + '\n\n' + block + '\n')
           PY
 
       - name: Verify focused diff
