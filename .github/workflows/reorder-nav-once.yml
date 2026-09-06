@@ -1,0 +1,46 @@
+name: Reorder navigation once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/reorder-nav-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Put Services before Work in navigation
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('home-v2.html')
+          t=p.read_text()
+          old_desktop='''    <nav class="nav-desktop" aria-label="Primary">\n      <a href="#work">Work</a>\n      <a href="#hero">Services</a>'''
+          new_desktop='''    <nav class="nav-desktop" aria-label="Primary">\n      <a href="#hero">Services</a>\n      <a href="#work">Work</a>'''
+          old_mobile='''  <div class="nav-mobile" id="navMobile" hidden>\n    <a href="#work">Work</a>\n    <a href="#hero">Services</a>'''
+          new_mobile='''  <div class="nav-mobile" id="navMobile" hidden>\n    <a href="#hero">Services</a>\n    <a href="#work">Work</a>'''
+          if old_desktop not in t:
+              raise SystemExit('Desktop nav pattern not found')
+          if old_mobile not in t:
+              raise SystemExit('Mobile nav pattern not found')
+          t=t.replace(old_desktop,new_desktop,1).replace(old_mobile,new_mobile,1)
+          p.write_text(t)
+          PY
+          git diff --check
+      - name: Commit nav order
+        run: |
+          set -euo pipefail
+          git config user.name 'Revenue Pilots Site Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add home-v2.html
+          git commit -m 'Put Services before Work in navigation'
+          git push origin main
