@@ -19,19 +19,25 @@
       name: "CREATIVE",
       promise: "Get attention worth converting.",
       desc: "Short-form advertising built around hooks, offers and testing.",
-      price: "Video Creative — <strong>$1,500</strong>"
+      price: "Video Creative — <strong>$1,500</strong>",
+      cta: "Start Video Creative — $1,500",
+      checkout: "/api/checkout?plan=starter&term=one_time"
     },
     websites: {
       name: "WEBSITES",
       promise: "Turn attention into action.",
       desc: "Premium websites designed around leads, bookings and sales.",
-      price: "Conversion Website — <strong>$3,500</strong>"
+      price: "Conversion Website — <strong>$3,500</strong>",
+      cta: "Start Conversion Website — $3,500",
+      checkout: "/api/checkout?plan=website&term=one_time"
     },
     systems: {
       name: "SYSTEMS",
       promise: "Don't lose the opportunity after the click.",
       desc: "Lead capture, follow-up, booking and workflow automation.",
-      price: "Revenue Systems — <strong>$3,500</strong>"
+      price: "Revenue Systems — <strong>$3,500</strong>",
+      cta: "Start Revenue Systems — $3,500",
+      checkout: "/api/checkout?plan=systems&term=one_time"
     }
   };
 
@@ -48,6 +54,7 @@
     var elPromise = document.getElementById("v2Promise");
     var elDesc = document.getElementById("v2Desc");
     var elPrice = document.getElementById("v2Price");
+    var elCta = document.getElementById("v2ServiceCta");
     if (!objects.length || !elName) return;
 
     var active = null;
@@ -94,6 +101,7 @@
       elPromise.textContent = c.promise;
       elDesc.textContent = c.desc;
       elPrice.innerHTML = c.price;
+      if (elCta) { elCta.textContent = c.cta; elCta.setAttribute("href", c.checkout); }
     }
 
     objects.forEach(function (el) {
