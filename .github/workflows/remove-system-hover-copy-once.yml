@@ -1,0 +1,53 @@
+name: Remove Systems hover copy once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/remove-system-hover-copy-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Remove overlapping Systems hover descriptions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('css/v4.css')
+          text = path.read_text()
+          marker = '/* SYSTEM NETWORK CLEAN HOVER — Sep 6 */'
+          if marker in text:
+              raise SystemExit('Cleanup already applied')
+
+          block = '''
+
+/* SYSTEM NETWORK CLEAN HOVER — Sep 6
+   Keep the seven node labels interactive, but remove the long hover copy.
+   The description tooltips crossed the center of the network and collided
+   with neighboring labels in the hero, making the system look cluttered. */
+.v4-net-desc{
+  display:none !important;
+}
+'''
+          path.write_text(text.rstrip() + block + '\n')
+          PY
+
+      - name: Verify and commit
+        run: |
+          grep -q 'SYSTEM NETWORK CLEAN HOVER' css/v4.css
+          git diff --check
+          git config user.name 'Revenue Pilots Site Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add css/v4.css
+          git commit -m 'Remove overlapping Systems hover descriptions'
+          git push origin main
