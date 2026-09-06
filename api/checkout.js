@@ -2,16 +2,34 @@ import Stripe from "stripe";
 
 const OFFERS = {
   starter: {
-    slug: "video_creative",
-    name: "Revenue Pilots — Video Creative",
+    slug: "creative_sprint",
+    name: "Revenue Pilots — Creative Sprint",
     amount: 150000,
-    description: "One-time Video Creative package: 3 custom vertical 9:16 ads, 3 distinct hooks/creative angles, creative direction, branding + CTA copy, social-ready exports, and 1 revision round. First drafts within 72 hours after required usable assets are received. Ad spend not included."
+    billing: "one_time",
+    description: "Creative Sprint: a 4-week creative engagement with 8 original vertical 9:16 ads delivered as 2 per week, plus 4 alternate hook cuts for 12 ad-ready exports total. Includes hooks/scripts, CTA copy, captions/branding, social-ready exports, and one revision round per weekly batch. Built around the approved offer, audience and brand. Ad spend, paid talent/creator fees, whitelisting/partnership ads, product shipping and unusual third-party production costs are separate when required and approved in advance."
+  },
+  creative_engine: {
+    slug: "creative_engine",
+    name: "Revenue Pilots — Creative Engine",
+    amount: 250000,
+    billing: "subscription",
+    interval: "month",
+    description: "Creative Engine: 12 original vertical ads plus 12 alternate hook variations for 24 ad-ready exports per month, delivered in weekly batches. Includes scripts/CTA copy, captions/branding, monthly creative planning, performance-led iteration when usable client data is shared, and two revision rounds per month. Up to two products/offers. Renews monthly until canceled. Ad spend, paid talent/creator fees, whitelisting/partnership ads, product shipping and unusual third-party production costs are separate when required and approved in advance."
+  },
+  creative_scale: {
+    slug: "creative_scale",
+    name: "Revenue Pilots — Creative Scale",
+    amount: 400000,
+    billing: "subscription",
+    interval: "month",
+    description: "Creative Scale: 16 original vertical ads plus 16 alternate hook variations for 32 ad-ready exports per month, delivered in weekly batches. Includes scripts/CTA copy, creative testing map, performance feedback review when usable client data is shared, priority production, and two revision rounds per month. Up to three products/offers. Renews monthly until canceled. Ad spend, paid talent/creator fees, whitelisting/partnership ads, product shipping and unusual third-party production costs are separate when required and approved in advance."
   },
   website: {
     slug: "conversion_website",
     name: "Revenue Pilots — Conversion Website",
     amount: 350000,
     depositAmount: 175000,
+    billing: "project",
     description: "Conversion Website package: custom visual direction, responsive desktop + mobile build, conversion architecture, lead capture, motion/interaction where it adds value, and core integrations. Total project price is $3,500. Custom additions outside the core package are quoted separately."
   },
   systems: {
@@ -19,6 +37,7 @@ const OFFERS = {
     name: "Revenue Pilots — Revenue Systems",
     amount: 350000,
     depositAmount: 175000,
+    billing: "project",
     description: "Revenue Systems package: lead capture + routing, follow-up, booking integration, pipeline/CRM handoff, and core workflow automation. Total project price is $3,500. Final implementation is limited to supported providers and the agreed scope; custom additions are quoted separately."
   },
   full_build: {
@@ -26,7 +45,8 @@ const OFFERS = {
     name: "Revenue Pilots — Full Revenue Build",
     amount: 750000,
     depositAmount: 375000,
-    description: "Full Revenue Build: Video Creative, Conversion Website, and Revenue Systems built as one connected core package. Total project price is $7,500. Custom additions outside the core package are quoted separately."
+    billing: "project",
+    description: "Full Revenue Build: creative, Conversion Website, and Revenue Systems built as one connected core package. Total project price is $7,500. Custom additions outside the core package are quoted separately."
   }
 };
 
@@ -47,10 +67,19 @@ export default {
     const offer = OFFERS[plan];
 
     if (!offer) return json({ error: "That package is not available for direct checkout." }, 400);
-    if (!['one_time', 'deposit'].includes(term)) return json({ error: "That checkout option is not available." }, 400);
-    if (term === 'deposit' && !offer.depositAmount) return json({ error: "This package is paid in full at checkout." }, 400);
 
-    const isDeposit = term === 'deposit';
+    const isSubscription = offer.billing === "subscription";
+    if (isSubscription && term !== "monthly") {
+      return json({ error: "This package is billed monthly." }, 400);
+    }
+    if (!isSubscription && !["one_time", "deposit"].includes(term)) {
+      return json({ error: "That checkout option is not available." }, 400);
+    }
+    if (term === "deposit" && !offer.depositAmount) {
+      return json({ error: "This package is paid in full at checkout." }, 400);
+    }
+
+    const isDeposit = !isSubscription && term === "deposit";
     const checkoutAmount = isDeposit ? offer.depositAmount : offer.amount;
     const remainingBalance = isDeposit ? offer.amount - offer.depositAmount : 0;
     const checkoutName = isDeposit ? `${offer.name} — 50% Project Deposit` : offer.name;
@@ -60,36 +89,46 @@ export default {
 
     const stripe = new Stripe(secret);
     const origin = process.env.PUBLIC_SITE_URL || url.origin;
+    const billingTerm = isSubscription ? "monthly_subscription" : isDeposit ? "project_deposit" : "one_time";
     const metadata = {
       plan,
-      billing_term: isDeposit ? "project_deposit" : "one_time",
+      billing_term: billingTerm,
       source: "revenue-pilots-website",
-      offer_version: "fixed-packages-2026-09-trust-pass",
+      offer_version: "creative-ladder-2026-09",
       offer: offer.slug,
       total_project_amount: String(offer.amount),
       checkout_amount: String(checkoutAmount),
       remaining_balance: String(remainingBalance)
     };
 
+    const lineItemPriceData = {
+      currency: "usd",
+      unit_amount: checkoutAmount,
+      product_data: { name: checkoutName, description: checkoutDescription }
+    };
+    if (isSubscription) {
+      lineItemPriceData.recurring = { interval: offer.interval || "month" };
+    }
+
+    const sessionParams = {
+      mode: isSubscription ? "subscription" : "payment",
+      payment_method_types: ["card"],
+      line_items: [{ price_data: lineItemPriceData, quantity: 1 }],
+      success_url: `${origin}/order-success/?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/#packages`,
+      phone_number_collection: { enabled: true },
+      billing_address_collection: "auto",
+      metadata
+    };
+
+    if (isSubscription) {
+      sessionParams.subscription_data = { metadata };
+    } else {
+      sessionParams.payment_intent_data = { metadata };
+    }
+
     try {
-      const session = await stripe.checkout.sessions.create({
-        mode: "payment",
-        payment_method_types: ["card"],
-        line_items: [{
-          price_data: {
-            currency: "usd",
-            unit_amount: checkoutAmount,
-            product_data: { name: checkoutName, description: checkoutDescription }
-          },
-          quantity: 1
-        }],
-        success_url: `${origin}/order-success/?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/#packages`,
-        phone_number_collection: { enabled: true },
-        billing_address_collection: "auto",
-        metadata,
-        payment_intent_data: { metadata }
-      });
+      const session = await stripe.checkout.sessions.create(sessionParams);
       return Response.redirect(session.url, 303);
     } catch (error) {
       console.error("Stripe checkout error", error);
