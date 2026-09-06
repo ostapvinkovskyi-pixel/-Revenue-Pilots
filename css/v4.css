@@ -1138,3 +1138,10 @@ html.v2-ready .v2-hero::after{ opacity:.55; }
   color:var(--text-3);
   margin-top:4px;
 }
+
+/* SYSTEM NETWORK CLEAN HOVER — Sep 6
+   Keep the seven node labels, but remove long hover copy that
+   overlaps the center and neighboring labels. */
+.v4-net-desc{
+  display:none !important;
+}
