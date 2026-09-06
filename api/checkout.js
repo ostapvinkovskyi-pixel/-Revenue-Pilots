@@ -11,19 +11,22 @@ const OFFERS = {
     slug: "conversion_website",
     name: "Revenue Pilots — Conversion Website",
     amount: 350000,
-    description: "One-time Conversion Website package: custom visual direction, responsive build, conversion architecture, lead capture, and core integrations. Custom additions outside the core package are quoted separately."
+    depositAmount: 175000,
+    description: "Conversion Website package: custom visual direction, responsive desktop + mobile build, conversion architecture, lead capture, motion/interaction where it adds value, and core integrations. Total project price is $3,500. Custom additions outside the core package are quoted separately."
   },
   systems: {
     slug: "revenue_systems",
     name: "Revenue Pilots — Revenue Systems",
     amount: 350000,
-    description: "One-time Revenue Systems package: lead capture workflow, follow-up, booking integration, pipeline/basic CRM, and core automation. Final implementation is limited to supported providers and the agreed core scope; custom additions are quoted separately."
+    depositAmount: 175000,
+    description: "Revenue Systems package: lead capture + routing, follow-up, booking integration, pipeline/CRM handoff, and core workflow automation. Total project price is $3,500. Final implementation is limited to supported providers and the agreed scope; custom additions are quoted separately."
   },
   full_build: {
     slug: "full_revenue_build",
     name: "Revenue Pilots — Full Revenue Build",
     amount: 750000,
-    description: "One-time Full Revenue Build: Video Creative, Conversion Website, and Revenue Systems built as one connected core package. Custom additions outside the core package are quoted separately."
+    depositAmount: 375000,
+    description: "Full Revenue Build: Video Creative, Conversion Website, and Revenue Systems built as one connected core package. Total project price is $7,500. Custom additions outside the core package are quoted separately."
   }
 };
 
@@ -40,20 +43,32 @@ export default {
 
     const url = new URL(request.url);
     const plan = url.searchParams.get("plan") || "";
-    const term = url.searchParams.get("term");
+    const term = url.searchParams.get("term") || "one_time";
     const offer = OFFERS[plan];
 
     if (!offer) return json({ error: "That package is not available for direct checkout." }, 400);
-    if (term && term !== "one_time") return json({ error: "Revenue Pilots packages on this page are one-time purchases." }, 400);
+    if (!['one_time', 'deposit'].includes(term)) return json({ error: "That checkout option is not available." }, 400);
+    if (term === 'deposit' && !offer.depositAmount) return json({ error: "This package is paid in full at checkout." }, 400);
+
+    const isDeposit = term === 'deposit';
+    const checkoutAmount = isDeposit ? offer.depositAmount : offer.amount;
+    const remainingBalance = isDeposit ? offer.amount - offer.depositAmount : 0;
+    const checkoutName = isDeposit ? `${offer.name} — 50% Project Deposit` : offer.name;
+    const checkoutDescription = isDeposit
+      ? `${offer.description} This payment is the 50% project deposit and is applied to the total price. The remaining balance is due before final launch/delivery of the completed project scope.`
+      : offer.description;
 
     const stripe = new Stripe(secret);
     const origin = process.env.PUBLIC_SITE_URL || url.origin;
     const metadata = {
       plan,
-      billing_term: "one_time",
+      billing_term: isDeposit ? "project_deposit" : "one_time",
       source: "revenue-pilots-website",
-      offer_version: "fixed-packages-2026-09",
-      offer: offer.slug
+      offer_version: "fixed-packages-2026-09-trust-pass",
+      offer: offer.slug,
+      total_project_amount: String(offer.amount),
+      checkout_amount: String(checkoutAmount),
+      remaining_balance: String(remainingBalance)
     };
 
     try {
@@ -63,8 +78,8 @@ export default {
         line_items: [{
           price_data: {
             currency: "usd",
-            unit_amount: offer.amount,
-            product_data: { name: offer.name, description: offer.description }
+            unit_amount: checkoutAmount,
+            product_data: { name: checkoutName, description: checkoutDescription }
           },
           quantity: 1
         }],
