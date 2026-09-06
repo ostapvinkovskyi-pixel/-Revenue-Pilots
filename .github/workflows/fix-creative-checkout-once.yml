@@ -1,0 +1,74 @@
+name: Fix creative checkout funnel once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-creative-checkout-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Route fixed-price creative CTAs directly to Stripe
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          changed=[]
+          pattern=re.compile(r'(<a\b[^>]*href=["\'])/#packages(["\'][^>]*>)(.*?)(</a>)', re.I|re.S)
+          def repl(m):
+              label=re.sub(r'<[^>]+>',' ',m.group(3))
+              label=' '.join(label.split())
+              if re.search(r'\bStart\b',label,re.I):
+                  return m.group(1) + '/api/checkout?plan=starter&amp;term=one_time' + m.group(2) + m.group(3) + m.group(4)
+              return m.group(0)
+
+          for p in Path('.').rglob('*.html'):
+              t=p.read_text(errors='replace')
+              # Only creative pages that actually sell the fixed $1,500 offer.
+              if '$1,500' not in t:
+                  continue
+              new,n=pattern.subn(repl,t)
+              if new!=t:
+                  p.write_text(new)
+                  changed.append(str(p))
+
+          if not changed:
+              raise SystemExit('No creative checkout CTAs were changed')
+          print('Changed creative checkout pages:')
+          print('\n'.join(changed))
+
+          # Verify no priced Start CTA still detours to packages.
+          bad=[]
+          for p in Path('.').rglob('*.html'):
+              t=p.read_text(errors='replace')
+              if '$1,500' not in t: continue
+              for m in re.finditer(r'<a\b([^>]*)>(.*?)</a>',t,re.I|re.S):
+                  attrs=m.group(1); label=' '.join(re.sub(r'<[^>]+>',' ',m.group(2)).split())
+                  if re.search(r'\bStart\b',label,re.I) and 'href="/#packages"' in attrs:
+                      bad.append((str(p),label))
+          if bad:
+              raise SystemExit('Priced Start CTAs still detour: '+repr(bad))
+          PY
+          git diff --check
+
+      - name: Commit funnel fix
+        run: |
+          set -euo pipefail
+          git config user.name 'Revenue Pilots Site Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -- '*/*.html'
+          git diff --cached --check
+          git commit -m 'Route creative purchase CTAs directly to checkout'
+          git push origin main
