@@ -18,9 +18,9 @@
     creative: {
       name: "CREATIVE",
       promise: "Get attention worth converting.",
-      desc: "Short-form advertising built around hooks, offers and testing.",
-      price: "Video Creative — <strong>$1,500</strong>",
-      cta: "Start Video Creative — $1,500",
+      desc: "Eight original ads over four weeks, plus extra hooks to keep testing fresh.",
+      price: "Creative Sprint — <strong>$1,500 / 4 weeks</strong>",
+      cta: "Start Creative Sprint — $1,500",
       checkout: "/api/checkout?plan=starter&term=one_time"
     },
     websites: {
