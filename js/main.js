@@ -22,15 +22,17 @@
   }
 
   var PLAN_KEYS = {
-    starter: "STRIPE_STARTER_URL",
-    growth: "STRIPE_GROWTH_URL",
-    weekly: "STRIPE_WEEKLY_URL"
-  };
-  var PLAN_LABELS = {
-    starter: "Video Creative ($1,500)",
-    growth: "Growth ($499)",
-    weekly: "Weekly Ad Engine ($999/mo)"
-  };
+  starter: "STRIPE_STARTER_URL",
+  website: "STRIPE_WEBSITE_URL",
+  systems: "STRIPE_SYSTEMS_URL",
+  full_build: "STRIPE_FULL_BUILD_URL"
+};
+var PLAN_LABELS = {
+  starter: "Video Creative ($1,500)",
+  website: "Conversion Website ($3,500)",
+  systems: "Revenue Systems ($3,500)",
+  full_build: "Full Revenue Build ($7,500)"
+};
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

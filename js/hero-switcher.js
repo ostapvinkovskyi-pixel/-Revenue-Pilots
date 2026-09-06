@@ -42,16 +42,6 @@
   }
 
   ready(function () {
-    /* Restore the dedicated founder page that already lives at /about/.
-       The homepage still keeps its short About section as useful fallback
-       context, but primary About links now open the full founder story. */
-    Array.prototype.forEach.call(document.querySelectorAll('a[href="#about"]'), function (link) {
-      link.setAttribute("href", "/about/");
-      if (link.textContent.trim().toLowerCase() === "about") {
-        link.textContent = "About me";
-      }
-    });
-
     var objects = Array.prototype.slice.call(document.querySelectorAll(".v2-object"));
     var tabs = Array.prototype.slice.call(document.querySelectorAll(".v2-tab"));
     var elName = document.getElementById("v2ServiceName");
