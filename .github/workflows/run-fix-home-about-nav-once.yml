@@ -1,0 +1,27 @@
+name: Run homepage About nav fix once
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run-fix-home-about-nav-once.yml'
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply About nav fix
+        run: |
+          python scripts/fix_home_about_nav.py
+          grep -q '<a href="#about">About me</a>' home-v2.html
+      - name: Commit
+        run: |
+          git config user.name 'Revenue Pilots Site Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add home-v2.html
+          git commit -m 'Fix homepage About nav active state'
+          git push origin main
