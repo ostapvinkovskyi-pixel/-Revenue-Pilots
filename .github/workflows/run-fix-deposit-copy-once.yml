@@ -1,0 +1,32 @@
+name: Run package layout and deposit copy cleanup once
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run-fix-deposit-copy-once.yml'
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply deposit copy cleanup
+        run: |
+          python scripts/fix_deposit_copy.py
+          git diff --check
+          ! grep -R "50% project deposit" --include='*.html' .
+          ! grep -R "50% Stripe deposit" --include='*.html' .
+          grep -q 'Start Revenue Systems &mdash; $1,750 deposit' home-v2.html
+          grep -q 'Start Conversion Website &mdash; $1,750 deposit' home-v2.html
+      - name: Commit
+        run: |
+          git config user.name 'Revenue Pilots Site Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add '*.html' */'*.html' */*/'*.html' || true
+          git add -u
+          git commit -m 'Clarify project deposits across buyer pages'
+          git push origin main
