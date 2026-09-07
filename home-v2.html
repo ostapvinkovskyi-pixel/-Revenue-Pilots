@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="css/trust-conversion.css">
 <link rel="stylesheet" href="css/creative-offers.css">
 <link rel="stylesheet" href="css/premium-pricing.css">
+<link rel="stylesheet" href="css/simple-offers.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.revenuepilot.company/#organization","name":"Revenue Pilots","url":"https://www.revenuepilot.company/","logo":"https://www.revenuepilot.company/assets/brand/revenue-pilots-monogram-logo.png"},{"@type":"WebSite","@id":"https://www.revenuepilot.company/#website","url":"https://www.revenuepilot.company/","name":"Revenue Pilots","publisher":{"@id":"https://www.revenuepilot.company/#organization"}}]}</script>
 <script src="config/site-config.js" defer></script>
 <script src="js/main.js" defer></script>
@@ -341,240 +342,74 @@
     <p class="v2-eyebrow">Packages</p>
     <h2 class="v2-lead">What we build.</h2>
 
-    <div class="v4-config">
-      <div class="v4-tabs" role="tablist" aria-label="Choose a package">
-        <span class="v4-tab-pill" aria-hidden="true"></span>
-        <button type="button" class="v4-ptab" role="tab" data-package="creative" aria-selected="true">Creative</button>
-        <button type="button" class="v4-ptab" role="tab" data-package="websites" aria-selected="false">Websites</button>
-        <button type="button" class="v4-ptab" role="tab" data-package="systems" aria-selected="false">Systems</button>
+    <div class="rp-simple-offers">
+      <div class="rp-simple-head">
+        <div><small>Choose your starting point</small><h3>Three clear ways to work with us.</h3></div>
+        <p>You do not need to decode a menu of services. Pick the outcome you need now. If the project needs a more cinematic or custom version, we scope that as an upgrade instead of making you choose from ten packages up front.</p>
       </div>
 
-      <div class="v4-config-body">
-        <div class="v4-panes">
-          <div class="v4-fade v4-pkg-pane is-active rp-creative-pane" data-pkg-pane="creative">
-            <div class="rp-creative-intro">
-              <div><small>Creative production</small><h3>Choose the pace your business needs.</h3></div>
-              <p>Start with a four-week sprint or keep a monthly testing engine running. Original ads are distinct concepts; hook variations are alternate openings built from selected core ads.</p>
-            </div>
-            <div class="rp-creative-grid">
-              <article class="rp-creative-offer">
-                <span class="rp-offer-badge">Best first project</span>
-                <h4>Creative Sprint</h4>
-                <p class="rp-offer-price"><strong>$1,500</strong><span>/ 4 weeks</span></p>
-                <p class="rp-offer-output">8 original ads + 4 hook cuts = 12 ad-ready exports</p>
-                <ul class="rp-offer-list">
-                  <li>2 new original vertical ads every week</li>
-                  <li>4 alternate opening-hook cuts</li>
-                  <li>Hooks/scripts + CTA copy</li>
-                  <li>Captions, branding and social-ready exports</li>
-                  <li>1 revision round per weekly batch</li>
-                  <li>No long-term contract</li>
-                </ul>
-                <a class="btn btn-gold btn-block" href="/api/checkout?plan=starter&amp;term=one_time">Start Creative Sprint — $1,500</a>
-                <p class="rp-offer-note">One-time 4-week engagement · secure Stripe checkout</p>
-              </article>
+      <div class="rp-simple-grid">
+        <article class="rp-simple-card">
+          <span class="rp-simple-badge">Need attention</span>
+          <h4>Creative Sprint</h4>
+          <p class="rp-simple-price">$1,500 <span>/ 4 weeks</span></p>
+          <p class="rp-simple-one">We create the launch-ready ads. No website or automation included.</p>
+          <ul class="rp-simple-list">
+            <li>8 original vertical ads</li>
+            <li>4 alternate hook cuts</li>
+            <li>12 ad-ready exports total</li>
+            <li>Hooks, scripts, CTA copy and social-ready formatting</li>
+          </ul>
+          <a class="btn btn-gold btn-block" href="/api/checkout?plan=starter&amp;term=one_time">Start Creative Sprint — $1,500</a>
+          <p class="rp-simple-note">Best when you already have the website and lead system.</p>
+        </article>
 
-              <article class="rp-creative-offer is-featured">
-                <span class="rp-offer-badge">Most popular</span>
-                <h4>Creative Engine</h4>
-                <p class="rp-offer-price"><strong>$2,500</strong><span>/ month</span></p>
-                <p class="rp-offer-output">12 original ads + 12 hook variations = 24 ad-ready exports</p>
-                <ul class="rp-offer-list">
-                  <li>3 new original ads per week</li>
-                  <li>12 alternate opening hooks</li>
-                  <li>Up to 2 products / offers</li>
-                  <li>Monthly creative map + weekly delivery</li>
-                  <li>Performance-led iteration when usable data is shared</li>
-                  <li>2 revision rounds per month</li>
-                </ul>
-                <a class="btn btn-gold btn-block" href="/api/checkout?plan=creative_engine&amp;term=monthly">Start Creative Engine — $2,500/mo</a>
-                <p class="rp-offer-note">Month-to-month · renews monthly until canceled</p>
-              </article>
+        <article class="rp-simple-card">
+          <span class="rp-simple-badge">Need a better front door</span>
+          <h4>Website Build</h4>
+          <p class="rp-simple-price">From $3,500</p>
+          <p class="rp-simple-one">We design and build the website that turns attention into enquiries, bookings or sales.</p>
+          <ul class="rp-simple-list">
+            <li>Custom responsive website</li>
+            <li>Conversion structure + lead capture</li>
+            <li>Visual direction and motion</li>
+            <li>Cinematic / interactive upgrades available when the concept needs them</li>
+          </ul>
+          <a class="btn btn-gold btn-block" href="/website-design/">See Website Build</a>
+          <p class="rp-simple-note">Base website starts at $3,500 with a 50% project deposit.</p>
+        </article>
 
-              <article class="rp-creative-offer">
-                <span class="rp-offer-badge">High volume</span>
-                <h4>Creative Scale</h4>
-                <p class="rp-offer-price"><strong>$4,000</strong><span>/ month</span></p>
-                <p class="rp-offer-output">16 original ads + 16 hook variations = 32 ad-ready exports</p>
-                <ul class="rp-offer-list">
-                  <li>4 new original ads per week</li>
-                  <li>16 alternate opening hooks</li>
-                  <li>Up to 3 products / offers</li>
-                  <li>Creative testing map + weekly delivery</li>
-                  <li>Priority production + performance feedback review</li>
-                  <li>2 revision rounds per month</li>
-                </ul>
-                <a class="btn btn-gold btn-block" href="/api/checkout?plan=creative_scale&amp;term=monthly">Start Creative Scale — $4,000/mo</a>
-                <p class="rp-offer-note">Month-to-month · renews monthly until canceled</p>
-              </article>
-            </div>
-            <p class="rp-creative-fineprint"><strong>Separate when required and approved in advance:</strong> ad spend, paid talent/creator fees, creator-handle whitelisting/partnership ads, product shipping and unusual third-party production costs.</p>
-          </div>
+        <article class="rp-simple-card is-featured">
+          <span class="rp-simple-badge">Best if you want us to handle everything</span>
+          <h4>Full Revenue Build</h4>
+          <p class="rp-simple-price">$12,000</p>
+          <p class="rp-simple-one">One complete system: the website, the lead-handling workflow and the launch creative built together.</p>
+          <ul class="rp-simple-list">
+            <li>Cinematic Website base</li>
+            <li>Lead capture, qualification, routing and follow-up workflow</li>
+            <li>Booking / pipeline handoff</li>
+            <li>8 original launch ads + 4 hook cuts = 12 exports</li>
+            <li>Integration, QA and launch</li>
+          </ul>
+          <a class="btn btn-gold btn-block" href="/api/checkout?plan=full_build&amp;term=deposit">Start Full Build — $6,000 deposit</a>
+          <p class="rp-simple-note">$12,000 base project · remaining $6,000 after approval, before launch.</p>
+        </article>
+      </div>
 
-          <div class="v4-fade v4-pkg-pane" data-pkg-pane="websites" hidden>
-            <div class="rp-creative-intro">
-              <div><small>Website builds</small><h3>Choose the level of experience your business needs.</h3></div>
-              <p>Start with a conversion-focused custom site, or step up to cinematic and interactive work when the website itself needs to sell the quality of your offer.</p>
-            </div>
-
-            <div class="rp-creative-grid rp-website-offer-grid">
-              <article class="rp-creative-offer">
-                <span class="rp-offer-badge">Best for most businesses</span>
-                <h4>Conversion Website</h4>
-                <p class="rp-offer-price"><strong>$3,500</strong><span> total</span></p>
-                <p class="rp-offer-output">A premium custom website built to turn attention into a clear next step.</p>
-                <ul class="rp-offer-list">
-                  <li>Custom visual direction</li>
-                  <li>Responsive desktop + mobile build</li>
-                  <li>Conversion architecture + lead capture</li>
-                  <li>Tasteful motion where it improves the experience</li>
-                  <li>Core integrations</li>
-                  <li>Founder-led build + agreed revision scope</li>
-                </ul>
-                <p class="rp-start-price"><strong>$1,750 project deposit</strong><span>$1,750 after approval, before launch</span></p>
-                <a class="btn btn-gold btn-block" href="/api/checkout?plan=website&amp;term=deposit">Start Conversion Website — $1,750</a>
-                <p class="rp-offer-note">$3,500 total · secure Stripe checkout</p>
-              </article>
-
-              <article class="rp-creative-offer is-featured">
-                <span class="rp-offer-badge">Premium experience</span>
-                <h4>Cinematic Website</h4>
-                <p class="rp-offer-price"><strong>From $5,500</strong></p>
-                <p class="rp-offer-output">For high-value businesses where the website should feel as premium as the service being sold.</p>
-                <ul class="rp-offer-list">
-                  <li>Everything in Conversion Website</li>
-                  <li>Custom cinematic visual direction</li>
-                  <li>Scroll-controlled storytelling</li>
-                  <li>Advanced motion + richer transitions</li>
-                  <li>Custom video / generated visual production as scoped</li>
-                  <li>Mobile fallback + performance planning</li>
-                </ul>
-                <p class="rp-start-price"><strong>$2,750 project deposit</strong><span>50% of the $5,500 base scope · applied to your project</span></p>
-                <a class="btn btn-gold btn-block" href="/api/checkout?plan=cinematic_website&amp;term=deposit">Start Cinematic Website — $2,750</a>
-                <p class="rp-offer-note">Base project $5,500 · custom additions are quoted separately before extra work begins</p>
-              </article>
-
-              <article class="rp-creative-offer">
-                <span class="rp-offer-badge">Bespoke / interactive</span>
-                <h4>Signature Interactive</h4>
-                <p class="rp-offer-price"><strong>From $7,500</strong></p>
-                <p class="rp-offer-output">A custom digital experience for brands that need deeper interaction, 3D or a true signature moment.</p>
-                <ul class="rp-offer-list">
-                  <li>Bespoke interaction architecture</li>
-                  <li>Advanced scroll + pointer experiences</li>
-                  <li>Real-time 3D / WebGL when it adds value</li>
-                  <li>Custom art direction around the business</li>
-                  <li>Performance + mobile fallback planning</li>
-                  <li>Production scope built around the concept</li>
-                </ul>
-                <p class="rp-start-price"><strong>$3,750 project deposit</strong><span>50% of the $7,500 base scope · applied to your project</span></p>
-                <a class="btn btn-gold btn-block" href="/api/checkout?plan=signature_interactive&amp;term=deposit">Start Signature Interactive — $3,750</a>
-                <p class="rp-offer-note">Base project $7,500 · unusually complex 3D / production is quoted separately before extra work begins</p>
-              </article>
-            </div>
-
-            <p class="rp-creative-fineprint"><strong>Want to inspect the work?</strong> Open our fictional interactive concept <a href="demo/altura/" target="_blank" rel="noopener">ORVYN live demo ↗</a>. Concept/spec work is labeled honestly and is not presented as a client result.</p>
-          </div>
-
-          <div class="v4-fade v4-pkg-pane" data-pkg-pane="systems" hidden>
-            <div class="v4-pkg-media v4-pkg-media-mini v4-capability v4-capability-system">
-              <div class="v4-capability-bar">
-                <span class="v4-capability-status"><i aria-hidden="true"></i> Automation flow</span>
-                <span class="v4-capability-meta">Trigger &#8594; action &#8594; handoff</span>
-              </div>
-              <div class="v4-sys-flow" role="img" aria-label="Example Revenue System flow: a new enquiry is captured, followed up, moved to booking and synced to the pipeline">
-                <span class="v4-sys-signal" aria-hidden="true"></span>
-                <div class="v4-sys-row">
-                  <span class="v4-sys-step">01</span>
-                  <div class="v4-sys-card"><small>TRIGGER</small><b>New enquiry</b><span>Website form / campaign</span></div>
-                  <em>Captured</em>
-                </div>
-                <div class="v4-sys-row">
-                  <span class="v4-sys-step">02</span>
-                  <div class="v4-sys-card"><small>ACTION</small><b>Instant follow-up</b><span>Confirmation + owner alert</span></div>
-                  <em>Sent</em>
-                </div>
-                <div class="v4-sys-row">
-                  <span class="v4-sys-step">03</span>
-                  <div class="v4-sys-card"><small>NEXT STEP</small><b>Booking</b><span>Move interest into an appointment</span></div>
-                  <em>Ready</em>
-                </div>
-                <div class="v4-sys-row">
-                  <span class="v4-sys-step">04</span>
-                  <div class="v4-sys-card"><small>HANDOFF</small><b>Pipeline synced</b><span>Customer + stage stay organized</span></div>
-                  <em>Recorded</em>
-                </div>
-              </div>
-              <div class="v4-capability-tags" aria-label="System capabilities">
-                <span>Lead capture</span><span>Follow-up</span><span>Booking</span><span>CRM / pipeline</span>
-              </div>
-            </div>
-            <div class="v4-pkg-tiers">
-              <div class="v4-tier">
-                <h3 class="v4-tier-name">Revenue Systems</h3>
-                <p class="v4-tier-price">$3,500</p>
-                <ul class="v4-tier-list">
-                  <li>Lead capture + routing</li>
-                  <li>Automated follow-up</li>
-                  <li>Booking integration</li>
-                  <li>Pipeline / CRM handoff</li>
-                  <li>Core workflow automation</li>
-                </ul>
-                <p class="rp-start-price"><strong>$1,750 project deposit</strong><span>$3,500 total · $1,750 remaining before launch</span></p>
-                <a class="btn btn-gold btn-block" href="/api/checkout?plan=systems&amp;term=deposit">Start Revenue Systems &mdash; $1,750</a>
-                <p class="v4-checkout-note">Secure Stripe checkout &middot; remaining $1,750 due before final launch</p>
-                <a class="rp-prebuy" href="#contact">Ask a question before starting →</a>
-              </div>
-            </div>
-          </div>
+      <div class="rp-simple-secondary" aria-label="Specialized options">
+        <div class="rp-simple-mini">
+          <div><small>Already have a strong website?</small><strong>Revenue Systems — $3,500</strong><p>Lead routing, follow-up, booking and pipeline workflow without rebuilding the front end.</p></div>
+          <a href="/api/checkout?plan=systems&amp;term=deposit">Start with $1,750 →</a>
+        </div>
+        <div class="rp-simple-mini">
+          <div><small>Need the top bespoke version?</small><strong>Signature upgrade — from $15,000</strong><p>The Full Revenue Build with a Signature Interactive front end and deeper custom production/integrations.</p></div>
+          <a href="/full-build/#signature-build">See Signature →</a>
         </div>
       </div>
-    </div>
-    <div class="config-notice" id="checkoutNotice" role="status" aria-live="polite" hidden></div>
 
-    <div class="rp-start-journey">
-      <div class="rp-start-journey-head"><div><small>After checkout</small><h3>Know exactly what happens next.</h3></div><p>No disappearing into a generic portal. The project moves through a clear founder-led handoff.</p></div>
-      <div class="rp-journey-grid">
-        <div class="rp-journey-step"><span>01</span><strong>Onboarding</strong><p>We collect the offer, goals, assets, access and business context needed for the agreed package.</p></div>
-        <div class="rp-journey-step"><span>02</span><strong>Scope confirmation</strong><p>Core deliverables, integrations and any custom additions are confirmed in writing before implementation.</p></div>
-        <div class="rp-journey-step"><span>03</span><strong>First direction</strong><p>You see the first working creative, website or system direction before the project is finalized.</p></div>
-        <div class="rp-journey-step"><span>04</span><strong>Finish + launch</strong><p>Agreed revisions are completed, final balance is handled where applicable, and approved work is launched or delivered.</p></div>
-      </div>
+      <p class="rp-simple-explain"><strong>Simple rule:</strong> need ads only → Creative. Need the website only → Website Build. Want us to build the whole customer journey → Full Revenue Build. The specialized options are there only when your situation actually calls for them.</p>
     </div>
 
-    <!-- Full Revenue Build: one separate premium block, shown once, not
-         beside every service state. -->
-    <div class="v4-fullbuild">
-      <p class="v4-build-chain">Cinematic Website &rarr; Agents &amp; Systems &rarr; Launch Creative</p>
-      <h3 class="v4-build-name">Full Revenue Build</h3>
-      <p class="v4-build-amount">$12,000</p>
-      <p class="v4-build-copy"><strong>One connected revenue system, not three disconnected services.</strong> You get a Cinematic Website, Revenue Systems, an agent-powered lead workflow, and a complete launch creative pack built around the same offer and customer journey.</p>
-      <p class="v4-build-copy"><strong>Included:</strong> Cinematic Website base · lead capture, qualification, routing and follow-up workflow · booking / pipeline handoff · 8 original launch ads + 4 hook cuts = 12 ad-ready exports · integration, QA and launch.</p>
-      <p class="rp-start-price" style="justify-content:center"><strong>$6,000 project deposit</strong><span>$12,000 base project · $6,000 remaining after approval, before launch</span></p>
-      <a class="btn btn-gold btn-block v4-build-cta" href="/api/checkout?plan=full_build&amp;term=deposit"><span>Start Full Revenue Build &mdash; $6,000</span><span class="v4-build-arrow" aria-hidden="true">→</span></a>
-      <p class="v4-checkout-note v4-checkout-note-center">Secure Stripe checkout · exact automation providers confirmed during onboarding · ad spend and third-party costs separate</p>
-      <p class="v4-pkg-sub">Need something smaller? Choose Website or Systems above.</p>
-    </div>
-
-
-    <div class="rp-signature-wrap">
-      <div class="rp-signature-card">
-        <div class="rp-signature-grid">
-          <div>
-            <div class="rp-tier-kicker"><span>Signature Revenue Build</span><span class="rp-tier-badge">Top-tier / bespoke</span></div>
-            <h3>The complete system, with a signature interactive experience at the front.</h3>
-            <p class="rp-premium-price">From $15,000</p>
-            <p>Everything in the $12K Full Revenue Build, upgraded from a Cinematic Website to our Signature Interactive level for businesses where the digital experience itself needs to be a competitive advantage.</p>
-            <ul class="rp-premium-list"><li>Signature Interactive Website base instead of the Cinematic tier</li><li>Agent-powered lead workflow + Revenue Systems</li><li>8 original launch ads + 4 hook cuts = 12 ad-ready exports</li><li>Deeper custom interaction, visual production and integration architecture</li><li>Real-time 3D / WebGL when explicitly included in the agreed base scope</li></ul>
-          </div>
-          <div class="rp-signature-actions">
-            <p class="rp-start-price"><strong>$7,500 project deposit</strong><span>50% of the $15,000 base scope</span></p>
-            <a class="btn btn-gold btn-block" href="/api/checkout?plan=signature_revenue_build&amp;term=deposit">Start Signature Revenue Build — $7,500</a>
-            <span class="rp-signature-note">Custom additions, unusually complex 3D / production, ad spend and third-party subscriptions are quoted separately before extra work begins.</span>
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="rp-confidence-panel" aria-label="Buyer confidence">
       <div><small>What you can expect</small><h3>A serious project should feel clear before it starts.</h3><p>Revenue Pilots is deliberately founder-led. We keep the scope visible, label concept work honestly, use secure Stripe checkout and avoid promising results or integrations we cannot control.</p></div>
       <div class="rp-confidence-list"><span>Direct communication with the person responsible for the build</span><span>Core deliverables stated before implementation</span><span>Spec work labeled as spec — no fake client proof</span><span>Custom additions quoted before extra work is done</span><span>Third-party subscriptions or ad spend separated when required</span></div>
@@ -616,7 +451,7 @@
     <p class="v2-eyebrow">Before you start</p>
     <h2 class="v2-lead">Questions a serious buyer should ask.</h2>
     <div class="rp-faq-list">
-      <details><summary>Do I have to pay a project in full upfront?</summary><p>No. Conversion Website, Cinematic Website, Signature Interactive, Revenue Systems, Full Revenue Build and Signature Revenue Build can start with a 50% project deposit. The remaining base balance is due after approval, before final launch or delivery. Creative Sprint is paid in full; Creative Engine and Creative Scale renew monthly until canceled.</p></details>
+      <details><summary>Do I have to pay a project in full upfront?</summary><p>No. Website, Systems and Revenue Build projects can start with a 50% project deposit. The remaining base balance is due after approval, before final launch or delivery. Creative Sprint is paid in full.</p></details>
       <details><summary>What happens after I pay?</summary><p>We begin onboarding using the contact details from checkout, confirm the agreed core scope and required access, then move into the first working direction. Remaining project balance is handled before final launch/delivery where a deposit option was used.</p></details>
       <details><summary>What exactly do I get in the $12,000 Full Revenue Build?</summary><p>A Cinematic Website, Revenue Systems, an agent-powered lead workflow, and Launch Creative: 8 original vertical ads plus 4 hook cuts for 12 ad-ready exports. We connect the customer-facing website to the agreed lead capture, qualification, routing, follow-up, booking and pipeline handoff. Exact providers and automation channels are confirmed during onboarding. Ad spend, paid talent, third-party subscriptions and custom additions are separate.</p></details>
       <details><summary>What makes the $15,000 Signature Revenue Build different?</summary><p>It includes everything in the Full Revenue Build but upgrades the website to our Signature Interactive level and allows deeper bespoke interaction, visual production and integration architecture. Real-time 3D / WebGL is included only when it is explicitly part of the agreed base scope; unusually complex production or integrations are quoted separately before extra work begins.</p></details>
@@ -642,15 +477,11 @@
         <div class="field-row"><div class="field"><label for="lf-phone">Phone <span class="opt">(optional)</span></label><input type="tel" id="lf-phone" name="phone" autocomplete="tel"></div><div class="field"><label for="lf-website">Website <span class="opt">(optional)</span></label><input type="text" id="lf-website" name="website" inputmode="url" autocomplete="url" placeholder="yourbusiness.com"></div></div>
         <div class="field-row"><div class="field"><label for="lf-area">Service area <span class="opt">(optional)</span></label><input type="text" id="lf-area" name="service_area" placeholder="Charlotte, NC"></div><div class="field"><label for="lf-package">What do you need?</label><select id="lf-package" name="package_interest">
           <option value="not_sure">Not sure yet</option>
-          <option value="website_build">Conversion Website ($3,500)</option>
-          <option value="cinematic_website">Cinematic Website (from $5,500)</option>
-          <option value="signature_interactive">Signature Interactive Website (from $7,500)</option>
-          <option value="video_creative">Creative Sprint ($1,500 / 4 weeks)</option>
-          <option value="creative_engine">Creative Engine ($2,500 / month)</option>
-          <option value="creative_scale">Creative Scale ($4,000 / month)</option>
+          <option value="video_creative">Creative Sprint ($1,500)</option>
+          <option value="website_build">Website Build (from $3,500)</option>
           <option value="systems">Revenue Systems ($3,500)</option>
           <option value="full_build">Full Revenue Build ($12,000)</option>
-          <option value="signature_revenue_build">Signature Revenue Build (from $15,000)</option>
+          <option value="signature_revenue_build">Signature / custom build (from $15,000)</option>
         </select></div></div>
         <div class="field"><label for="lf-message">Message <span class="opt">(optional)</span></label><textarea id="lf-message" name="message" rows="3"></textarea></div>
         <div class="hp-field" aria-hidden="true"><label for="lf-company-url">Do not fill this in</label><input type="text" id="lf-company-url" name="company_url" tabindex="-1" autocomplete="off"></div>
