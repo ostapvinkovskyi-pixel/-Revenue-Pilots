@@ -1,0 +1,28 @@
+/* Revenue Pilots — simplified buying decision */
+.rp-simple-offers{margin-top:34px}
+.rp-simple-head{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;align-items:end;margin-bottom:28px}
+.rp-simple-head small{display:block;color:#d7aa43;text-transform:uppercase;letter-spacing:.18em;font-size:12px;font-weight:700;margin-bottom:10px}
+.rp-simple-head h3{margin:0;font-size:clamp(30px,4vw,48px);line-height:1.04;max-width:15ch}
+.rp-simple-head p{margin:0;color:#9ca1ab;font-size:16px;line-height:1.65;max-width:54ch}
+.rp-simple-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.rp-simple-card{display:flex;flex-direction:column;min-height:520px;padding:28px;border:1px solid rgba(255,255,255,.12);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));position:relative;overflow:hidden}
+.rp-simple-card.is-featured{border-color:rgba(218,173,67,.62);background:linear-gradient(180deg,rgba(218,173,67,.11),rgba(255,255,255,.018) 48%,rgba(255,255,255,.012));box-shadow:0 0 0 1px rgba(218,173,67,.06),0 26px 70px rgba(0,0,0,.22)}
+.rp-simple-badge{align-self:flex-start;border:1px solid rgba(218,173,67,.38);border-radius:999px;padding:7px 11px;color:#e0b54e;text-transform:uppercase;letter-spacing:.13em;font-size:10px;font-weight:800;margin-bottom:24px}
+.rp-simple-card.is-featured .rp-simple-badge{background:#e0b54e;color:#111;border-color:#e0b54e}
+.rp-simple-card h4{margin:0;font-size:27px;line-height:1.12}
+.rp-simple-price{margin:10px 0 0;color:#e0b54e;font-size:42px;font-weight:800;line-height:1}
+.rp-simple-price span{font-size:15px;color:#858a94;font-weight:500;margin-left:6px}
+.rp-simple-one{margin:18px 0 0;color:#f0f0ee;font-weight:700;line-height:1.5;min-height:48px}
+.rp-simple-list{list-style:none;margin:24px 0 28px;padding:0;display:flex;flex-direction:column;gap:12px;color:#a9adb5}
+.rp-simple-list li{position:relative;padding-left:21px;line-height:1.5}
+.rp-simple-list li:before{content:'✓';position:absolute;left:0;color:#e0b54e;font-weight:800}
+.rp-simple-card .btn{margin-top:auto}
+.rp-simple-note{margin:12px 0 0;color:#737984;font-size:12px;line-height:1.5;text-align:center}
+.rp-simple-secondary{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.rp-simple-mini{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.018)}
+.rp-simple-mini div{min-width:0}.rp-simple-mini small{display:block;text-transform:uppercase;letter-spacing:.14em;color:#7f848d;font-size:9px;font-weight:800;margin-bottom:4px}.rp-simple-mini strong{display:block;font-size:16px;color:#e7e5df}.rp-simple-mini p{margin:4px 0 0;color:#858a94;font-size:13px;line-height:1.45}
+.rp-simple-mini a{flex:none;color:#e0b54e;font-weight:700;font-size:13px;white-space:nowrap}
+.rp-simple-explain{margin-top:24px;padding:20px 22px;border-left:2px solid #e0b54e;background:rgba(224,181,78,.045);color:#a5a9b2;line-height:1.6}
+.rp-simple-explain strong{color:#f0eee9}
+@media(max-width:980px){.rp-simple-head{grid-template-columns:1fr}.rp-simple-grid{grid-template-columns:1fr}.rp-simple-card{min-height:0}.rp-simple-secondary{grid-template-columns:1fr}}
+@media(max-width:620px){.rp-simple-card{padding:22px;border-radius:20px}.rp-simple-price{font-size:36px}.rp-simple-mini{align-items:flex-start;flex-direction:column}.rp-simple-mini a{white-space:normal}}
