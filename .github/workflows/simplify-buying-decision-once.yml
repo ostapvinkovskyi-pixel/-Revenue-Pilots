@@ -1,0 +1,128 @@
+name: Simplify buying decision once
+
+on:
+  push:
+    paths:
+      - '.github/workflows/simplify-buying-decision-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Simplify homepage offers
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('home-v2.html')
+          text = p.read_text()
+
+          css_anchor = '<link rel="stylesheet" href="css/premium-pricing.css">'
+          if 'css/simple-offers.css' not in text:
+              text = text.replace(css_anchor, css_anchor + '\n<link rel="stylesheet" href="css/simple-offers.css">', 1)
+
+          start = text.index('    <div class="v4-config">')
+          end = text.index('    <div class="rp-confidence-panel"', start)
+
+          new = '''    <div class="rp-simple-offers">
+      <div class="rp-simple-head">
+        <div><small>Choose your starting point</small><h3>Three clear ways to work with us.</h3></div>
+        <p>You do not need to decode a menu of services. Pick the outcome you need now. If the project needs a more cinematic or custom version, we scope that as an upgrade instead of making you choose from ten packages up front.</p>
+      </div>
+
+      <div class="rp-simple-grid">
+        <article class="rp-simple-card">
+          <span class="rp-simple-badge">Need attention</span>
+          <h4>Creative Sprint</h4>
+          <p class="rp-simple-price">$1,500 <span>/ 4 weeks</span></p>
+          <p class="rp-simple-one">We create the launch-ready ads. No website or automation included.</p>
+          <ul class="rp-simple-list">
+            <li>8 original vertical ads</li>
+            <li>4 alternate hook cuts</li>
+            <li>12 ad-ready exports total</li>
+            <li>Hooks, scripts, CTA copy and social-ready formatting</li>
+          </ul>
+          <a class="btn btn-gold btn-block" href="/api/checkout?plan=starter&amp;term=one_time">Start Creative Sprint — $1,500</a>
+          <p class="rp-simple-note">Best when you already have the website and lead system.</p>
+        </article>
+
+        <article class="rp-simple-card">
+          <span class="rp-simple-badge">Need a better front door</span>
+          <h4>Website Build</h4>
+          <p class="rp-simple-price">From $3,500</p>
+          <p class="rp-simple-one">We design and build the website that turns attention into enquiries, bookings or sales.</p>
+          <ul class="rp-simple-list">
+            <li>Custom responsive website</li>
+            <li>Conversion structure + lead capture</li>
+            <li>Visual direction and motion</li>
+            <li>Cinematic / interactive upgrades available when the concept needs them</li>
+          </ul>
+          <a class="btn btn-gold btn-block" href="/website-design/">See Website Build</a>
+          <p class="rp-simple-note">Base website starts at $3,500 with a 50% project deposit.</p>
+        </article>
+
+        <article class="rp-simple-card is-featured">
+          <span class="rp-simple-badge">Best if you want us to handle everything</span>
+          <h4>Full Revenue Build</h4>
+          <p class="rp-simple-price">$12,000</p>
+          <p class="rp-simple-one">One complete system: the website, the lead-handling workflow and the launch creative built together.</p>
+          <ul class="rp-simple-list">
+            <li>Cinematic Website base</li>
+            <li>Lead capture, qualification, routing and follow-up workflow</li>
+            <li>Booking / pipeline handoff</li>
+            <li>8 original launch ads + 4 hook cuts = 12 exports</li>
+            <li>Integration, QA and launch</li>
+          </ul>
+          <a class="btn btn-gold btn-block" href="/api/checkout?plan=full_build&amp;term=deposit">Start Full Build — $6,000 deposit</a>
+          <p class="rp-simple-note">$12,000 base project · remaining $6,000 after approval, before launch.</p>
+        </article>
+      </div>
+
+      <div class="rp-simple-secondary" aria-label="Specialized options">
+        <div class="rp-simple-mini">
+          <div><small>Already have a strong website?</small><strong>Revenue Systems — $3,500</strong><p>Lead routing, follow-up, booking and pipeline workflow without rebuilding the front end.</p></div>
+          <a href="/api/checkout?plan=systems&amp;term=deposit">Start with $1,750 →</a>
+        </div>
+        <div class="rp-simple-mini">
+          <div><small>Need the top bespoke version?</small><strong>Signature upgrade — from $15,000</strong><p>The Full Revenue Build with a Signature Interactive front end and deeper custom production/integrations.</p></div>
+          <a href="/full-build/#signature-build">See Signature →</a>
+        </div>
+      </div>
+
+      <p class="rp-simple-explain"><strong>Simple rule:</strong> need ads only → Creative. Need the website only → Website Build. Want us to build the whole customer journey → Full Revenue Build. The specialized options are there only when your situation actually calls for them.</p>
+    </div>
+
+'''
+          text = text[:start] + new + text[end:]
+
+          # Simplify the enquiry dropdown so it mirrors the same buying logic.
+          sel_start = text.index('<select id="lf-package" name="package_interest">')
+          sel_end = text.index('</select>', sel_start) + len('</select>')
+          simple_select = '''<select id="lf-package" name="package_interest">
+          <option value="not_sure">Not sure yet</option>
+          <option value="video_creative">Creative Sprint ($1,500)</option>
+          <option value="website_build">Website Build (from $3,500)</option>
+          <option value="systems">Revenue Systems ($3,500)</option>
+          <option value="full_build">Full Revenue Build ($12,000)</option>
+          <option value="signature_revenue_build">Signature / custom build (from $15,000)</option>
+        </select>'''
+          text = text[:sel_start] + simple_select + text[sel_end:]
+
+          # Make the first pricing FAQ match the simplified public structure.
+          old = '<details><summary>Do I have to pay a project in full upfront?</summary><p>No. Conversion Website, Cinematic Website, Signature Interactive, Revenue Systems, Full Revenue Build and Signature Revenue Build can start with a 50% project deposit. The remaining base balance is due after approval, before final launch or delivery. Creative Sprint is paid in full; Creative Engine and Creative Scale renew monthly until canceled.</p></details>'
+          newfaq = '<details><summary>Do I have to pay a project in full upfront?</summary><p>No. Website, Systems and Revenue Build projects can start with a 50% project deposit. The remaining base balance is due after approval, before final launch or delivery. Creative Sprint is paid in full.</p></details>'
+          text = text.replace(old, newfaq)
+
+          p.write_text(text)
+          PY
+          git config user.name "Revenue Pilots Site Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add home-v2.html
+          git commit -m "Simplify homepage buying decision"
+          git push
