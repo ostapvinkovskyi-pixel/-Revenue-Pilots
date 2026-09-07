@@ -71,13 +71,37 @@
 .rp-signature-actions{display:flex;flex-direction:column;gap:10px;align-items:stretch}
 .rp-signature-note{font-size:12px;color:rgba(255,255,255,.5);text-align:center}
 
-/* Website package tab now mirrors the Creative offer-card rhythm. */
+/* Website package tab must use the exact same full-width rhythm as Creative.
+   The legacy v4 package pane is a two-column grid; that grid was squeezing the
+   new three-card website ladder into the right half of the configurator. */
+#packages [data-pkg-pane="websites"]:not([hidden]){
+  display:block!important;
+  width:100%;
+}
 .rp-website-offer-grid .rp-creative-offer{height:100%}
 .rp-website-offer-grid .rp-offer-price strong{white-space:nowrap}
 .rp-website-offer-grid .rp-start-price{margin-top:18px}
 .rp-website-offer-grid + .rp-creative-fineprint a{color:#e7c66f;text-decoration:none}
 .rp-website-offer-grid + .rp-creative-fineprint a:hover{text-decoration:underline}
+@media(min-width:981px){
+  #packages [data-pkg-pane="websites"] .rp-creative-intro{
+    display:flex;
+    align-items:end;
+    justify-content:space-between;
+    gap:24px;
+    width:100%;
+  }
+  #packages [data-pkg-pane="websites"] .rp-website-offer-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:16px!important;
+    width:100%!important;
+  }
+}
 
+@media(max-width:980px){
+  #packages [data-pkg-pane="websites"] .rp-website-offer-grid{grid-template-columns:1fr!important}
+}
 @media(max-width:900px){
   .rp-pricing-ladder{grid-template-columns:1fr}
   .rp-signature-grid{grid-template-columns:1fr}
