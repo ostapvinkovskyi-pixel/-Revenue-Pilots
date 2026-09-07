@@ -70,6 +70,14 @@
 .rp-signature-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:34px;align-items:end}
 .rp-signature-actions{display:flex;flex-direction:column;gap:10px;align-items:stretch}
 .rp-signature-note{font-size:12px;color:rgba(255,255,255,.5);text-align:center}
+
+/* Website package tab now mirrors the Creative offer-card rhythm. */
+.rp-website-offer-grid .rp-creative-offer{height:100%}
+.rp-website-offer-grid .rp-offer-price strong{white-space:nowrap}
+.rp-website-offer-grid .rp-start-price{margin-top:18px}
+.rp-website-offer-grid + .rp-creative-fineprint a{color:#e7c66f;text-decoration:none}
+.rp-website-offer-grid + .rp-creative-fineprint a:hover{text-decoration:underline}
+
 @media(max-width:900px){
   .rp-pricing-ladder{grid-template-columns:1fr}
   .rp-signature-grid{grid-template-columns:1fr}
