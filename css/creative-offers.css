@@ -25,6 +25,23 @@
 .rp-creative-fineprint{margin:18px 2px 0;color:#777d87;font-size:.76rem;line-height:1.55}
 .rp-creative-fineprint strong{color:#aaaeb5}
 
+/* Website tab must visually match Creative: three equal buying cards in one desktop row. */
+@media(min-width:981px){
+  #packages [data-pkg-pane="websites"] .rp-website-offer-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    align-items:stretch;
+    gap:16px;
+    width:100%;
+  }
+  #packages [data-pkg-pane="websites"] .rp-website-offer-grid>.rp-creative-offer{
+    width:auto!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:100%;
+  }
+}
+
 /* Dedicated creative page */
 .rp-creative-grid-page{margin-top:28px}
 .rp-creative-grid-page .rp-creative-offer{padding:28px}
