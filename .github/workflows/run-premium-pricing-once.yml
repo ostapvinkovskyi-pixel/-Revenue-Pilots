@@ -19,7 +19,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Apply premium pricing patch
-        run: python scripts/add_premium_pricing.py
+        run: |
+          sed -i 's/What happens if I need something outside the package?/What if I need something outside the package?/' scripts/add_premium_pricing.py
+          python scripts/add_premium_pricing.py
       - name: Commit changes
         run: |
           git config user.name "Revenue Pilots Site Bot"
