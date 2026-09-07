@@ -31,7 +31,7 @@ var PLAN_LABELS = {
   starter: "Video Creative ($1,500)",
   website: "Conversion Website ($3,500)",
   systems: "Revenue Systems ($3,500)",
-  full_build: "Full Revenue Build ($7,500)"
+  full_build: "Full Revenue Build ($12,000)"
 };
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

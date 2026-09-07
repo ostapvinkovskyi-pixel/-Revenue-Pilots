@@ -59,10 +59,18 @@ const OFFERS = {
   full_build: {
     slug: "full_revenue_build",
     name: "Revenue Pilots — Full Revenue Build",
-    amount: 750000,
-    depositAmount: 375000,
+    amount: 1200000,
+    depositAmount: 600000,
     billing: "project",
-    description: "Full Revenue Build: creative, Conversion Website, and Revenue Systems built as one connected core package. Total project price is $7,500. Custom additions outside the core package are quoted separately."
+    description: "Full Revenue Build base package: a Cinematic Website, Revenue Systems, an agent-powered lead workflow, and Launch Creative built as one connected system. Launch Creative includes 8 original vertical ads plus 4 alternate hook cuts for 12 ad-ready exports. Base project price is $12,000. Exact providers, integrations and automation channels are confirmed during onboarding. Ad spend, paid talent, third-party subscriptions and custom additions outside the base scope are separate and approved before extra work begins."
+  },
+  signature_revenue_build: {
+    slug: "signature_revenue_build",
+    name: "Revenue Pilots — Signature Revenue Build",
+    amount: 1500000,
+    depositAmount: 750000,
+    billing: "project",
+    description: "Signature Revenue Build base package: everything in the Full Revenue Build, upgraded to a Signature Interactive Website with deeper bespoke interaction, custom visual production and more advanced workflow/integration architecture. Launch Creative includes 8 original vertical ads plus 4 alternate hook cuts for 12 ad-ready exports. Base project price is $15,000. Real-time 3D/WebGL, unusually complex production, advanced integrations, ad spend, paid talent and third-party subscriptions are included only when explicitly confirmed in the agreed scope or quoted separately before extra work begins."
   }
 };
 
@@ -110,7 +118,7 @@ export default {
       plan,
       billing_term: billingTerm,
       source: "revenue-pilots-website",
-      offer_version: "premium-deposit-ladder-2026-09",
+      offer_version: "clarified-revenue-builds-2026-09",
       offer: offer.slug,
       total_project_amount: String(offer.amount),
       checkout_amount: String(checkoutAmount),
