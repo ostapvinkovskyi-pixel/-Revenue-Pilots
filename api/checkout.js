@@ -32,6 +32,22 @@ const OFFERS = {
     billing: "project",
     description: "Conversion Website package: custom visual direction, responsive desktop + mobile build, conversion architecture, lead capture, motion/interaction where it adds value, and core integrations. Total project price is $3,500. Custom additions outside the core package are quoted separately."
   },
+  cinematic_website: {
+    slug: "cinematic_website",
+    name: "Revenue Pilots — Cinematic Website",
+    amount: 550000,
+    depositAmount: 275000,
+    billing: "project",
+    description: "Cinematic Website base package: everything in Conversion Website plus custom cinematic visual direction, scroll-controlled storytelling, advanced motion, and custom video/generated visual production as scoped. Base project price is $5,500. This deposit reserves the project and is applied to the base package total. Custom additions outside the base scope are quoted and approved separately before that extra work begins."
+  },
+  signature_interactive: {
+    slug: "signature_interactive",
+    name: "Revenue Pilots — Signature Interactive Website",
+    amount: 750000,
+    depositAmount: 375000,
+    billing: "project",
+    description: "Signature Interactive base package: bespoke interaction architecture, advanced scroll/pointer experiences, custom art direction, performance/mobile fallback planning, and real-time 3D/WebGL where included in the agreed base scope. Base project price is $7,500. This deposit reserves the project and is applied to the base package total. Unusually complex 3D, production, integrations or additions outside the base scope are quoted and approved separately before that extra work begins."
+  },
   systems: {
     slug: "revenue_systems",
     name: "Revenue Pilots — Revenue Systems",
@@ -94,7 +110,7 @@ export default {
       plan,
       billing_term: billingTerm,
       source: "revenue-pilots-website",
-      offer_version: "creative-ladder-2026-09",
+      offer_version: "premium-deposit-ladder-2026-09",
       offer: offer.slug,
       total_project_amount: String(offer.amount),
       checkout_amount: String(checkoutAmount),
