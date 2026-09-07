@@ -55,6 +55,22 @@
     var elDesc = document.getElementById("v2Desc");
     var elPrice = document.getElementById("v2Price");
     var elCta = document.getElementById("v2ServiceCta");
+
+    // The homepage Systems chapter uses the high-quality 16:9 Revenue Pilots
+    // flagship film. Keep the media URL here so the current markup can be
+    // upgraded without changing the section layout/caption the owner approved.
+    var systemFilm = document.querySelector(".rp-system-video video");
+    if (systemFilm) {
+      var systemFilmUrl = "https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/a9049c1f-e4e1-4c60-8c3c-e3df6c6a0c67.mp4";
+      if (systemFilm.getAttribute("src") !== systemFilmUrl) {
+        systemFilm.setAttribute("src", systemFilmUrl);
+        systemFilm.setAttribute("aria-label", "Revenue Pilots flagship film showing creative, website, agents, booking and pipeline working as one connected system. Silent video.");
+        systemFilm.load();
+        var systemFilmPlay = systemFilm.play();
+        if (systemFilmPlay && systemFilmPlay.catch) systemFilmPlay.catch(function () { /* autoplay policy: poster stays */ });
+      }
+    }
+
     if (!objects.length || !elName) return;
 
     var active = null;
