@@ -1,5 +1,5 @@
-// Control Room domain contracts — Phase 1A
-// Engineering contract only: no UI, no persistence, no runtime logic.
+// Control Room domain contracts.
+// These types describe normalized product state, not provider-specific payloads.
 
 export type ISODateTimeString = string;
 
@@ -26,13 +26,26 @@ export interface Membership {
   updated_at: ISODateTimeString;
 }
 
-export type PilotType = "builder" | "growth" | "support";
+export type PilotType =
+  | "dispatcher"
+  | "intake"
+  | "communication"
+  | "meeting"
+  | "payment"
+  | "builder"
+  | "systems"
+  | "watchdog"
+  | "growth"
+  | "support"
+  | "custom";
+
 export type PilotStatus = "active" | "paused" | "disabled";
 
 export interface Pilot {
   pilot_id: string;
   organization_id: string;
   type: PilotType;
+  display_name: string;
   status: PilotStatus;
   created_at: ISODateTimeString;
   updated_at: ISODateTimeString;
@@ -56,7 +69,10 @@ export type JobStatus =
 export interface Job {
   job_id: string;
   organization_id: string;
-  pilot_id: string;
+  pilot_id: string | null;
+  external_job_id?: string | null;
+  title: string;
+  summary?: string | null;
   status: JobStatus;
   created_at: ISODateTimeString;
   updated_at: ISODateTimeString;
@@ -75,8 +91,8 @@ export interface JobStep {
   organization_id: string;
   name: string;
   status: JobStepStatus;
-  started_at?: ISODateTimeString;
-  completed_at?: ISODateTimeString;
+  started_at?: ISODateTimeString | null;
+  completed_at?: ISODateTimeString | null;
   created_at: ISODateTimeString;
   updated_at: ISODateTimeString;
 }
@@ -87,14 +103,18 @@ export type EventType =
   | "approval_requested"
   | "approval_decided"
   | "connection_status_changed"
-  | "support_grant_status_changed";
+  | "support_grant_status_changed"
+  | "system_health_changed"
+  | "inbound_captured";
 
 export interface Event {
   event_id: string;
   organization_id: string;
   type: EventType;
+  subject_type: string;
   subject_id: string;
   payload: Record<string, unknown>;
+  source?: string | null;
   created_at: ISODateTimeString;
 }
 
@@ -105,22 +125,27 @@ export interface Approval {
   organization_id: string;
   job_id: string;
   status: ApprovalStatus;
+  action: string;
   repository: string;
   pull_request_number: number;
   commit_sha: string;
   preview_url: string;
-  decided_by?: string;
-  decided_at?: ISODateTimeString;
+  requested_at: ISODateTimeString;
+  decided_by?: string | null;
+  decided_at?: ISODateTimeString | null;
   created_at: ISODateTimeString;
   updated_at: ISODateTimeString;
 }
 
 export type ConnectionProvider =
+  | "make"
   | "github"
   | "vercel"
   | "stripe"
   | "google"
-  | "slack"
+  | "gmail"
+  | "google_calendar"
+  | "supabase"
   | "other";
 
 export type ConnectionStatus = "connected" | "disconnected" | "error" | "revoked";
@@ -132,6 +157,7 @@ export interface Connection {
   status: ConnectionStatus;
   account_label: string;
   metadata: Record<string, string | number | boolean | null>;
+  last_checked_at?: ISODateTimeString | null;
   created_at: ISODateTimeString;
   updated_at: ISODateTimeString;
 }
@@ -141,10 +167,13 @@ export type SupportGrantStatus = "active" | "expired" | "revoked";
 export interface SupportGrant {
   support_grant_id: string;
   organization_id: string;
-  granted_to: string;
+  granted_to_user_id: string;
+  granted_by_user_id: string;
   status: SupportGrantStatus;
-  scope: string[];
+  scopes: string[];
+  reason?: string | null;
   expires_at: ISODateTimeString;
+  revoked_at?: ISODateTimeString | null;
   created_at: ISODateTimeString;
   updated_at: ISODateTimeString;
 }
