@@ -1,0 +1,148 @@
+name: Revenue Pilots Builder Pilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: "Cloud OS build job ID"
+        required: true
+        type: string
+      company_id:
+        description: "Cloud OS company ID"
+        required: true
+        type: string
+      build_brief:
+        description: "Structured BUILD_JOB brief"
+        required: true
+        type: string
+      acceptance_criteria:
+        description: "Acceptance criteria"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: builder-${{ inputs.job_id }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BUILD_JOB_ID: ${{ inputs.job_id }}
+      COMPANY_ID: ${{ inputs.company_id }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create or resume isolated build branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH="rp/build-${BUILD_JOB_ID}"
+          git config user.name "Revenue Pilots Builder"
+          git config user.email "builder@revenuepilot.company"
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$BRANCH:$BRANCH"
+            git checkout "$BRANCH"
+          else
+            git checkout -b "$BRANCH"
+          fi
+          echo "BUILD_BRANCH=$BRANCH" >> "$GITHUB_ENV"
+
+      - name: Persist build brief for worker
+        shell: bash
+        env:
+          BUILD_BRIEF: ${{ inputs.build_brief }}
+          ACCEPTANCE_CRITERIA: ${{ inputs.acceptance_criteria }}
+        run: |
+          set -euo pipefail
+          mkdir -p .revenue-pilots/jobs
+          cat > ".revenue-pilots/jobs/${BUILD_JOB_ID}.md" <<EOF
+          # BUILD_JOB ${BUILD_JOB_ID}
+
+          Company ID: ${COMPANY_ID}
+
+          ## Build brief
+          ${BUILD_BRIEF}
+
+          ## Acceptance criteria
+          ${ACCEPTANCE_CRITERIA}
+
+          ## Required final behavior
+          Follow CLAUDE.md. Work only in this branch. Do not merge or deploy production.
+          EOF
+
+      - name: Run Claude Code builder
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are the Revenue Pilots Builder Pilot implementation worker.
+            Read CLAUDE.md and .revenue-pilots/jobs/${{ inputs.job_id }}.md first.
+            Implement only this BUILD_JOB on the current isolated build branch.
+            Do not merge, do not deploy production, do not contact anyone, and do not touch secrets.
+            Leave the scoped implementation in the working tree for deterministic validation and commit steps.
+          claude_args: |
+            --max-turns 8
+
+      - name: Run deterministic validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f package.json ] && command -v npm >/dev/null 2>&1; then
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install --ignore-scripts
+            fi
+            node -e 'const p=require("./package.json"); console.log(Object.keys(p.scripts||{}).join("\n"))' > /tmp/scripts.txt
+            if grep -qx lint /tmp/scripts.txt; then npm run lint; fi
+            if grep -qx typecheck /tmp/scripts.txt; then npm run typecheck; fi
+            if grep -qx test /tmp/scripts.txt; then npm test; fi
+            if grep -qx build /tmp/scripts.txt; then npm run build; fi
+          else
+            echo "No package.json/npm validation suite detected; Vercel preview QA remains required."
+          fi
+
+      - name: Commit and push Builder Pilot changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Builder Pilot: ${BUILD_JOB_ID}"
+          else
+            echo "Builder Pilot produced no new file changes on this run."
+          fi
+          git push -u origin "$BUILD_BRANCH"
+
+      - name: Open or update review pull request
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          EXISTING=$(gh pr list --head "$BUILD_BRANCH" --base main --state open --json number --jq '.[0].number // empty')
+          BODY=$(cat <<EOF
+          Automated Builder Pilot job: ${BUILD_JOB_ID}
+
+          Company: ${COMPANY_ID}
+
+          This PR is review-only. Production merge/deploy requires owner approval for the exact reviewed commit SHA.
+          EOF
+          )
+          if [ -n "$EXISTING" ]; then
+            gh pr edit "$EXISTING" --body "$BODY"
+          else
+            gh pr create --base main --head "$BUILD_BRANCH" --title "Builder Pilot: ${BUILD_JOB_ID}" --body "$BODY"
+          fi

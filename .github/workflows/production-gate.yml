@@ -1,0 +1,83 @@
+name: Revenue Pilots Production Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: "Approved Builder job ID"
+        required: true
+        type: string
+      pr_number:
+        description: "Pull request number approved by owner"
+        required: true
+        type: string
+      approved_sha:
+        description: "Exact PR head commit SHA approved by owner"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+concurrency:
+  group: production-${{ inputs.job_id }}
+  cancel-in-progress: false
+
+jobs:
+  verify-and-merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify exact approved PR head
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          APPROVED_SHA: ${{ inputs.approved_sha }}
+        run: |
+          set -euo pipefail
+          CURRENT_SHA=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq '.headRefOid')
+          if [ "$CURRENT_SHA" != "$APPROVED_SHA" ]; then
+            echo "Approval invalid: PR changed after owner approval."
+            echo "Approved: $APPROVED_SHA"
+            echo "Current:  $CURRENT_SHA"
+            exit 1
+          fi
+
+      - name: Require successful Builder/QA checks
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APPROVED_SHA: ${{ inputs.approved_sha }}
+        run: |
+          set -euo pipefail
+          CHECKS=$(gh api "repos/$GITHUB_REPOSITORY/commits/$APPROVED_SHA/check-runs")
+          echo "$CHECKS" > /tmp/checks.json
+          SUCCESS=$(jq '[.check_runs[] | select(.conclusion == "success")] | length' /tmp/checks.json)
+          FAILING=$(jq '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required")] | length' /tmp/checks.json)
+          if [ "$SUCCESS" -lt 1 ]; then
+            echo "No successful checks found for approved commit."
+            exit 1
+          fi
+          if [ "$FAILING" -gt 0 ]; then
+            echo "One or more required checks are failing or incomplete."
+            jq -r '.check_runs[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required") | "- \(.name): \(.conclusion)"' /tmp/checks.json
+            exit 1
+          fi
+
+      - name: Merge only the approved commit
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          APPROVED_SHA: ${{ inputs.approved_sha }}
+        run: |
+          set -euo pipefail
+          gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --delete-branch --match-head-commit "$APPROVED_SHA"
+
+      - name: Production handoff note
+        shell: bash
+        run: |
+          echo "Approved Builder job ${{ inputs.job_id }} merged. Vercel production deployment is expected from the main-branch Git integration."
