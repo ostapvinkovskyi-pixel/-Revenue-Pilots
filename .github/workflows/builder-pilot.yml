@@ -40,7 +40,7 @@ jobs:
       COMPANY_ID: ${{ inputs.company_id }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -54,6 +54,7 @@ jobs:
           if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
             git fetch origin "$BRANCH:$BRANCH"
             git checkout "$BRANCH"
+            git rebase origin/main
           else
             git checkout -b "$BRANCH"
           fi
@@ -90,42 +91,74 @@ jobs:
           prompt: |
             You are the Revenue Pilots Builder Pilot implementation worker.
             Read CLAUDE.md and .revenue-pilots/jobs/${{ inputs.job_id }}.md first.
-            Implement only this BUILD_JOB on the current isolated build branch.
-            Do not merge, do not deploy production, do not contact anyone, and do not touch secrets.
-            Leave the scoped implementation in the working tree for deterministic validation and commit steps.
+            Implement the BUILD_JOB now; do not stop at analysis or a plan.
+            Make only the scoped repository edits needed to satisfy the acceptance criteria.
+            Do not merge, deploy production, contact anyone, or touch secrets/automation policy files.
+            Before finishing, verify the requested implementation exists in the working tree and summarize what you changed.
           claude_args: |
             --max-turns 12
+
+      - name: Enforce protected-file boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r line; do
+            path="${line:3}"
+            [ -z "$path" ] && continue
+            case "$path" in
+              .github/*|CLAUDE.md|.env|.env.*)
+                echo "Builder attempted to modify protected path: $path"
+                exit 1
+                ;;
+              .revenue-pilots/*)
+                if [ "$path" != ".revenue-pilots/jobs/${BUILD_JOB_ID}.md" ]; then
+                  echo "Builder attempted to modify protected control path: $path"
+                  exit 1
+                fi
+                ;;
+            esac
+          done < <(git status --porcelain)
 
       - name: Run deterministic validation
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f package.json ] && command -v npm >/dev/null 2>&1; then
-            if [ -f package-lock.json ]; then
-              npm ci
-            else
-              npm install --ignore-scripts
-            fi
+          if [ -f package.json ] && command -v node >/dev/null 2>&1; then
             node -e 'const p=require("./package.json"); console.log(Object.keys(p.scripts||{}).join("\n"))' > /tmp/scripts.txt
-            if grep -qx lint /tmp/scripts.txt; then npm run lint; fi
-            if grep -qx typecheck /tmp/scripts.txt; then npm run typecheck; fi
-            if grep -qx test /tmp/scripts.txt; then npm test; fi
-            if grep -qx build /tmp/scripts.txt; then npm run build; fi
+            if grep -Eq '^(lint|typecheck|test|build)$' /tmp/scripts.txt; then
+              if [ -f package-lock.json ]; then
+                npm ci --ignore-scripts
+              else
+                npm install --ignore-scripts --package-lock=false
+              fi
+              if grep -qx lint /tmp/scripts.txt; then npm run lint; fi
+              if grep -qx typecheck /tmp/scripts.txt; then npm run typecheck; fi
+              if grep -qx test /tmp/scripts.txt; then npm test; fi
+              if grep -qx build /tmp/scripts.txt; then npm run build; fi
+            else
+              echo "No lint/typecheck/test/build script declared; skipping dependency installation."
+            fi
           else
-            echo "No package.json/npm validation suite detected; Vercel preview QA remains required."
+            echo "No package.json/node validation suite detected; Vercel preview QA remains required."
           fi
+
+      - name: Remove local dependency/build state
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf node_modules .vercel
 
       - name: Commit and push Builder Pilot changes
         shell: bash
         run: |
           set -euo pipefail
           git add -A
-          if ! git diff --cached --quiet; then
-            git commit -m "Builder Pilot: ${BUILD_JOB_ID}"
-          else
-            echo "Builder Pilot produced no new file changes on this run."
+          if git diff --cached --quiet; then
+            echo "Builder produced no scoped file changes; refusing to create an empty review."
+            exit 1
           fi
-          git push -u origin "$BUILD_BRANCH"
+          git commit -m "Builder Pilot: ${BUILD_JOB_ID}"
+          git push -u origin "$BUILD_BRANCH" --force-with-lease
 
       - name: Open or update review pull request
         shell: bash
