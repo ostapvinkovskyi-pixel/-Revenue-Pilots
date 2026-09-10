@@ -1,0 +1,226 @@
+.ownerShell {
+  width: min(940px, calc(100% - 28px));
+  margin: 0 auto;
+  padding: 28px 0 48px;
+}
+
+.ownerTopbar,
+.ownerSectionHeader,
+.ownerTimelineTitleRow,
+.ownerBusinessTopline,
+.ownerFooter nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ownerTopbar { margin-bottom: 18px; align-items: flex-start; }
+.ownerBrand,
+.ownerKicker {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+.ownerTopbar h1 { margin: 0; font-size: clamp(1.8rem, 6vw, 3.2rem); }
+.ownerCompany { margin: 6px 0 0; }
+
+.ownerStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--soft);
+  font-size: .8rem;
+  white-space: nowrap;
+}
+.ownerStatusDot,
+.ownerAreaDot,
+.ownerTimelineDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex: 0 0 auto;
+}
+.ownerStatus--good .ownerStatusDot,
+.ownerAreaDot--good { background: var(--good); }
+.ownerStatus--attention .ownerStatusDot,
+.ownerAreaDot--attention { background: var(--attention); }
+.ownerStatus--offline .ownerStatusDot { background: var(--offline); }
+.ownerAreaDot--quiet { background: var(--muted); }
+
+.ownerDemoNotice {
+  margin-bottom: 14px;
+  padding: 9px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: .76rem;
+}
+
+.ownerBriefing,
+.ownerNeeds,
+.ownerPanel {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+}
+
+.ownerBriefing {
+  padding: clamp(22px, 5vw, 36px);
+  background: linear-gradient(150deg, var(--panel-strong), var(--panel));
+}
+.ownerBriefing h2 { font-size: clamp(1.45rem, 4vw, 2.25rem); margin-bottom: 10px; }
+.ownerBriefingText { max-width: 720px; margin-bottom: 24px; font-size: 1rem; }
+
+.ownerMetricGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.ownerMetricCard {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255,255,255,.018);
+}
+.ownerMetricCard strong,
+.ownerMetricCard span { display: block; }
+.ownerMetricCard strong { margin-bottom: 12px; font-size: 1.45rem; }
+.ownerMetricCard span { color: var(--muted); font-size: .76rem; }
+
+.ownerNeeds {
+  margin-top: 16px;
+  padding: 22px;
+  border-color: color-mix(in srgb, var(--attention), var(--line) 72%);
+}
+.ownerSectionHeader { align-items: flex-start; margin-bottom: 16px; }
+.ownerSectionHeader h2 { margin-bottom: 0; }
+.ownerNeedsCount,
+.ownerAreaBadge {
+  display: inline-grid;
+  min-width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(243, 201, 105, .1);
+  color: var(--attention);
+  font-size: .78rem;
+  font-weight: 700;
+}
+.ownerNeedCard {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: center;
+  padding: 17px;
+  border: 1px solid color-mix(in srgb, var(--attention), var(--line) 74%);
+  border-radius: 14px;
+  background: rgba(243, 201, 105, .035);
+}
+.ownerNeedCard h3 { margin-bottom: 5px; }
+.ownerNeedCard p { margin-bottom: 0; font-size: .84rem; }
+.ownerNeedCard button {
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #191c21;
+  color: var(--muted);
+}
+
+.ownerColumns {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.ownerPanel { padding: 22px; }
+
+.ownerTimeline { display: grid; }
+.ownerTimelineItem {
+  display: grid;
+  grid-template-columns: 10px 1fr;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+.ownerTimelineItem:last-child { border-bottom: 0; }
+.ownerTimelineDot { margin-top: 6px; width: 6px; height: 6px; background: var(--accent); }
+.ownerTimelineTitleRow h3 { margin-bottom: 0; font-size: .9rem; }
+.ownerTimelineTitleRow time { color: var(--muted); font-size: .72rem; }
+.ownerTimelineCopy p { margin: 5px 0 0; font-size: .8rem; }
+
+.ownerUpcomingList { display: grid; gap: 10px; }
+.ownerUpcomingCard {
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(255,255,255,.015);
+}
+.ownerUpcomingCard time { color: var(--accent); font-size: .73rem; font-weight: 700; }
+.ownerUpcomingCard h3 { margin: 8px 0 5px; }
+.ownerUpcomingCard p { margin: 0; font-size: .8rem; }
+
+.ownerBusinessPanel { margin-top: 16px; }
+.ownerBusinessGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px;
+}
+.ownerBusinessCard {
+  min-height: 112px;
+  padding: 14px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(255,255,255,.015);
+  color: var(--text);
+}
+.ownerBusinessCard > span:last-child { display: block; margin-top: 18px; color: var(--muted); font-size: .74rem; }
+.ownerBusinessTopline { justify-content: flex-start; }
+.ownerBusinessTopline strong { flex: 1; }
+.ownerAreaBadge { min-width: 22px; height: 22px; font-size: .7rem; }
+
+.ownerFooter { margin-top: 18px; }
+.ownerFooter nav {
+  justify-content: center;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  width: max-content;
+  margin: 0 auto;
+}
+.ownerFooter nav span {
+  padding: 8px 14px;
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: .8rem;
+}
+.ownerFooter .ownerNavActive { background: var(--panel-strong); color: var(--text); }
+.ownerFooter p { margin: 12px auto 0; max-width: 650px; text-align: center; font-size: .72rem; }
+
+@media (max-width: 760px) {
+  .ownerMetricGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ownerColumns { grid-template-columns: 1fr; }
+  .ownerBusinessGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .ownerShell { width: min(100% - 20px, 940px); padding-top: 18px; }
+  .ownerTopbar { display: grid; }
+  .ownerStatus { width: max-content; }
+  .ownerBriefing,
+  .ownerNeeds,
+  .ownerPanel { border-radius: 15px; }
+  .ownerMetricCard { padding: 13px; }
+  .ownerNeedCard { grid-template-columns: 1fr; }
+  .ownerNeedCard button { width: 100%; }
+  .ownerBusinessGrid { grid-template-columns: 1fr 1fr; }
+}
