@@ -4,6 +4,7 @@ export interface ActiveWorkView {
   job: Job;
   title: string;
   detail: string;
+  /** Derived from the deterministic checkpoint map, never persisted or AI-guessed. */
   progress: number;
   checkpointLabel: string;
 }
@@ -15,6 +16,7 @@ export interface ApprovalView {
 }
 
 export interface ControlRoomSnapshot {
+  mode: "seed" | "live";
   organization: Organization;
   autopilotStatus: "healthy" | "attention" | "offline";
   autopilotMessage: string;
