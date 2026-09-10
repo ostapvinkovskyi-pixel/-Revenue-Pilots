@@ -73,20 +73,28 @@ jobs:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           set -euo pipefail
-          CURL_ARGS=(-L -sS -o /tmp/preview.html -w "%{http_code}" --max-time 30)
+          CURL_ARGS=(-L -sS -D /tmp/preview.headers -o /tmp/preview.html -w "%{http_code}\t%{url_effective}" --max-time 30)
           if [ -n "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]; then
             CURL_ARGS+=(-H "x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}" -H "x-vercel-set-bypass-cookie: true")
           fi
 
-          STATUS=$(curl "${CURL_ARGS[@]}" "$PREVIEW_URL")
+          RESULT=$(curl "${CURL_ARGS[@]}" "$PREVIEW_URL")
+          STATUS=${RESULT%%$'\t'*}
+          EFFECTIVE_URL=${RESULT#*$'\t'}
           echo "HTTP status: $STATUS"
+          echo "Final URL: $EFFECTIVE_URL"
 
           if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 400 ]; then
-            if [ -z "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]; then
-              echo "Protected Vercel Preview requires repository secret VERCEL_AUTOMATION_BYPASS_SECRET for autonomous HTTP QA."
-            fi
+            echo "Preview returned unacceptable HTTP status $STATUS."
             exit 1
           fi
+
+          if [[ "$EFFECTIVE_URL" == *"vercel.com/login"* ]] || \
+             grep -Eqi 'Vercel Authentication|Log in to Vercel|_vercel_sso_nonce|sso-api' /tmp/preview.html /tmp/preview.headers; then
+            echo "Preview is behind Vercel Deployment Protection. Autonomous live QA requires VERCEL_AUTOMATION_BYPASS_SECRET."
+            exit 1
+          fi
+
           if grep -Eqi 'Internal Server Error|Application error|This page could not be found|NOT_FOUND' /tmp/preview.html; then
             echo "Preview contains a known fatal-error marker."
             exit 1
