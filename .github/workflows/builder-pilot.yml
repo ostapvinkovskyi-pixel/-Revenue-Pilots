@@ -94,7 +94,7 @@ jobs:
             Do not merge, do not deploy production, do not contact anyone, and do not touch secrets.
             Leave the scoped implementation in the working tree for deterministic validation and commit steps.
           claude_args: |
-            --max-turns 8
+            --max-turns 12
 
       - name: Run deterministic validation
         shell: bash
