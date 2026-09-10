@@ -97,7 +97,7 @@ jobs:
             Do not merge, deploy production, contact anyone, or touch secrets/automation policy files.
             Before finishing, verify the requested implementation exists by reading the edited file(s), then give a concise summary.
           claude_args: |
-            --max-turns 10
+            --max-turns 14
             --allowedTools "Edit,Read,Write,Glob,Grep,LS"
 
       - name: Enforce protected-file boundary
