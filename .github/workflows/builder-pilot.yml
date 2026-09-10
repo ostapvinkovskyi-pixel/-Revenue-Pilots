@@ -92,11 +92,13 @@ jobs:
             You are the Revenue Pilots Builder Pilot implementation worker.
             Read CLAUDE.md and .revenue-pilots/jobs/${{ inputs.job_id }}.md first.
             Implement the BUILD_JOB now; do not stop at analysis or a plan.
+            Use only Read, Glob, Grep, LS, Write and Edit for repository work. Do not use Bash or shell commands; deterministic validation runs after your step.
             Make only the scoped repository edits needed to satisfy the acceptance criteria.
             Do not merge, deploy production, contact anyone, or touch secrets/automation policy files.
-            Before finishing, verify the requested implementation exists in the working tree and summarize what you changed.
+            Before finishing, verify the requested implementation exists by reading the edited file(s), then give a concise summary.
           claude_args: |
-            --max-turns 12
+            --max-turns 10
+            --allowedTools "Edit,Read,Write,Glob,Grep,LS"
 
       - name: Enforce protected-file boundary
         shell: bash
