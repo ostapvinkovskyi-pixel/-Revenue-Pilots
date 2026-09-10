@@ -20,6 +20,7 @@ permissions:
   contents: write
   pull-requests: write
   checks: read
+  statuses: read
 
 concurrency:
   group: production-${{ inputs.job_id }}
@@ -46,24 +47,30 @@ jobs:
             exit 1
           fi
 
-      - name: Require successful Builder/QA checks
+      - name: Require exact successful Preview QA and Vercel status
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           APPROVED_SHA: ${{ inputs.approved_sha }}
         run: |
           set -euo pipefail
+
           CHECKS=$(gh api "repos/$GITHUB_REPOSITORY/commits/$APPROVED_SHA/check-runs")
           echo "$CHECKS" > /tmp/checks.json
-          SUCCESS=$(jq '[.check_runs[] | select(.conclusion == "success")] | length' /tmp/checks.json)
-          FAILING=$(jq '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required")] | length' /tmp/checks.json)
-          if [ "$SUCCESS" -lt 1 ]; then
-            echo "No successful checks found for approved commit."
+          QA_SUCCESS=$(jq '[.check_runs[] | select(.name == "preview-smoke" and .conclusion == "success")] | length' /tmp/checks.json)
+          QA_BAD=$(jq '[.check_runs[] | select(.name == "preview-smoke" and (.conclusion != "success"))] | length' /tmp/checks.json)
+
+          if [ "$QA_SUCCESS" -lt 1 ] || [ "$QA_BAD" -gt 0 ]; then
+            echo "Exact commit does not have a clean successful preview-smoke QA check."
+            jq -r '.check_runs[] | select(.name == "preview-smoke") | "- \(.name): \(.conclusion)"' /tmp/checks.json
             exit 1
           fi
-          if [ "$FAILING" -gt 0 ]; then
-            echo "One or more required checks are failing or incomplete."
-            jq -r '.check_runs[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required") | "- \(.name): \(.conclusion)"' /tmp/checks.json
+
+          STATUS=$(gh api "repos/$GITHUB_REPOSITORY/commits/$APPROVED_SHA/status")
+          echo "$STATUS" > /tmp/status.json
+          VERCEL_SUCCESS=$(jq '[.statuses[] | select(.context == "Vercel" and .state == "success")] | length' /tmp/status.json)
+          if [ "$VERCEL_SUCCESS" -lt 1 ]; then
+            echo "Exact commit does not have a successful Vercel deployment status."
             exit 1
           fi
 
@@ -80,4 +87,4 @@ jobs:
       - name: Production handoff note
         shell: bash
         run: |
-          echo "Approved Builder job ${{ inputs.job_id }} merged. Vercel production deployment is expected from the main-branch Git integration."
+          echo "Approved Builder job ${{ inputs.job_id }} merged after exact-SHA Preview QA. Vercel production deployment is expected from the main-branch Git integration."
