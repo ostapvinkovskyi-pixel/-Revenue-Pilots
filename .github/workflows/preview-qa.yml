@@ -6,42 +6,88 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: write
 
 jobs:
   preview-smoke:
     if: >-
       github.event.deployment_status.state == 'success' &&
-      startsWith(github.event.deployment.ref, 'rp/build-')
+      github.event.deployment.environment == 'Preview'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Capture preview context
+      - name: Resolve Builder preview context
+        id: context
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY_SHA: ${{ github.event.deployment.sha }}
+          TARGET_URL: ${{ github.event.deployment_status.target_url }}
+          ENVIRONMENT_URL: ${{ github.event.deployment_status.environment_url }}
         run: |
           set -euo pipefail
-          echo "PREVIEW_URL=${{ github.event.deployment_status.environment_url }}" >> "$GITHUB_ENV"
-          echo "BUILD_BRANCH=${{ github.event.deployment.ref }}" >> "$GITHUB_ENV"
+          PREVIEW_URL="$TARGET_URL"
+          if [ -z "$PREVIEW_URL" ]; then PREVIEW_URL="$ENVIRONMENT_URL"; fi
+
+          PR_DATA=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open \
+            --json number,headRefName,headRefOid \
+            --jq ".[] | select(.headRefOid == \"$DEPLOY_SHA\") | [.number,.headRefName] | @tsv" | head -n1 || true)
+
+          if [ -z "$PR_DATA" ]; then
+            echo "No open PR matches deployment SHA $DEPLOY_SHA; this is not an active Builder review."
+            echo "is_builder=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PR_NUMBER=$(printf '%s' "$PR_DATA" | cut -f1)
+          BUILD_BRANCH=$(printf '%s' "$PR_DATA" | cut -f2)
+          if [[ "$BUILD_BRANCH" != rp/build-* ]]; then
+            echo "PR #$PR_NUMBER is not a Builder Pilot branch; skipping Builder QA."
+            echo "is_builder=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "is_builder=true" >> "$GITHUB_OUTPUT"
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "build_branch=$BUILD_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "deploy_sha=$DEPLOY_SHA" >> "$GITHUB_OUTPUT"
+          echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
 
       - name: Verify preview URL exists
+        if: steps.context.outputs.is_builder == 'true'
         shell: bash
+        env:
+          PREVIEW_URL: ${{ steps.context.outputs.preview_url }}
         run: |
           set -euo pipefail
           if [ -z "${PREVIEW_URL:-}" ]; then
-            echo "Vercel deployment succeeded but no environment URL was provided."
+            echo "Vercel deployment succeeded but no preview URL was provided."
             exit 1
           fi
 
       - name: HTTP smoke test
+        if: steps.context.outputs.is_builder == 'true'
         shell: bash
+        env:
+          PREVIEW_URL: ${{ steps.context.outputs.preview_url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           set -euo pipefail
-          STATUS=$(curl -L -sS -o /tmp/preview.html -w "%{http_code}" --max-time 30 "$PREVIEW_URL")
+          CURL_ARGS=(-L -sS -o /tmp/preview.html -w "%{http_code}" --max-time 30)
+          if [ -n "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]; then
+            CURL_ARGS+=(-H "x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}" -H "x-vercel-set-bypass-cookie: true")
+          fi
+
+          STATUS=$(curl "${CURL_ARGS[@]}" "$PREVIEW_URL")
           echo "HTTP status: $STATUS"
+
           if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 400 ]; then
-            echo "Preview returned unacceptable HTTP status $STATUS"
+            if [ -z "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]; then
+              echo "Protected Vercel Preview requires repository secret VERCEL_AUTOMATION_BYPASS_SECRET for autonomous HTTP QA."
+            fi
             exit 1
           fi
-          if grep -Eqi 'Internal Server Error|Application error|This page could not be found' /tmp/preview.html; then
+          if grep -Eqi 'Internal Server Error|Application error|This page could not be found|NOT_FOUND' /tmp/preview.html; then
             echo "Preview contains a known fatal-error marker."
             exit 1
           fi
@@ -51,20 +97,19 @@ jobs:
           fi
 
       - name: Record QA result on pull request
-        if: always()
+        if: always() && steps.context.outputs.is_builder == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           JOB_STATUS: ${{ job.status }}
+          PR_NUMBER: ${{ steps.context.outputs.pr_number }}
+          PREVIEW_URL: ${{ steps.context.outputs.preview_url }}
+          DEPLOY_SHA: ${{ steps.context.outputs.deploy_sha }}
         run: |
           set -euo pipefail
-          PR=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BUILD_BRANCH" --state open --json number --jq '.[0].number // empty')
-          if [ -z "$PR" ]; then
-            echo "No open PR found for $BUILD_BRANCH; skipping PR comment."
-            exit 0
-          fi
           if [ "$JOB_STATUS" = "success" ]; then
-            gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Builder Pilot Preview QA ✅\n\nPreview: $PREVIEW_URL\n\nChecks passed: Vercel deployment ready, HTTP response healthy, no common fatal-error page detected. Production remains owner-gated."
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Builder Pilot Preview QA ✅\n\nPreview: $PREVIEW_URL\nCommit: $DEPLOY_SHA\n\nChecks passed: Vercel Preview deployment succeeded, live HTTP response is healthy, page looks like HTML, and no common fatal-error page was detected. Production remains owner-gated for this exact commit."
           else
-            gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Builder Pilot Preview QA ❌\n\nPreview: $PREVIEW_URL\n\nAutomated smoke QA failed. Do not merge/deploy production until the failure is investigated and QA passes."
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Builder Pilot Preview QA ❌\n\nPreview: $PREVIEW_URL\nCommit: $DEPLOY_SHA\n\nAutomated live-preview QA did not pass. Production remains blocked until the failure is fixed and QA passes for the exact reviewed commit."
+            exit 1
           fi
