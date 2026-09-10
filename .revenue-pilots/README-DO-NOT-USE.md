@@ -1,1 +1,0 @@
-This placeholder should not be used. See .revenue-pilots/README.md.
