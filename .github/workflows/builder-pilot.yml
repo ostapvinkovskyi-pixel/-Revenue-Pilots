@@ -104,9 +104,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          while IFS= read -r line; do
-            path="${line:3}"
-            [ -z "$path" ] && continue
+          mapfile -t changed_paths < <(
+            {
+              git diff --name-only
+              git diff --cached --name-only
+              git ls-files --others --exclude-standard
+            } | sed '/^$/d' | sort -u
+          )
+          if [ "${#changed_paths[@]}" -eq 0 ]; then
+            echo "Builder produced no changed files."
+            exit 1
+          fi
+          for path in "${changed_paths[@]}"; do
+            echo "Reviewing changed path: $path"
             case "$path" in
               .github/*|CLAUDE.md|.env|.env.*)
                 echo "Builder attempted to modify protected path: $path"
@@ -119,7 +129,7 @@ jobs:
                 fi
                 ;;
             esac
-          done < <(git status --porcelain)
+          done
 
       - name: Run deterministic validation
         shell: bash
