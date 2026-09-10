@@ -1,19 +1,6 @@
-import type {
-  Approval,
-  Event,
-  Job,
-  Organization,
-  Pilot,
-} from "../domain";
-import {
-  getBuilderProgress,
-  type BuilderCheckpoint,
-} from "../progress";
-import type {
-  ActiveWorkView,
-  ControlRoomRepository,
-  ControlRoomSnapshot,
-} from "./contracts";
+import type { Approval, Event, Job, Organization, Pilot } from "../domain";
+import { getBuilderProgress, type BuilderCheckpoint } from "../progress";
+import type { ActiveWorkView, ControlRoomRepository, ControlRoomSnapshot } from "./contracts";
 
 const organization: Organization = {
   organization_id: "org_revenue_pilots_internal",
@@ -28,22 +15,25 @@ const pilots: Pilot[] = [
     pilot_id: "pilot_builder",
     organization_id: organization.organization_id,
     type: "builder",
+    display_name: "Builder Pilot",
     status: "active",
     created_at: "2026-09-10T12:00:00-04:00",
     updated_at: "2026-09-10T17:35:00-04:00",
   },
   {
-    pilot_id: "pilot_growth",
+    pilot_id: "pilot_communication",
     organization_id: organization.organization_id,
-    type: "growth",
+    type: "communication",
+    display_name: "Communication Pilot",
     status: "active",
     created_at: "2026-09-10T12:00:00-04:00",
     updated_at: "2026-09-10T17:30:00-04:00",
   },
   {
-    pilot_id: "pilot_support",
+    pilot_id: "pilot_watchdog",
     organization_id: organization.organization_id,
-    type: "support",
+    type: "watchdog",
+    display_name: "Watchdog",
     status: "paused",
     created_at: "2026-09-10T12:00:00-04:00",
     updated_at: "2026-09-10T17:20:00-04:00",
@@ -55,6 +45,9 @@ const jobs: Job[] = [
     job_id: "job_control_room_foundation",
     organization_id: organization.organization_id,
     pilot_id: "pilot_builder",
+    external_job_id: "CONTROL-ROOM-FOUNDATION-003",
+    title: "Control Room foundation",
+    summary: "Domain contracts and owner-facing control layer",
     status: "preview_ready",
     created_at: "2026-09-10T17:20:00-04:00",
     updated_at: "2026-09-10T17:35:00-04:00",
@@ -62,42 +55,14 @@ const jobs: Job[] = [
   {
     job_id: "job_inbound_triage",
     organization_id: organization.organization_id,
-    pilot_id: "pilot_growth",
+    pilot_id: "pilot_communication",
+    title: "Inbound reply triage",
+    summary: "Capture, classify and prepare safe owner actions",
     status: "validation_passed",
     created_at: "2026-09-10T16:45:00-04:00",
     updated_at: "2026-09-10T17:28:00-04:00",
   },
 ];
-
-const workCopy: Record<string, { title: string; detail: string }> = {
-  job_control_room_foundation: {
-    title: "Control Room foundation",
-    detail: "Domain contracts and owner-facing control layer",
-  },
-  job_inbound_triage: {
-    title: "Inbound reply triage",
-    detail: "Capture, classify and prepare safe owner actions",
-  },
-};
-
-function toActiveWork(job: Job): ActiveWorkView {
-  const progress = getBuilderProgress(job.status);
-  if (progress === undefined) {
-    throw new Error(`Job ${job.job_id} has no deterministic progress checkpoint`);
-  }
-
-  const copy = workCopy[job.job_id];
-  if (!copy) {
-    throw new Error(`Missing work copy for ${job.job_id}`);
-  }
-
-  return {
-    job,
-    ...copy,
-    progress,
-    checkpointLabel: formatCheckpoint(job.status as BuilderCheckpoint),
-  };
-}
 
 function formatCheckpoint(checkpoint: BuilderCheckpoint): string {
   return checkpoint
@@ -106,15 +71,32 @@ function formatCheckpoint(checkpoint: BuilderCheckpoint): string {
     .join(" ");
 }
 
+function toActiveWork(job: Job): ActiveWorkView {
+  const progress = getBuilderProgress(job.status);
+  if (progress === undefined) {
+    throw new Error(`Job ${job.job_id} has no deterministic progress checkpoint`);
+  }
+
+  return {
+    job,
+    title: job.title,
+    detail: job.summary ?? "",
+    progress,
+    checkpointLabel: formatCheckpoint(job.status as BuilderCheckpoint),
+  };
+}
+
 const approval: Approval = {
-  approval_id: "approval_control_room_preview",
+  approval_id: "approval_seed_preview",
   organization_id: organization.organization_id,
   job_id: "job_control_room_foundation",
   status: "pending",
-  repository: "ostapvinkovskyi-pixel/-Revenue-Pilots",
+  action: "production_deploy",
+  repository: "seed/example-repository",
   pull_request_number: 8,
-  commit_sha: "87110cccee988d445861603f50e4227d9dbf26fe",
+  commit_sha: "seed000000000000000000000000000000000000",
   preview_url: "https://preview.example.invalid/control-room",
+  requested_at: "2026-09-10T17:35:00-04:00",
   created_at: "2026-09-10T17:35:00-04:00",
   updated_at: "2026-09-10T17:35:00-04:00",
 };
@@ -124,7 +106,9 @@ const activity: Event[] = [
     event_id: "evt_preview_ready",
     organization_id: organization.organization_id,
     type: "job_status_changed",
+    subject_type: "job",
     subject_id: "job_control_room_foundation",
+    source: "seed",
     payload: { status: "preview_ready", label: "Control Room preview prepared" },
     created_at: "2026-09-10T17:35:00-04:00",
   },
@@ -132,7 +116,9 @@ const activity: Event[] = [
     event_id: "evt_approval_requested",
     organization_id: organization.organization_id,
     type: "approval_requested",
-    subject_id: "approval_control_room_preview",
+    subject_type: "approval",
+    subject_id: "approval_seed_preview",
+    source: "seed",
     payload: { label: "Owner review requested" },
     created_at: "2026-09-10T17:34:00-04:00",
   },
@@ -140,7 +126,9 @@ const activity: Event[] = [
     event_id: "evt_triage_validation",
     organization_id: organization.organization_id,
     type: "job_status_changed",
+    subject_type: "job",
     subject_id: "job_inbound_triage",
+    source: "seed",
     payload: { status: "validation_passed", label: "Inbound triage validation passed" },
     created_at: "2026-09-10T17:28:00-04:00",
   },
@@ -149,6 +137,7 @@ const activity: Event[] = [
 export class SeedControlRoomRepository implements ControlRoomRepository {
   async getSnapshot(): Promise<ControlRoomSnapshot> {
     return {
+      mode: "seed",
       organization,
       autopilotStatus: "healthy",
       autopilotMessage: "Core pilots are running. One decision needs you.",
@@ -156,8 +145,8 @@ export class SeedControlRoomRepository implements ControlRoomRepository {
       approvals: [
         {
           approval,
-          title: "Review Control Room preview",
-          detail: "Approval is bound to the exact reviewed commit before production can move.",
+          title: "Review exact deployment target",
+          detail: "Seed example: production approval stays bound to one reviewed commit.",
         },
       ],
       pilots,
