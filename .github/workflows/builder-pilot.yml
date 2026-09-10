@@ -42,14 +42,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create isolated build branch
+      - name: Create or resume isolated build branch
         shell: bash
         run: |
           set -euo pipefail
           BRANCH="rp/build-${BUILD_JOB_ID}"
           git config user.name "Revenue Pilots Builder"
           git config user.email "builder@revenuepilot.company"
-          git checkout -B "$BRANCH"
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$BRANCH:$BRANCH"
+            git checkout "$BRANCH"
+          else
+            git checkout -b "$BRANCH"
+          fi
           echo "BUILD_BRANCH=$BRANCH" >> "$GITHUB_ENV"
 
       - name: Persist build brief for worker
@@ -82,37 +87,42 @@ jobs:
           prompt: |
             You are the Revenue Pilots Builder Pilot implementation worker.
             Read CLAUDE.md and .revenue-pilots/jobs/${{ inputs.job_id }}.md first.
-            Implement only this BUILD_JOB. Keep all work on branch ${{ env.BUILD_BRANCH }}.
-            Run the repository's available validation commands after implementation.
+            Implement only this BUILD_JOB on the current isolated build branch.
             Do not merge, do not deploy production, do not contact anyone, and do not touch secrets.
-            When complete, leave the working tree with the scoped implementation ready to commit.
+            Leave the scoped implementation in the working tree for deterministic validation and commit steps.
+          claude_args: |
+            --max-turns 8
 
       - name: Run deterministic validation
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f package.json ]; then
-            if command -v npm >/dev/null 2>&1; then
-              if [ -f package-lock.json ]; then npm ci; else npm install --ignore-scripts; fi
-              node -e 'const p=require("./package.json"); console.log(Object.keys(p.scripts||{}).join("\n"))' > /tmp/scripts.txt
-              grep -qx lint /tmp/scripts.txt && npm run lint || true
-              grep -qx typecheck /tmp/scripts.txt && npm run typecheck || true
-              grep -qx test /tmp/scripts.txt && npm test -- --runInBand || true
-              grep -qx build /tmp/scripts.txt && npm run build || true
+          if [ -f package.json ] && command -v npm >/dev/null 2>&1; then
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install --ignore-scripts
             fi
+            node -e 'const p=require("./package.json"); console.log(Object.keys(p.scripts||{}).join("\n"))' > /tmp/scripts.txt
+            if grep -qx lint /tmp/scripts.txt; then npm run lint; fi
+            if grep -qx typecheck /tmp/scripts.txt; then npm run typecheck; fi
+            if grep -qx test /tmp/scripts.txt; then npm test; fi
+            if grep -qx build /tmp/scripts.txt; then npm run build; fi
+          else
+            echo "No package.json/npm validation suite detected; Vercel preview QA remains required."
           fi
 
-      - name: Commit Builder Pilot changes
+      - name: Commit and push Builder Pilot changes
         shell: bash
         run: |
           set -euo pipefail
           git add -A
-          if git diff --cached --quiet; then
-            echo "No changes produced by Builder Pilot."
-            exit 1
+          if ! git diff --cached --quiet; then
+            git commit -m "Builder Pilot: ${BUILD_JOB_ID}"
+          else
+            echo "Builder Pilot produced no new file changes on this run."
           fi
-          git commit -m "Builder Pilot: ${BUILD_JOB_ID}"
-          git push --force-with-lease origin "$BUILD_BRANCH"
+          git push -u origin "$BUILD_BRANCH"
 
       - name: Open or update review pull request
         shell: bash
@@ -120,13 +130,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          EXISTING=$(gh pr list --head "$BUILD_BRANCH" --base main --json number --jq '.[0].number // empty')
+          EXISTING=$(gh pr list --head "$BUILD_BRANCH" --base main --state open --json number --jq '.[0].number // empty')
           BODY=$(cat <<EOF
           Automated Builder Pilot job: ${BUILD_JOB_ID}
 
           Company: ${COMPANY_ID}
 
-          This PR is review-only. Production merge/deploy requires owner approval.
+          This PR is review-only. Production merge/deploy requires owner approval for the exact reviewed commit SHA.
           EOF
           )
           if [ -n "$EXISTING" ]; then
