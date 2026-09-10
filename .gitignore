@@ -16,6 +16,10 @@ Desktop.ini
 # Logs
 *.log
 
+# Dependencies / local build state
+node_modules/
+.vercel/
+
 # Local/server secrets — never commit real values
 .env
 .env.local
