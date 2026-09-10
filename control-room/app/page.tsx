@@ -1,8 +1,8 @@
 import { getControlRoomRepository } from "@/data/repository";
 import type { Event, Pilot } from "@/domain";
 
-function pilotLabel(pilot: Pilot): string {
-  return `${pilot.type.charAt(0).toUpperCase()}${pilot.type.slice(1)} Pilot`;
+function pilotLabel(pilot: Pilot | undefined): string {
+  return pilot?.display_name ?? "Unassigned";
 }
 
 function eventLabel(event: Event): string {
@@ -26,7 +26,10 @@ export default async function HomePage() {
     <main className="shell">
       <header className="topbar">
         <div>
-          <p className="eyebrow">Revenue Pilots</p>
+          <div className="titleLine">
+            <p className="eyebrow">Revenue Pilots</p>
+            {snapshot.mode === "seed" ? <span className="modePill">Foundation preview data</span> : null}
+          </div>
           <h1>Control Room</h1>
         </div>
         <div className={`health health--${snapshot.autopilotStatus}`}>
@@ -68,31 +71,34 @@ export default async function HomePage() {
           </div>
 
           <div className="workList">
-            {snapshot.activeWork.map((item) => (
-              <article className="workCard" key={item.job.job_id}>
-                <div className="workHeading">
-                  <div>
-                    <h3>{item.title}</h3>
-                    <p>{item.detail}</p>
+            {snapshot.activeWork.map((item) => {
+              const pilot = snapshot.pilots.find((candidate) => candidate.pilot_id === item.job.pilot_id);
+              return (
+                <article className="workCard" key={item.job.job_id}>
+                  <div className="workHeading">
+                    <div>
+                      <h3>{item.title}</h3>
+                      <p>{item.detail}</p>
+                    </div>
+                    <strong className="progressNumber">{item.progress}%</strong>
                   </div>
-                  <strong className="progressNumber">{item.progress}%</strong>
-                </div>
-                <div
-                  className="progressTrack"
-                  role="progressbar"
-                  aria-label={`${item.title} progress`}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={item.progress}
-                >
-                  <span className="progressFill" style={{ width: `${item.progress}%` }} />
-                </div>
-                <div className="workMeta">
-                  <span>{item.checkpointLabel}</span>
-                  <span>{pilotLabel(snapshot.pilots.find((pilot) => pilot.pilot_id === item.job.pilot_id) ?? snapshot.pilots[0])}</span>
-                </div>
-              </article>
-            ))}
+                  <div
+                    className="progressTrack"
+                    role="progressbar"
+                    aria-label={`${item.title} progress`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={item.progress}
+                  >
+                    <span className="progressFill" style={{ width: `${item.progress}%` }} />
+                  </div>
+                  <div className="workMeta">
+                    <span>{item.checkpointLabel}</span>
+                    <span>{pilotLabel(pilot)}</span>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
 
@@ -170,7 +176,7 @@ export default async function HomePage() {
 
       <footer className="footerNote">
         <span>Client #001 · {snapshot.organization.name}</span>
-        <span>Snapshot {formatTime(snapshot.capturedAt)}</span>
+        <span>{snapshot.mode === "seed" ? "Seed snapshot" : "Live snapshot"} · {formatTime(snapshot.capturedAt)}</span>
       </footer>
     </main>
   );
