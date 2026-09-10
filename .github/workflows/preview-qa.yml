@@ -73,25 +73,40 @@ jobs:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           set -euo pipefail
-          CURL_ARGS=(-L -sS -D /tmp/preview.headers -o /tmp/preview.html -w "%{http_code}\t%{url_effective}" --max-time 30)
-          if [ -n "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]; then
-            CURL_ARGS+=(-H "x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}" -H "x-vercel-set-bypass-cookie: true")
+
+          if [ -z "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]; then
+            echo "VERCEL_AUTOMATION_BYPASS_SECRET is not configured."
+            exit 1
           fi
 
-          RESULT=$(curl "${CURL_ARGS[@]}" "$PREVIEW_URL")
-          STATUS=${RESULT%%$'\t'*}
-          EFFECTIVE_URL=${RESULT#*$'\t'}
-          echo "HTTP status: $STATUS"
-          echo "Final URL: $EFFECTIVE_URL"
+          # For a one-shot smoke request, send only the documented bypass header.
+          # Do not request a bypass cookie here: doing so without a cookie jar can
+          # create a redirect loop on protected previews.
+          RESULT=$(curl -sS -D /tmp/preview.headers -o /tmp/preview.html \
+            -w "%{http_code}\t%{redirect_url}" --max-time 30 \
+            -H "x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}" \
+            "$PREVIEW_URL")
 
-          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 400 ]; then
+          STATUS=${RESULT%%$'\t'*}
+          REDIRECT_URL=${RESULT#*$'\t'}
+          echo "HTTP status: $STATUS"
+
+          if [ "$STATUS" -ge 300 ] && [ "$STATUS" -lt 400 ]; then
+            if [[ "$REDIRECT_URL" == *"vercel.com/login"* ]] || [[ "$REDIRECT_URL" == *"vercel.com/sso-api"* ]]; then
+              echo "Preview is still behind Vercel Deployment Protection; bypass secret was not accepted."
+            else
+              echo "Preview returned an unexpected redirect: $REDIRECT_URL"
+            fi
+            exit 1
+          fi
+
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 300 ]; then
             echo "Preview returned unacceptable HTTP status $STATUS."
             exit 1
           fi
 
-          if [[ "$EFFECTIVE_URL" == *"vercel.com/login"* ]] || \
-             grep -Eqi 'Vercel Authentication|Log in to Vercel|_vercel_sso_nonce|sso-api' /tmp/preview.html /tmp/preview.headers; then
-            echo "Preview is behind Vercel Deployment Protection. Autonomous live QA requires VERCEL_AUTOMATION_BYPASS_SECRET."
+          if grep -Eqi 'Vercel Authentication|Log in to Vercel|_vercel_sso_nonce|sso-api' /tmp/preview.html /tmp/preview.headers; then
+            echo "Preview response still contains Vercel Authentication markers."
             exit 1
           fi
 
