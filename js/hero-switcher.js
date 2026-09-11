@@ -12,32 +12,34 @@
 (function () {
   "use strict";
 
-  var ORDER = ["creative", "websites", "systems"];
+  // Current commercial hierarchy: Systems / Autopilot first, Websites second,
+  // Creative as the add-on that feeds more attention into the engine.
+  var ORDER = ["systems", "websites", "creative"];
 
   var COPY = {
-    creative: {
-      name: "CREATIVE",
-      promise: "Get attention worth converting.",
-      desc: "Eight original ads over four weeks, plus extra hooks to keep testing fresh.",
-      price: "Creative Sprint — <strong>$1,500 / 4 weeks</strong>",
-      cta: "Start Creative Sprint — $1,500",
-      checkout: "/api/checkout?plan=starter&term=one_time"
+    systems: {
+      name: "BUSINESS AUTOPILOT",
+      promise: "Keep leads and follow-up moving without adding more admin work.",
+      desc: "Connect lead capture, follow-up, booking and core workflows so opportunities do not disappear between tools.",
+      price: "Revenue Systems — <strong>$3,500 total</strong> · $1,750 project deposit",
+      cta: "Start Revenue Systems — $1,750",
+      checkout: "/api/checkout?plan=systems&term=deposit"
     },
     websites: {
       name: "WEBSITES",
-      promise: "Turn attention into action.",
-      desc: "Premium websites designed around leads, bookings and sales.",
+      promise: "Give the system a better place to convert demand.",
+      desc: "Premium websites designed around leads, bookings and sales — built to connect cleanly with your follow-up system.",
       price: "Conversion Website — <strong>$3,500 total</strong> · $1,750 project deposit",
       cta: "Start Website — $1,750",
       checkout: "/api/checkout?plan=website&term=deposit"
     },
-    systems: {
-      name: "SYSTEMS",
-      promise: "Don't lose the opportunity after the click.",
-      desc: "Lead capture, follow-up, booking and workflow automation.",
-      price: "Revenue Systems — <strong>$3,500 total</strong> · $1,750 project deposit",
-      cta: "Start Revenue Systems — $1,750",
-      checkout: "/api/checkout?plan=systems&term=deposit"
+    creative: {
+      name: "CREATIVE",
+      promise: "Add more attention when the engine is ready for it.",
+      desc: "Original short-form ads and fresh hooks that can feed more qualified attention into the same connected revenue system.",
+      price: "Creative Sprint — <strong>$1,500 / 4 weeks</strong>",
+      cta: "Start Creative Sprint — $1,500",
+      checkout: "/api/checkout?plan=starter&term=one_time"
     }
   };
 
@@ -126,7 +128,7 @@
     });
 
     var q = /[?&]service=(creative|websites|systems)/.exec(location.search);
-    show(q ? q[1] : "creative");
+    show(q ? q[1] : "systems");
     document.documentElement.classList.add("v2-ready");
 
     document.addEventListener("visibilitychange", function () {
