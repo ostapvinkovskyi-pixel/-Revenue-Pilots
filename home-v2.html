@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="css/site-v2.css">
 <link rel="stylesheet" href="css/v2.css">
 <link rel="stylesheet" href="css/v4.css">
+<link rel="stylesheet" href="css/hero-autopilot.css">
 <link rel="stylesheet" href="css/altura.css">
 <link rel="stylesheet" href="css/final-showcase.css">
 <link rel="stylesheet" href="css/package-capabilities.css">
@@ -34,6 +35,7 @@
 <script src="config/site-config.js" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/hero-switcher.js" defer></script>
+<script src="js/hero-autopilot.js" defer></script>
 <script src="js/v4.js" defer></script>
 <script src="js/altura.js" defer></script>
 <script src="js/final-showcase.js" defer></script>
@@ -110,79 +112,62 @@
 <main id="main">
 <span id="top"></span>
 
-<!-- ===================== 1. HERO — service switcher ===================== -->
-<section class="v2-hero" id="hero">
-  <div class="v2-hero-copy">
-    <p class="v2-eyebrow v2-entrance" style="--d:60ms">Creative &middot; Websites &middot; Systems</p>
-    <h1 class="v2-h1 v2-entrance" style="--d:140ms">Build the system that turns attention into revenue.</h1>
-    <p class="v2-sub v2-entrance" style="--d:220ms">Revenue Pilots combines high-performing creative, conversion-focused websites, and automated systems into one connected growth engine for your business.</p>
+<!-- ===================== 1. HERO — Website + Autopilot ===================== -->
+<section class="rp-hero" id="hero">
+  <div class="rp-hero-shell">
+    <div class="rp-hero-copy">
+      <p class="rp-eyebrow rp-enter" style="--d:60ms">Websites &times; Autopilot &times; Real growth</p>
+      <h1 class="rp-h1 rp-enter" style="--d:140ms">Website in front.<br><span class="rp-accent">Autopilot behind it.</span></h1>
+      <p class="rp-sub rp-enter" style="--d:220ms">We build the customer-facing website and the operating layer behind it — capturing enquiries, moving follow-up, booking/payment handoffs and pipeline updates so routine work does not wait on you.</p>
 
-    <div class="v2-service-copy v2-entrance" style="--d:300ms" aria-live="polite">
-      <p class="v2-service-name" id="v2ServiceName">CREATIVE</p>
-      <p class="v2-promise" id="v2Promise">Get attention worth converting.</p>
-      <p class="v2-desc" id="v2Desc">Eight original ads over four weeks, plus extra hooks to keep testing fresh.</p>
-      <p class="v2-price" id="v2Price">Creative Sprint — <strong>$1,500 / 4 weeks</strong></p>
+      <div class="rp-hero-actions rp-enter" style="--d:300ms">
+        <a class="btn btn-gold" href="#contact">Start with a $500 pilot →</a>
+        <a class="btn btn-ghost" href="#work">See interactive website demo ↗</a>
+      </div>
+
+      <div class="rp-hero-flow rp-enter" style="--d:380ms" aria-label="Customer journey">
+        <span>Lead</span><i aria-hidden="true">→</i><span>Follow-up</span><i aria-hidden="true">→</i><span>Booking</span><i aria-hidden="true">→</i><span>Payment</span>
+      </div>
     </div>
 
-    <div class="v2-hero-cta v2-entrance" style="--d:380ms">
-      <a class="btn btn-gold" id="v2ServiceCta" href="/api/checkout?plan=starter&amp;term=one_time">Start Creative Sprint — $1,500</a>
+    <div class="rp-rig rp-enter" id="rpRig" style="--d:220ms">
+      <div class="rp-halo" aria-hidden="true"></div>
+
+      <svg class="rp-connector" viewBox="0 0 760 520" aria-hidden="true">
+        <path class="rp-wire rp-wire-base" d="M138 372 C328 434 470 404 616 276"/>
+        <path class="rp-wire rp-wire-live" d="M138 372 C328 434 470 404 616 276"/>
+        <circle r="4.5" class="rp-pulse">
+          <animateMotion dur="4.2s" repeatCount="indefinite" path="M138 372 C328 434 470 404 616 276"/>
+        </circle>
+      </svg>
+
+      <div class="rp-screen rp-screen-site" role="img" aria-label="Interactive website concept preview — Charlotte Pool Company demo">
+        <div class="rp-chrome" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <b>charlotte-pool-company-private-demo.vercel.app</b>
+        </div>
+        <div class="rp-sitebody">
+          <small>Interactive concept · pool &amp; outdoor living</small>
+          <strong>Turn a visit into a booked consultation.</strong>
+          <div class="rp-sitecards" aria-hidden="true"><i></i><i></i><i></i></div>
+          <span class="rp-siteBtn">Book a Consultation →</span>
+        </div>
+      </div>
+
+      <div class="rp-screen rp-screen-owner" role="img" aria-label="Owner View interface preview — demo data">
+        <div class="rp-ownerhead">
+          <b><i aria-hidden="true"></i> Revenue Pilots</b>
+          <small>Interface preview</small>
+        </div>
+        <h2 class="rp-owner-title">Owner View</h2>
+        <p class="rp-owner-sub">One simple view of what is moving.</p>
+        <article class="rp-owner-row"><small>Done for you</small><b>New enquiry captured</b><span>Structured + recorded</span></article>
+        <article class="rp-owner-row is-active"><small>Working now</small><b>Follow-up moving</b><span>Next: booking handoff</span></article>
+        <article class="rp-owner-row"><small>Next</small><b>Booking handoff</b><span>Moving toward payment</span></article>
+        <article class="rp-owner-row"><small>Needs you</small><b>Approve quote</b><span>Human decision</span></article>
+        <p class="rp-owner-note">Demo data · interface preview only</p>
+      </div>
     </div>
-
-    <div class="v2-tabs" role="tablist" aria-label="Choose a service">
-      <button type="button" class="v2-tab" role="tab" data-service="creative" aria-selected="true">Creative</button>
-      <button type="button" class="v2-tab" role="tab" data-service="websites" aria-selected="false">Websites</button>
-      <button type="button" class="v2-tab" role="tab" data-service="systems" aria-selected="false">Systems</button>
-    </div>
-  </div>
-
-  <div class="v2-stage v2-entrance" style="--d:460ms">
-    <button type="button" class="v2-object" data-service="creative" aria-label="Show Creative" aria-pressed="true">
-      <span class="v2-media-panel">
-        <video src="assets/hero/hero-creative.mp4"
-               poster="assets/hero/hero-creative-poster.jpg"
-               autoplay muted loop playsinline preload="metadata"
-               aria-label="Revenue Pilots spec creative showreel. Silent video."></video>
-      </span>
-      <span class="v2-object-label">Creative</span>
-    </button>
-
-    <button type="button" class="v2-object" data-service="websites" aria-label="Show Websites" aria-pressed="false">
-      <span class="v2-browser">
-        <span class="v2-browser-bar"><i></i><i></i><i></i></span>
-        <span class="v2-browser-screen">
-          <!-- Real internal fictional demo (ORVYN), not a wireframe or a
-               real client. Same component mounted at 3 sizes/locations by
-               js/altura.js + js/final-showcase.js. -->
-          <span class="rp-altura-mount" data-altura-size="sm" role="img" aria-label="ORVYN, a fictional concept website demonstrating premium composition"></span>
-        </span>
-      </span>
-      <span class="v2-object-label">Websites</span>
-    </button>
-
-    <button type="button" class="v2-object" data-service="systems" aria-label="Show Systems" aria-pressed="false">
-      <span class="v4-net v4-net-xl" aria-hidden="true">
-        <span class="v4-net-3d">
-          <span class="v4-net-ring v4-net-ring-1" aria-hidden="true"></span>
-          <span class="v4-net-ring v4-net-ring-2" aria-hidden="true"></span>
-          <span class="v4-net-line" data-a="-90.00" style="--a:-90.00deg"><span class="v4-net-pulse" style="animation-delay:0.0s"></span></span>
-          <span class="v4-net-line" data-a="-38.57" style="--a:-38.57deg"><span class="v4-net-pulse" style="animation-delay:0.5s"></span></span>
-          <span class="v4-net-line" data-a="12.86" style="--a:12.86deg"><span class="v4-net-pulse" style="animation-delay:1.0s"></span></span>
-          <span class="v4-net-line" data-a="64.29" style="--a:64.29deg"><span class="v4-net-pulse" style="animation-delay:1.5s"></span></span>
-          <span class="v4-net-line" data-a="115.71" style="--a:115.71deg"><span class="v4-net-pulse" style="animation-delay:2.0s"></span></span>
-          <span class="v4-net-line" data-a="167.14" style="--a:167.14deg"><span class="v4-net-pulse" style="animation-delay:2.5s"></span></span>
-          <span class="v4-net-line" data-a="218.57" style="--a:218.57deg"><span class="v4-net-pulse" style="animation-delay:3.0s"></span></span>
-          <span class="v4-net-node" style="--a:-90.00deg"><span class="v4-net-node-inner" data-a="-90.00" style="animation-delay:0.0s"><b>Lead Capture</b><span class="v4-net-desc">Turns an inquiry into structured customer data.</span></span></span>
-          <span class="v4-net-node" style="--a:-38.57deg"><span class="v4-net-node-inner" data-a="-38.57" style="animation-delay:0.4s"><b>Follow-up</b><span class="v4-net-desc">Responds while the lead is still warm.</span></span></span>
-          <span class="v4-net-node" style="--a:12.86deg"><span class="v4-net-node-inner" data-a="12.86" style="animation-delay:0.8s"><b>Booking</b><span class="v4-net-desc">Moves interest into a real appointment.</span></span></span>
-          <span class="v4-net-node" style="--a:64.29deg"><span class="v4-net-node-inner" data-a="64.29" style="animation-delay:1.2s"><b>Payments</b><span class="v4-net-desc">Creates a clean path to deposit or checkout.</span></span></span>
-          <span class="v4-net-node" style="--a:115.71deg"><span class="v4-net-node-inner" data-a="115.71" style="animation-delay:1.6s"><b>CRM</b><span class="v4-net-desc">Keeps the customer record and stage in sync.</span></span></span>
-          <span class="v4-net-node" style="--a:167.14deg"><span class="v4-net-node-inner" data-a="167.14" style="animation-delay:2.0s"><b>Reviews</b><span class="v4-net-desc">Requests feedback after the job is complete.</span></span></span>
-          <span class="v4-net-node" style="--a:218.57deg"><span class="v4-net-node-inner" data-a="218.57" style="animation-delay:2.4s"><b>Analytics</b><span class="v4-net-desc">Shows where inquiries and handoffs are moving.</span></span></span>
-          <span class="v4-net-core"><b>Revenue<br>System</b></span>
-        </span>
-      </span>
-      <span class="v2-object-label">Systems</span>
-    </button>
   </div>
 </section>
 
