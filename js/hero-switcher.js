@@ -1,153 +1,40 @@
-/* =========================================================================
-   REVENUE PILOTS — hero service switcher.
-
-   Three service objects live in the DOM from first paint. Exactly one is
-   featured; the other two occupy the left/right slots. Clicking a side
-   object (or a mobile tab) rotates the positional classes and updates the
-   copy in the same frame. No sources are swapped on click, so there is no
-   asset flash and the cycle is exactly reversible.
-
-   Vanilla, no dependencies, CSP-safe (script-src 'self').
-   ========================================================================= */
-(function () {
-  "use strict";
-
-  var ORDER = ["creative", "websites", "systems"];
-
-  var COPY = {
-    creative: {
-      name: "CREATIVE",
-      promise: "Get attention worth converting.",
-      desc: "Eight original ads over four weeks, plus extra hooks to keep testing fresh.",
-      price: "Creative Sprint — <strong>$1,500 / 4 weeks</strong>",
-      cta: "Start Creative Sprint — $1,500",
-      checkout: "/api/checkout?plan=starter&term=one_time"
-    },
-    websites: {
-      name: "WEBSITES",
-      promise: "Turn attention into action.",
-      desc: "Premium websites designed around leads, bookings and sales.",
-      price: "Conversion Website — <strong>$3,500 total</strong> · $1,750 project deposit",
-      cta: "Start Website — $1,750",
-      checkout: "/api/checkout?plan=website&term=deposit"
-    },
-    systems: {
-      name: "SYSTEMS",
-      promise: "Don't lose the opportunity after the click.",
-      desc: "Lead capture, follow-up, booking and workflow automation.",
-      price: "Revenue Systems — <strong>$3,500 total</strong> · $1,750 project deposit",
-      cta: "Start Revenue Systems — $1,750",
-      checkout: "/api/checkout?plan=systems&term=deposit"
-    }
-  };
-
-  function ready(fn) {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", fn, { once: true });
-    } else { fn(); }
-  }
-
-  ready(function () {
-    var objects = Array.prototype.slice.call(document.querySelectorAll(".v2-object"));
-    var tabs = Array.prototype.slice.call(document.querySelectorAll(".v2-tab"));
-    var elName = document.getElementById("v2ServiceName");
-    var elPromise = document.getElementById("v2Promise");
-    var elDesc = document.getElementById("v2Desc");
-    var elPrice = document.getElementById("v2Price");
-    var elCta = document.getElementById("v2ServiceCta");
-
-    // The homepage Systems chapter uses the high-quality 16:9 Revenue Pilots
-    // flagship film. Keep the media URL here so the current markup can be
-    // upgraded without changing the section layout/caption the owner approved.
-    var systemFilm = document.querySelector(".rp-system-video video");
-    if (systemFilm) {
-      var systemFilmUrl = "https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/b25280d1-f2c0-44cc-a207-59022bb2f6a1.mp4";
-      if (systemFilm.getAttribute("src") !== systemFilmUrl) {
-        systemFilm.setAttribute("src", systemFilmUrl);
-        systemFilm.setAttribute("aria-label", "Revenue Pilots flagship film showing creative, website, agents, booking and pipeline working as one connected system. Silent video.");
-        systemFilm.load();
-        var systemFilmPlay = systemFilm.play();
-        if (systemFilmPlay && systemFilmPlay.catch) systemFilmPlay.catch(function () { /* autoplay policy: poster stays */ });
-      }
-    }
-
-    if (!objects.length || !elName) return;
-
-    var active = null;
-
-    function show(service) {
-      if (!COPY[service] || service === active) return;
-      active = service;
-
-      var i = ORDER.indexOf(service);
-      var left = ORDER[(i + 2) % 3];
-      var right = ORDER[(i + 1) % 3];
-
-      objects.forEach(function (el) {
-        var s = el.getAttribute("data-service");
-        var isFeatured = s === service;
-        el.classList.toggle("is-featured", isFeatured);
-        el.classList.toggle("is-left", s === left);
-        el.classList.toggle("is-right", s === right);
-        el.setAttribute("aria-pressed", String(isFeatured));
-        el.disabled = isFeatured;
-
-        var video = el.querySelector("video");
-        if (!video) return;
-        if (isFeatured) {
-          var p = video.play();
-          if (p && p.catch) p.catch(function () { /* autoplay policy: poster stays */ });
-        } else {
-          video.pause();
-        }
-      });
-
-      tabs.forEach(function (t) {
-        t.setAttribute("aria-selected", String(t.getAttribute("data-service") === service));
-      });
-
-      var c = COPY[service];
-      elName.textContent = c.name;
-      elPromise.textContent = c.promise;
-      elDesc.textContent = c.desc;
-      elPrice.innerHTML = c.price;
-      if (elCta) { elCta.textContent = c.cta; elCta.setAttribute("href", c.checkout); }
-    }
-
-    objects.forEach(function (el) {
-      el.addEventListener("click", function () {
-        show(el.getAttribute("data-service"));
-      });
-    });
-    tabs.forEach(function (t) {
-      t.addEventListener("click", function () {
-        show(t.getAttribute("data-service"));
-      });
-    });
-
-    var q = /[?&]service=(creative|websites|systems)/.exec(location.search);
-    show(q ? q[1] : "creative");
-    document.documentElement.classList.add("v2-ready");
-
-    document.addEventListener("visibilitychange", function () {
-      if (document.visibilityState !== "visible" || !active) return;
-      var featured = document.querySelector('.v2-object[data-service="' + active + '"]');
-      var video = featured && featured.querySelector("video");
-      if (!video || !video.paused) return;
-      var p = video.play();
-      if (p && p.catch) p.catch(function () { /* still blocked: poster stays */ });
-    });
-
-    Array.prototype.forEach.call(document.querySelectorAll(".v2-clip"), function (fig) {
-      var video = fig.querySelector("video");
-      var btn = fig.querySelector(".v2-play");
-      if (!video || !btn) return;
-      btn.addEventListener("click", function () {
-        fig.classList.add("is-playing");
-        video.controls = true;
-        var p = video.play();
-        if (p && p.catch) p.catch(function () { /* autoplay policy: poster stays */ });
-      });
-    });
-  });
+(function(){
+"use strict";
+var ORDER=["systems","websites","creative"],POOL="https://charlotte-pool-company-private-demo.vercel.app/";
+var COPY={
+ systems:{name:"BUSINESS AUTOPILOT",promise:"Make the business keep moving after the lead comes in.",desc:"Connect enquiries, follow-up, booking, payment handoff and pipeline updates so routine work keeps moving and only real decisions come back to you.",price:"Autopilot Pilot — <strong>$500 one-time</strong>",cta:"Talk about the $500 pilot",href:"#contact"},
+ websites:{name:"WEBSITES + INTAKE",promise:"Give every new lead a clear next step.",desc:"Premium websites built around enquiries, bookings and sales, with intake designed to connect cleanly into your operating system.",price:"Website + Intake — <strong>from $2,500</strong>",cta:"See the interactive website demo",href:"#work"},
+ creative:{name:"PROMOTION ADD-ON",promise:"Add more attention after the engine is ready for it.",desc:"Short-form promotional creative is available when you want more demand flowing into the same connected customer journey.",price:"Promotion Sprint — <strong>$1,500 / 4 weeks</strong>",cta:"See promotion examples",href:"#work"}
+};
+function ready(f){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f,{once:true});else f()}
+function t(e,v){if(e)e.textContent=v}
+function styles(){if(document.getElementById("rp-autonomy-style"))return;var s=document.createElement("style");s.id="rp-autonomy-style";s.textContent=`
+:root{--bg:#050505;--surface:#0b0b0b;--surface-2:#111;--surface-3:#080808;--text:#f7f5ef;--text-2:#bdb8ac;--text-3:#817d73;--line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.16);--gold:#e8be32;--gold-hi:#ffe063;--gold-deep:#8f6d10;--gold-tint:rgba(232,190,50,.10);--gold-tint-2:rgba(232,190,50,.24)}
+body{background:#050505}.v4-bg-video{filter:saturate(.12) contrast(1.1) brightness(.34)}.v4-bg svg{opacity:.54}.site-header.is-stuck{background:rgba(5,5,5,.9)}
+.btn-gold{--btn-bg:linear-gradient(180deg,#ffe775,#e8be32);--btn-fg:#090909;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 15px 38px -19px rgba(232,190,50,.8)}.btn-gold:hover{--btn-bg:linear-gradient(180deg,#fff1a0,#ffda4e)}
+.rp-autopilot-flow{margin:22px 0 0;display:flex;flex-wrap:wrap;gap:8px}.rp-autopilot-flow span{background:#0b0b0b;border:1px solid rgba(232,190,50,.24);border-radius:999px;padding:8px 11px;font-size:11px;color:var(--text-2)}
+.rp-auto{padding:clamp(76px,9vw,124px) 0}.rp-auto-head{max-width:850px;margin-bottom:38px}.rp-auto-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:clamp(24px,4vw,54px)}.rp-auto-box{border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,#0d0d0d,#070707);overflow:hidden}.rp-auto-map{padding:clamp(24px,3.5vw,42px)}
+.rp-flow{display:grid;gap:12px}.rp-step{display:grid;grid-template-columns:34px 1fr auto;gap:14px;align-items:center;padding:15px 16px;border:1px solid var(--line);border-radius:14px;background:#090909}.rp-step b{font-size:15px}.rp-step p{font-size:13px;color:var(--text-3);margin-top:2px}.rp-n{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;border:1px solid rgba(232,190,50,.32);color:var(--gold-hi);font-size:11px;font-weight:800}.rp-tag{font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:6px 8px;border-radius:999px;font-weight:800}.rp-tag.auto{color:#080808;background:var(--gold-hi)}.rp-tag.human{color:var(--text-2);border:1px solid var(--line-2)}
+.rp-owner-top{display:flex;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line);background:#0a0a0a;font-size:11px}.rp-owner-body{padding:clamp(20px,3vw,32px)}.rp-owner-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}.rp-card{border:1px solid var(--line);border-radius:14px;background:#090909;padding:15px}.rp-card small{display:block;color:var(--text-3);font-size:9px;text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px}.rp-card span{display:block;color:var(--text-3);font-size:12px;margin-top:6px}.rp-card.now{border-color:rgba(232,190,50,.38);background:linear-gradient(180deg,rgba(232,190,50,.08),#090909)}
+.rp-demo{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#080808}.rp-demo-bar{padding:11px 14px;border-bottom:1px solid var(--line);background:#0a0a0a;color:var(--text-2);font-size:11px}.rp-live-demo{width:100%;min-height:620px;border:0;display:block;background:#091411}.rp-demo-note{font-size:12px;color:var(--text-3);margin-top:12px}
+.rp-creative-condensed .v4-slide:nth-child(n+4){display:none}.rp-creative-intro{max-width:650px;color:var(--text-2);margin:14px 0 24px;font-size:15px}.rp-pilot-card{border-color:rgba(232,190,50,.34)!important;background:linear-gradient(180deg,rgba(232,190,50,.075),rgba(255,255,255,.015))!important}.rp-price-ladder{margin:34px 0 0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.rp-price-ladder div{border:1px solid var(--line);background:#090909;border-radius:14px;padding:15px}.rp-price-ladder small{display:block;color:var(--text-3);font-size:9px;text-transform:uppercase;letter-spacing:.14em}.rp-price-ladder strong{display:block;font-size:15px;margin-top:5px}.rp-price-ladder span{display:block;color:var(--text-3);font-size:12px;margin-top:4px}
+@media(max-width:980px){.rp-auto-grid{grid-template-columns:1fr}.rp-owner-cards{grid-template-columns:1fr}.rp-price-ladder{grid-template-columns:repeat(2,1fr)}.rp-live-demo{min-height:540px}}@media(max-width:620px){.rp-step{grid-template-columns:34px 1fr}.rp-tag{grid-column:2;justify-self:start}.rp-price-ladder{grid-template-columns:1fr}.rp-live-demo{min-height:480px}}
+`;document.head.appendChild(s)}
+function autopilot(pos){if(!pos||document.getElementById("autopilot"))return;var s=document.createElement("section");s.id="autopilot";s.className="v2-section rp-auto";s.innerHTML=`<div class="shell"><div class="rp-auto-head"><p class="v2-eyebrow">Business Autopilot</p><h2 class="v2-lead">The routine work keeps moving. You step in for judgment.</h2><p class="v2-body">Autopilot is the operating layer behind the website. It connects the handoffs that usually live across an inbox, calendar, payment screen and spreadsheet, then gives the owner one simple place to see what is happening.</p></div><div class="rp-auto-grid"><div class="rp-auto-box rp-auto-map"><p class="v2-eyebrow">One example customer journey</p><div class="rp-flow"><div class="rp-step"><span class="rp-n">01</span><div><b>Lead arrives</b><p>Website or form creates structured customer data.</p></div><span class="rp-tag auto">Auto</span></div><div class="rp-step"><span class="rp-n">02</span><div><b>Follow-up starts</b><p>The agreed next step moves while the lead is warm.</p></div><span class="rp-tag auto">Auto</span></div><div class="rp-step"><span class="rp-n">03</span><div><b>Booking / payment handoff</b><p>The customer is moved toward the next supported action.</p></div><span class="rp-tag auto">Auto</span></div><div class="rp-step"><span class="rp-n">04</span><div><b>Owner decision</b><p>Pricing exceptions and real judgment stay human.</p></div><span class="rp-tag human">Human</span></div><div class="rp-step"><span class="rp-n">05</span><div><b>Pipeline stays current</b><p>The record and next step stay organized.</p></div><span class="rp-tag auto">Auto</span></div></div></div><div class="rp-auto-box"><div class="rp-owner-top"><b>Revenue Pilots Autopilot</b><span>Owner View · app preview</span></div><div class="rp-owner-body"><h3 class="v2-work-title">Know what the business is doing without chasing it.</h3><p class="v2-body">Our owner-facing app shows what is moving, what finished, and the few moments that actually need you — without exposing the technical plumbing.</p><div class="rp-owner-cards"><div class="rp-card now"><small>Working now</small><strong>New enquiry follow-up</strong><span>Next: booking handoff</span></div><div class="rp-card"><small>Done for you</small><strong>Lead captured</strong><span>Structured + recorded</span></div><div class="rp-card"><small>Needs you</small><strong>Approve custom quote</strong><span>Human decision</span></div></div></div></div></div></div>`;var r=document.createElement("hr");r.className="v2-rule";pos.insertAdjacentElement("afterend",r);r.insertAdjacentElement("afterend",s)}
+function packages(){var p=document.getElementById("packages");if(!p)return;t(p.querySelector(".v2-eyebrow"),"Pricing for different stages");t(p.querySelector(".v2-lead"),"Start lean. Scale when the system proves useful.");var h=p.querySelector(".rp-simple-head");if(h){t(h.querySelector("small"),"A clear ladder instead of one giant commitment");t(h.querySelector("h3"),"From a $500 pilot to a full operating build.");t(h.querySelector("p"),"Smaller businesses can start with one useful workflow or focused website. Larger businesses can connect the full customer journey and deeper integrations. Promotion stays optional.")}
+var c=p.querySelectorAll(".rp-simple-card");
+if(c[0]){c[0].classList.add("rp-pilot-card");t(c[0].querySelector(".rp-simple-badge"),"Lowest-risk first step");t(c[0].querySelector("h4"),"Autopilot Pilot");var x=c[0].querySelector(".rp-simple-price");if(x)x.innerHTML="$500 <span>one-time</span>";t(c[0].querySelector(".rp-simple-one"),"One repetitive workflow made simpler and less manual.");var li=c[0].querySelectorAll("li");if(li[0])li[0].textContent="One clearly defined workflow";if(li[1])li[1].textContent="Lead, follow-up or booking handoff";if(li[2])li[2].textContent="Testing + owner-facing handoff";if(li[3])li[3].textContent="Clear next-step recommendation";var a=c[0].querySelector("a");if(a){a.textContent="Talk about the $500 pilot";a.href="#contact"}}
+if(c[1]){t(c[1].querySelector(".rp-simple-badge"),"For smaller businesses");t(c[1].querySelector("h4"),"Website + Intake");var x1=c[1].querySelector(".rp-simple-price");if(x1)x1.textContent="From $2,500";t(c[1].querySelector(".rp-simple-one"),"A premium front door that captures enquiries and hands them cleanly into the next step.");var a1=c[1].querySelector("a");if(a1){a1.textContent="Plan Website + Intake";a1.href="#contact"}}
+if(c[2]){t(c[2].querySelector(".rp-simple-badge"),"Most useful middle tier");t(c[2].querySelector("h4"),"Growth Autopilot");var x2=c[2].querySelector(".rp-simple-price");if(x2)x2.textContent="$6,500";t(c[2].querySelector(".rp-simple-one"),"Website + core operating workflow for a business that wants the customer journey connected, not just redesigned.");var a2=c[2].querySelector("a");if(a2){a2.textContent="Talk about Growth Autopilot";a2.href="#contact"}}
+var m=p.querySelectorAll(".rp-simple-secondary .rp-simple-mini");if(m[0]){t(m[0].querySelector("small"),"For established businesses");t(m[0].querySelector("strong"),"Full Autopilot Build — $12,000");t(m[0].querySelector("p"),"Website, multiple handoffs, booking/payment path, pipeline logic and owner-facing operation.");var ma=m[0].querySelector("a");if(ma){ma.textContent="Scope the full build →";ma.href="#contact"}}if(m[1]){t(m[1].querySelector("small"),"For more complex operations");t(m[1].querySelector("strong"),"Signature System — from $18,000");t(m[1].querySelector("p"),"Custom app work, advanced integrations, richer front-end production or more complex internal workflows.");var mb=m[1].querySelector("a");if(mb){mb.textContent="Discuss Signature →";mb.href="#contact"}}
+var sec=p.querySelector(".rp-simple-secondary");if(sec&&!sec.querySelector(".rp-creative-mini")){var mm=document.createElement("div");mm.className="rp-simple-mini rp-creative-mini";mm.innerHTML='<div><small>Optional demand layer</small><strong>Promotion Sprint — $1,500 / 4 weeks</strong><p>Short-form ads when you need more attention feeding the system.</p></div><a href="#work">See examples →</a>';sec.appendChild(mm)}
+var ex=p.querySelector(".rp-simple-explain");if(ex)ex.innerHTML="<strong>Simple rule:</strong> prove one workflow for $500, improve the front door from $2,500, connect website + operating layer at $6,500, or build the broader system at $12,000+. Promotion is optional.";if(!p.querySelector(".rp-price-ladder")){var l=document.createElement("div");l.className="rp-price-ladder";l.innerHTML='<div><small>Test</small><strong>$500</strong><span>One Autopilot workflow</span></div><div><small>Launch</small><strong>From $2.5K</strong><span>Website + intake</span></div><div><small>Grow</small><strong>$6.5K</strong><span>Website + core Autopilot</span></div><div><small>Scale</small><strong>$12K–$18K+</strong><span>Full / Signature systems</span></div>';var g=p.querySelector(".rp-simple-grid");if(g)g.insertAdjacentElement("beforebegin",l)}}
+function process(){var h=document.getElementById("how");if(!h)return;t(h.querySelector(".v2-lead"),"How we install the operating layer.");var s=h.querySelectorAll(".v2-step"),d=[["01","Map","Find where leads, bookings, payments or internal tasks wait on a person."],["02","Build","Connect the agreed website, forms and supported tools around one clear journey."],["03","Test","Run handoffs, failure cases and owner gates before important work is trusted to automation."],["04","Operate","Routine work moves automatically. Owner View surfaces the decisions that still need a human."]];s.forEach(function(e,i){if(!d[i])return;t(e.querySelector(".v2-step-num"),d[i][0]);t(e.querySelector("h3"),d[i][1]);t(e.querySelector("p:last-child"),d[i][2])})}
+ready(function(){styles();document.title="Revenue Pilots — Business Autopilot, Websites & Promotion";var md=document.querySelector('meta[name="description"]');if(md)md.content="Revenue Pilots builds Business Autopilot systems and conversion-focused websites that keep enquiries, follow-up, booking and pipeline handoffs moving. Promotion is an add-on.";var hero=document.querySelector(".v2-hero-copy");if(hero){t(hero.querySelector(".v2-eyebrow"),"Business Autopilot · Websites · Promotion add-on");t(hero.querySelector(".v2-h1"),"Build a business that does not wait on you for every next step.");t(hero.querySelector(".v2-sub"),"Revenue Pilots builds the website and operating layer behind it: capture the enquiry, follow up, route the work, move customers toward booking or payment, and show you the few decisions that still need a human.");if(!hero.querySelector(".rp-autopilot-flow")){var f=document.createElement("div");f.className="rp-autopilot-flow v2-entrance";f.innerHTML="<span>Lead</span><span>Follow-up</span><span>Booking</span><span>Payment</span><span>Pipeline</span>";var cta=hero.querySelector(".v2-hero-cta");if(cta)cta.insertAdjacentElement("afterend",f)}}var hc=document.querySelector(".header-cta");if(hc){hc.textContent="Build My Autopilot";hc.href="#contact"}
+t(document.querySelector('.v2-tab[data-service="systems"]'),"Autopilot");t(document.querySelector('.v2-tab[data-service="websites"]'),"Website");t(document.querySelector('.v2-tab[data-service="creative"]'),"Promotion add-on");t(document.querySelector('.v2-object[data-service="systems"] .v2-object-label'),"Autopilot");t(document.querySelector('.v2-object[data-service="websites"] .v2-object-label'),"Website");t(document.querySelector('.v2-object[data-service="creative"] .v2-object-label'),"Promotion");var core=document.querySelector('.v2-object[data-service="systems"] .v4-net-core b');if(core)core.innerHTML="Business<br>Autopilot";
+var pos=document.getElementById("positioning");if(pos){t(pos.querySelector(".v2-lead"),"The website is the front door. Autopilot is what happens behind it.");var b=pos.querySelectorAll(".v2-body");if(b[0])b[0].textContent="Most businesses already have enough tools. The problem is the gaps between the form, inbox, calendar, payment and spreadsheet.";if(b[1])b[1].innerHTML="<strong>We design one connected path so routine handoffs do not die between tabs.</strong>";var ch=pos.querySelector(".v2-chain");if(ch)ch.innerHTML="<span>Website</span><i>→</i><span>Autopilot</span><i>→</i><span>Owner View</span><i>→</i><span>Customer</span>";autopilot(pos)}
+var sh=document.querySelector("#work .shell");if(sh){var it=Array.from(sh.querySelectorAll(":scope > .v2-work"));function by(n){return it.find(function(e){var l=e.querySelector(".v2-work-num");return l&&l.textContent.toLowerCase().indexOf(n)>-1})}var sy=by("systems"),we=by("websites"),cr=by("creative");if(sy&&we&&cr){var dis=sh.querySelector(".v2-disclosure");[sy,we,cr].forEach(function(e){sh.insertBefore(e,dis||null)});t(sy.querySelector(".v2-work-num"),"01 / Business Autopilot");t(sy.querySelector(".v2-work-title"),"Routine lead handling should not wait for you.");t(sy.querySelector(".v4-sys-body"),"Capture, route, follow up, move toward booking or payment, and keep the pipeline organized. Human approval stays where judgment matters.");t(we.querySelector(".v2-work-num"),"02 / Interactive Website");t(we.querySelector(".v2-work-title"),"A real website concept you can scroll, click and inspect.");t(we.querySelector(".v4-sys-body"),"This pool-company concept is a working demonstration, not a screenshot. Interact with it below.");var fr=we.querySelector(".v4-flow-frame");if(fr){fr.className="rp-demo";fr.innerHTML='<div class="rp-demo-bar">Interactive demo · Charlotte Pool Company concept</div><iframe class="rp-live-demo" src="'+POOL+'" title="Interactive Charlotte Pool Company website concept" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>'}var ln=we.querySelector(".v4-flow-live");if(ln){ln.href=POOL;ln.textContent="Open the full interactive demo ↗"}if(!we.querySelector(".rp-demo-note")){var nt=document.createElement("p");nt.className="rp-demo-note";nt.textContent="Concept/demo work is labeled honestly. This is not presented as a paying client result.";we.appendChild(nt)}t(cr.querySelector(".v2-work-num"),"03 / Promotion add-on");t(cr.querySelector(".v2-work-title"),"Promotion is available when you need more attention.");cr.classList.add("rp-creative-condensed");if(!cr.querySelector(".rp-creative-intro")){var ii=document.createElement("p");ii.className="rp-creative-intro";ii.textContent="Video is an optional demand layer. The website and operating system stay the foundation.";var car=cr.querySelector(".v4-carousel");if(car)cr.insertBefore(ii,car)}}}
+var sf=document.querySelector(".rp-system-video video");if(sf){var u="https://d2ol7oe51mr4n9.cloudfront.net/user_3IQOKnTRxX22rPLfhCEsOdVJxTl/b25280d1-f2c0-44cc-a207-59022bb2f6a1.mp4";if(sf.getAttribute("src")!==u){sf.src=u;sf.load()}t(document.querySelector(".rp-system-video-caption strong"),"Website → Autopilot → Booking / Payment → Owner View")}
+packages();process();var sel=document.getElementById("lf-package");if(sel){var mp={systems:"Autopilot Pilot / Growth Autopilot",website_build:"Website + Intake",video_creative:"Promotion add-on",full_build:"Full Autopilot Build",signature_revenue_build:"Signature System"};Array.from(sel.options).forEach(function(o){if(mp[o.value])o.textContent=mp[o.value]})}
+var objs=Array.from(document.querySelectorAll(".v2-object")),tabs=Array.from(document.querySelectorAll(".v2-tab")),n=document.getElementById("v2ServiceName"),pr=document.getElementById("v2Promise"),de=document.getElementById("v2Desc"),pc=document.getElementById("v2Price"),ac=document.getElementById("v2ServiceCta");if(!objs.length||!n)return;var active=null;function show(k){if(!COPY[k]||k===active)return;active=k;var i=ORDER.indexOf(k),l=ORDER[(i+2)%3],r=ORDER[(i+1)%3];objs.forEach(function(e){var q=e.dataset.service,f=q===k;e.classList.toggle("is-featured",f);e.classList.toggle("is-left",q===l);e.classList.toggle("is-right",q===r);e.setAttribute("aria-pressed",String(f));e.disabled=f;var v=e.querySelector("video");if(v){if(f){var p=v.play();if(p&&p.catch)p.catch(function(){})}else v.pause()}});tabs.forEach(function(e){e.setAttribute("aria-selected",String(e.dataset.service===k))});var c=COPY[k];n.textContent=c.name;pr.textContent=c.promise;de.textContent=c.desc;pc.innerHTML=c.price;if(ac){ac.textContent=c.cta;ac.href=c.href}}objs.forEach(function(e){e.addEventListener("click",function(){show(e.dataset.service)})});tabs.forEach(function(e){e.addEventListener("click",function(){show(e.dataset.service)})});var q=/[?&]service=(creative|websites|systems)/.exec(location.search);show(q?q[1]:"systems");document.documentElement.classList.add("v2-ready")})
 })();
