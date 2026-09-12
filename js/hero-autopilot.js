@@ -5,7 +5,9 @@
    Scroll drives a pre-rendered frame sequence on canvas. We use an adaptive
    backing resolution (sharper than 1x, far cheaper than full Retina), keep a
    moderate frame count, prioritize nearby frames in both directions and blend
-   from the high-resolution poster at the start. No video.currentTime seeking.
+   from the high-resolution poster at the start. A very short visual follow
+   smooths wheel/trackpad bursts without changing native page scroll. No
+   video.currentTime seeking.
 
    PAGE STORY
    ----------
@@ -274,9 +276,11 @@ function installHeroSequence(wrap,canvas,copy){
   var ctx=canvas.getContext("2d",{alpha:false,desynchronized:true})||canvas.getContext("2d",{alpha:false});
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality="high";
+  canvas.style.willChange="transform,opacity";
 
   var lastDrawn=-1,pendingIndex=0,raf=0,active=true;
   var heroTop=0,travel=1,cw=1,ch=1,qualityScale=1;
+  var targetP=0,displayP=0,lastTs=0,synced=false;
 
   function chooseQualityScale(){
     var dpr=devicePixelRatio||1;
@@ -287,6 +291,8 @@ function installHeroSequence(wrap,canvas,copy){
     var cap=Math.sqrt(maxPixels/base);
     qualityScale=Math.max(1,Math.min(desired,cap));
   }
+
+  function targetProgress(){return clamp((scrollY-heroTop)/travel,0,1);}
 
   function measure(){
     var rect=wrap.getBoundingClientRect();
@@ -345,9 +351,19 @@ function installHeroSequence(wrap,canvas,copy){
     return loading[slot];
   }
 
-  function render(){
+  function render(ts){
     raf=0;if(!active)return;
-    var p=clamp((scrollY-heroTop)/travel,0,1);
+
+    targetP=targetProgress();
+    if(!synced){displayP=targetP;synced=true;}
+
+    var dt=lastTs?Math.min(34,Math.max(8,ts-lastTs)):16.7;
+    lastTs=ts;
+    var follow=1-Math.exp(-dt/82);
+    displayP+=(targetP-displayP)*follow;
+    if(Math.abs(targetP-displayP)<.00035)displayP=targetP;
+
+    var p=displayP;
     var floatIndex=p*(set.renderCount-1);
     var index=Math.round(floatIndex);
     pendingIndex=index;
@@ -359,6 +375,10 @@ function installHeroSequence(wrap,canvas,copy){
       if(img){paint(img);lastDrawn=index;}
     }
 
+    /* Continuous compositor-only drift hides the tiny gaps between sampled
+       frames without increasing canvas repaint frequency. */
+    canvas.style.transform="translate3d("+(-p*.18).toFixed(3)+"%,0,0) scale("+(1+p*.006).toFixed(4)+")";
+
     /* Start on the sharper poster, then hand off to the sequence once motion
        actually begins. This preserves first-impression fidelity on Retina. */
     var canvasAlpha=clamp((p-.018)/.085,0,1);
@@ -368,10 +388,13 @@ function installHeroSequence(wrap,canvas,copy){
     copy.style.opacity=String(1-copyFade*.9);
     copy.style.transform="translate3d(0,"+(-copyFade*46).toFixed(1)+"px,0) scale("+(1-copyFade*.022).toFixed(4)+")";
     wrap.style.setProperty("--rp-hero-p",p.toFixed(4));
+
+    if(Math.abs(targetP-displayP)>.00035)schedule();
   }
   function schedule(){if(!raf)raf=requestAnimationFrame(render);}
 
   measure();
+  targetP=targetProgress();displayP=targetP;synced=true;
   loadSlot(0).then(function(){lastDrawn=-1;schedule();});
 
   var priority=[set.renderCount-1,Math.round(set.renderCount*.25),Math.round(set.renderCount*.5),Math.round(set.renderCount*.75)];
@@ -387,12 +410,21 @@ function installHeroSequence(wrap,canvas,copy){
 
   var io=new IntersectionObserver(function(entries){
     active=entries[0].isIntersecting;
-    if(active)schedule();
+    if(active){
+      targetP=targetProgress();
+      if(Math.abs(targetP-displayP)>.18)displayP=targetP;
+      lastTs=0;
+      schedule();
+    }
   },{rootMargin:"60% 0px"});
   io.observe(wrap);
 
-  addEventListener("scroll",schedule,{passive:true});
-  addEventListener("resize",function(){measure();lastDrawn=-1;schedule();},{passive:true});
+  addEventListener("scroll",function(){targetP=targetProgress();schedule();},{passive:true});
+  addEventListener("resize",function(){
+    measure();lastDrawn=-1;
+    targetP=targetProgress();displayP=targetP;lastTs=0;synced=true;
+    schedule();
+  },{passive:true});
   schedule();
 }
 
