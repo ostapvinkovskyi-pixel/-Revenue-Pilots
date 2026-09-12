@@ -115,11 +115,20 @@
 <!-- ===================== 1. HERO — Website + Autopilot (cinematic) ===================== -->
 <section class="rp-hero-scroll" id="hero">
   <div class="rp-hero-sticky">
-    <!-- Scroll-controlled frame sequence. The poster paints instantly and
-         stays underneath as the reduced-motion / no-JS / slow-network
-         fallback; js/hero-autopilot.js draws frames over it on scroll. -->
+    <!-- Scroll-controlled cinematic film, rendered from the 3840x2160 master.
+         Every frame is a keyframe (all-intra), so seeking to an arbitrary
+         time costs one frame decode and reverses as cheaply as it advances.
+         The poster paints instantly and stays underneath as the
+         reduced-motion / Save-Data / no-JS fallback; js/hero-autopilot.js
+         drives currentTime from scroll. It never autoplays. -->
     <div class="rp-hero-poster" aria-hidden="true"></div>
-    <canvas class="rp-hero-film" id="rpHeroFilm" aria-hidden="true"></canvas>
+    <video class="rp-hero-film" id="rpHeroFilm" muted playsinline preload="auto"
+           poster="assets/hero/rp-hero-poster.webp" aria-hidden="true">
+      <source media="(max-width: 760px)" src="assets/hero/rp-hero-scrub-mobile.mp4" type="video/mp4">
+      <source media="(max-width: 1200px)" src="assets/hero/rp-hero-scrub-mid.mp4" type="video/mp4">
+      <source media="(min-resolution: 1.5dppx)" src="assets/hero/rp-hero-scrub-4k.mp4" type="video/mp4">
+      <source src="assets/hero/rp-hero-scrub-desktop.mp4" type="video/mp4">
+    </video>
     <div class="rp-hero-shade" aria-hidden="true"></div>
     <div class="shell rp-hero-copy">
       <p class="rp-eyebrow">Websites &times; Autopilot &times; Real growth</p>

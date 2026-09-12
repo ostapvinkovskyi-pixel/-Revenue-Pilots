@@ -16,10 +16,6 @@
 (function(){
 "use strict";
 
-var SEQ={
-  desktop:{dir:"assets/hero/seq/desktop/",sourceCount:60,renderCount:40},
-  mobile:{dir:"assets/hero/seq/mobile/",sourceCount:40,renderCount:28}
-};
 
 function ready(fn){
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",fn,{once:true});
@@ -28,7 +24,6 @@ function ready(fn){
 function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
 function smooth(p){p=clamp(p,0,1);return p*p*(3-2*p);}
 function text(el,value){if(el)el.textContent=value;}
-function pad3(n){return n<10?"00"+n:n<100?"0"+n:""+n;}
 function idle(fn){
   if("requestIdleCallback" in window)requestIdleCallback(fn,{timeout:450});
   else setTimeout(fn,24);
@@ -259,151 +254,168 @@ function installStoryChoreography(){
 /* ---------------------------------------------------------------------------
    HERO — adaptive-quality sampled canvas image sequence
    --------------------------------------------------------------------------- */
-function installHeroSequence(wrap,canvas,copy){
+/* ---------------------------------------------------------------------------
+   HERO — scroll-controlled cinematic film.
+
+   The media is real video rendered from the 3840x2160 master, not a frame
+   sequence. It is encoded all-intra (every frame a keyframe), which is what
+   makes scrubbing viable: a seek to an arbitrary time decodes exactly one
+   frame instead of replaying a GOP, and seeking backwards costs the same as
+   seeking forwards. The previous asset carried a keyframe only every ~6
+   frames, which is why reverse scrubbing lagged.
+
+   Scroll owns the timeline. The film never autoplays and never advances on
+   its own.
+   --------------------------------------------------------------------------- */
+function installHeroFilm(wrap,video,copy){
   var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   var conn=navigator.connection||navigator.webkitConnection||navigator.mozConnection;
   var saveData=!!(conn&&(conn.saveData||/^(slow-2g|2g)$/.test(conn.effectiveType||"")));
   if(reduce||saveData){wrap.classList.add("rp-hero-static");return;}
 
-  var set=matchMedia("(max-width: 760px)").matches?SEQ.mobile:SEQ.desktop;
-  var sourceIds=[];
-  for(var s=0;s<set.renderCount;s++)sourceIds.push(Math.round(s*(set.sourceCount-1)/Math.max(1,set.renderCount-1)));
+  /* belt and braces: the markup carries no autoplay/loop, but make sure no
+     independent playback can start if the element is touched elsewhere */
+  video.autoplay=false;video.loop=false;video.muted=true;
+  video.removeAttribute("autoplay");video.removeAttribute("loop");
+  video.pause();
 
-  var frames=new Array(set.renderCount);
-  var loading=new Array(set.renderCount);
-  var ctx=canvas.getContext("2d",{alpha:false,desynchronized:true})||canvas.getContext("2d",{alpha:false});
-  ctx.imageSmoothingEnabled=true;
-  ctx.imageSmoothingQuality="high";
+  var duration=0, ready=false;
+  var target=0, display=0, raf=0, active=true, lastT=0;
+  /* one seek in flight at a time. Rapid scrolling replaces the pending
+     target rather than queueing seeks, so the decoder never builds a backlog
+     of frames nobody will see. */
+  var seeking=false, pending=-1, lastIssued=-1;
 
-  var lastDrawn=-1,pendingIndex=0,raf=0,active=true;
-  var heroTop=0,travel=1,cw=1,ch=1,qualityScale=1;
-
-  function chooseQualityScale(){
-    var dpr=devicePixelRatio||1;
-    var desired=innerWidth>=1400?1.35:(innerWidth>=900?1.28:1.15);
-    desired=Math.min(desired,dpr);
-    var base=Math.max(1,canvas.clientWidth)*Math.max(1,canvas.clientHeight);
-    var maxPixels=3200000;
-    var cap=Math.sqrt(maxPixels/base);
-    qualityScale=Math.max(1,Math.min(desired,cap));
-  }
-
+  /* cached geometry - never read layout inside the loop */
+  var docTop=0, travel=1;
   function measure(){
-    var rect=wrap.getBoundingClientRect();
-    heroTop=scrollY+rect.top;
+    var r=wrap.getBoundingClientRect();
+    docTop=r.top+(window.scrollY||window.pageYOffset||0);
     travel=Math.max(1,wrap.offsetHeight-innerHeight);
-    chooseQualityScale();
-    cw=Math.max(1,Math.round(canvas.clientWidth*qualityScale));
-    ch=Math.max(1,Math.round(canvas.clientHeight*qualityScale));
-    if(canvas.width!==cw||canvas.height!==ch){
-      canvas.width=cw;canvas.height=ch;
-      ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";
-      lastDrawn=-1;
+  }
+
+  /* all-intra means fastSeek's "nearest keyframe" is the exact frame, so it
+     is both cheaper and accurate here. Safari implements it; others fall
+     back to currentTime. */
+  var canFast=typeof video.fastSeek==="function";
+
+  var seekTimer=0;
+  function clearGuard(){
+    seeking=false;
+    if(seekTimer){clearTimeout(seekTimer);seekTimer=0;}
+  }
+
+  var seekTimer=0;
+  function clearGuard(){
+    seeking=false;
+    if(seekTimer){clearTimeout(seekTimer);seekTimer=0;}
+  }
+
+  function issue(t){
+    if(!duration)return;
+    t=clamp(t,0,Math.max(0,duration-0.04));
+    pending=t;
+    if(seeking)return;
+    /* Compare against the element's ACTUAL time, not the last value we asked
+       for. Seeking to the time the video is already at fires no "seeked"
+       event, which would otherwise leave the single-flight guard stuck true
+       and freeze the hero permanently. */
+    if(Math.abs(t-video.currentTime)<0.008)return;
+    seeking=true;lastIssued=t;
+    /* watchdog: if a seek is ever dropped, do not deadlock the guard */
+    if(seekTimer)clearTimeout(seekTimer);
+    seekTimer=setTimeout(function(){clearGuard();schedule();},180);
+    try{ if(canFast)video.fastSeek(t); else video.currentTime=t; }
+    catch(e){ clearGuard(); }
+  }
+
+  video.addEventListener("seeked",function(){
+    clearGuard();
+    if(!ready){ready=true;video.classList.add("is-ready");}
+    /* if scroll moved on while that seek was resolving, chase the newest
+       target only - never the intermediate ones */
+    if(pending>=0&&Math.abs(pending-video.currentTime)>0.008)issue(pending);
+  });
+  video.addEventListener("error",function(){wrap.classList.add("rp-hero-static");});
+
+  /* Reveal as soon as a frame is decodable. This must not depend on a
+     "seeked" event, because at scroll position 0 the requested time equals
+     the current time and no seek occurs. */
+  function revealFilm(){
+    if(ready)return;
+    ready=true;video.classList.add("is-ready");
+  }
+  if(video.readyState>=2)revealFilm();
+  else video.addEventListener("loadeddata",revealFilm,{once:true});
+
+  function onMeta(){
+    duration=video.duration||0;
+    measure();readScroll();
+    display=target;
+    issue(display*duration);
+    schedule();
+  }
+  if(video.readyState>=1)onMeta();
+  else video.addEventListener("loadedmetadata",onMeta,{once:true});
+
+  function readScroll(){
+    var y=window.scrollY||window.pageYOffset||0;
+    target=clamp((y-docTop)/travel,0,1);
+  }
+
+  /* Light smoothing so wheel/trackpad bursts do not step visibly, expressed
+     frame-rate independently so a 120Hz panel and a 60Hz panel settle over
+     the same wall-clock time. Large deltas ease harder, and once inside the
+     snap threshold it jumps to target and stops the loop, so nothing drifts
+     after the user stops scrolling. */
+  var EASE=0.24, SNAP=0.0016;
+
+  function tick(now){
+    raf=0;
+    if(!active)return;
+    var dt=lastT?Math.min(50,now-lastT)/16.667:1;
+    lastT=now;
+
+    var delta=target-display;
+    if(Math.abs(delta)<SNAP){display=target;}
+    else{
+      var k=1-Math.pow(1-EASE,dt);
+      k=Math.min(1,k*(1+Math.min(2.2,Math.abs(delta)*7)));
+      display+=delta*k;
     }
+
+    if(duration)issue(display*duration);
+
+    var fade=clamp((display-.52)/.30,0,1);
+    copy.style.opacity=String(1-fade*.86);
+    copy.style.transform="translate3d(0,"+(-fade*42).toFixed(1)+"px,0)";
+    wrap.style.setProperty("--rp-hero-p",display.toFixed(4));
+
+    if(display!==target)raf=requestAnimationFrame(tick);
   }
+  function schedule(){ if(active&&!raf)raf=requestAnimationFrame(tick); }
 
-  function paint(img){
-    if(!img)return;
-    var iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height;
-    if(!iw||!ih)return;
-    var scale=Math.max(cw/iw,ch/ih);
-    var dw=iw*scale,dh=ih*scale;
-    ctx.drawImage(img,(cw-dw)/2,(ch-dh)/2,dw,dh);
-  }
-
-  function nearestLoaded(index){
-    if(frames[index])return frames[index];
-    for(var step=1;step<set.renderCount;step++){
-      if(index-step>=0&&frames[index-step])return frames[index-step];
-      if(index+step<set.renderCount&&frames[index+step])return frames[index+step];
-    }
-    return null;
-  }
-
-  function urlFor(slot){return set.dir+"f_"+pad3(sourceIds[slot]+1)+".jpg";}
-
-  function loadSlot(slot){
-    if(slot<0||slot>=set.renderCount)return Promise.resolve();
-    if(frames[slot])return Promise.resolve(frames[slot]);
-    if(loading[slot])return loading[slot];
-
-    loading[slot]=new Promise(function(resolve){
-      var img=new Image();
-      img.decoding="async";
-      img.onload=function(){
-        var done=function(){
-          frames[slot]=img;loading[slot]=null;
-          if(slot===pendingIndex){lastDrawn=-1;schedule();}
-          if(slot===0)canvas.classList.add("is-ready");
-          resolve(img);
-        };
-        if(img.decode)img.decode().then(done).catch(done);else done();
-      };
-      img.onerror=function(){loading[slot]=null;resolve();};
-      img.src=urlFor(slot);
-    });
-    return loading[slot];
-  }
-
-  function render(){
-    raf=0;if(!active)return;
-    var p=clamp((scrollY-heroTop)/travel,0,1);
-    var floatIndex=p*(set.renderCount-1);
-    var index=Math.round(floatIndex);
-    pendingIndex=index;
-
-    loadSlot(index);loadSlot(index-1);loadSlot(index+1);loadSlot(index-2);loadSlot(index+2);
-
-    if(index!==lastDrawn){
-      var img=nearestLoaded(index);
-      if(img){paint(img);lastDrawn=index;}
-    }
-
-    /* Start on the sharper poster, then hand off to the sequence once motion
-       actually begins. This preserves first-impression fidelity on Retina. */
-    var canvasAlpha=clamp((p-.018)/.085,0,1);
-    canvas.style.opacity=canvasAlpha.toFixed(3);
-
-    var copyFade=clamp((p-.48)/.32,0,1);
-    copy.style.opacity=String(1-copyFade*.9);
-    copy.style.transform="translate3d(0,"+(-copyFade*46).toFixed(1)+"px,0) scale("+(1-copyFade*.022).toFixed(4)+")";
-    wrap.style.setProperty("--rp-hero-p",p.toFixed(4));
-  }
-  function schedule(){if(!raf)raf=requestAnimationFrame(render);}
-
-  measure();
-  loadSlot(0).then(function(){lastDrawn=-1;schedule();});
-
-  var priority=[set.renderCount-1,Math.round(set.renderCount*.25),Math.round(set.renderCount*.5),Math.round(set.renderCount*.75)];
-  var rest=[];
-  for(var i=1;i<set.renderCount;i++)if(priority.indexOf(i)<0)rest.push(i);
-  var queue=priority.concat(rest),qi=0;
-  function pump(){
-    if(qi>=queue.length)return;
-    var a=queue[qi++],b=queue[qi++];
-    Promise.all([loadSlot(a),loadSlot(b)]).then(function(){idle(pump);});
-  }
-  idle(pump);
+  addEventListener("scroll",function(){readScroll();schedule();},{passive:true});
+  addEventListener("resize",function(){measure();readScroll();schedule();},{passive:true});
 
   var io=new IntersectionObserver(function(entries){
     active=entries[0].isIntersecting;
-    if(active)schedule();
-  },{rootMargin:"60% 0px"});
+    if(active){measure();readScroll();schedule();}
+    else if(raf){cancelAnimationFrame(raf);raf=0;}
+  },{rootMargin:"50% 0px"});
   io.observe(wrap);
 
-  addEventListener("scroll",schedule,{passive:true});
-  addEventListener("resize",function(){measure();lastDrawn=-1;schedule();},{passive:true});
-  schedule();
+  measure();readScroll();display=target;schedule();
 }
 
 ready(function(){
   var wrap=document.querySelector(".rp-hero-scroll");
-  var canvas=document.getElementById("rpHeroFilm");
+  var film=document.getElementById("rpHeroFilm");
   var copy=wrap&&wrap.querySelector(".rp-hero-copy");
 
   simplifyStoryCopy();
   installStoryChoreography();
-  if(wrap&&canvas&&copy&&canvas.getContext)installHeroSequence(wrap,canvas,copy);
+  if(wrap&&film&&copy)installHeroFilm(wrap,film,copy);
   else if(wrap)wrap.classList.add("rp-hero-static");
 });
 })();
