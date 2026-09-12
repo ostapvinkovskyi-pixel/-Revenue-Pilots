@@ -6,8 +6,8 @@
    Owner View. Real HTML copy sits above it for SEO/accessibility. No
    scroll-jacking — native page scroll stays in control at all times.
 
-   Colour system is scoped locally (--rp-*) so this hero always renders in
-   neutral black/graphite + saffron regardless of load order elsewhere.
+   This file also owns the visual handoff from the cinematic hero into the
+   normal site and the polished proof/promotion presentation used below it.
    ========================================================================= */
 
 .rp-hero-scroll{
@@ -21,6 +21,7 @@
   position:relative;
   height:240svh;
   background:var(--rp-bg);
+  z-index:1;
 }
 
 .rp-hero-sticky{
@@ -41,6 +42,7 @@
   object-position:center center;
   z-index:-3;
   background:var(--rp-bg);
+  will-change:opacity,transform,filter;
 }
 
 .rp-hero-shade{
@@ -50,6 +52,20 @@
   pointer-events:none;
   background:linear-gradient(90deg,
     rgba(5,5,5,.82) 0%, rgba(5,5,5,.66) 27%, rgba(5,5,5,.18) 50%, rgba(5,5,5,.02) 70%);
+}
+
+/* A cinematic black handoff at the bottom keeps the last video frame from
+   ending as a hard rectangle before the normal site background appears. */
+.rp-hero-sticky::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:0;right:0;bottom:-1px;
+  height:34svh;
+  pointer-events:none;
+  background:
+    radial-gradient(70% 90% at 72% 100%,rgba(240,197,58,.09),transparent 66%),
+    linear-gradient(180deg,rgba(5,5,5,0) 0%,rgba(5,5,5,.24) 34%,rgba(5,5,5,.82) 76%,#050505 100%);
 }
 
 /* ---------------------------------- copy ---------------------------------- */
@@ -116,7 +132,162 @@
 }
 .rp-hero-flow i{ color:var(--rp-gold); font-style:normal; }
 
+/* ----------------------- hero -> normal site bridge ----------------------- */
+#positioning{
+  position:relative;
+  z-index:3;
+  margin-top:-15svh;
+  padding-top:clamp(190px,25svh,300px);
+  background:
+    radial-gradient(70% 52% at 72% 0%,rgba(240,197,58,.09),transparent 66%),
+    linear-gradient(180deg,rgba(5,5,5,.02) 0%,rgba(5,5,5,.88) 18%,#050505 42%,rgba(5,5,5,0) 100%);
+}
+#positioning::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,224,106,.18),transparent);
+  opacity:.7;
+}
+#positioning .shell{
+  position:relative;
+}
+
+/* --------------------------- own-site proof --------------------------- */
+.rp-site-proof{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:22px;
+  overflow:hidden;
+  background:linear-gradient(180deg,#0d0d0d,#070707);
+  box-shadow:0 36px 90px -55px rgba(240,197,58,.45);
+}
+.rp-site-proof-visual{
+  position:relative;
+  min-height:clamp(320px,40vw,560px);
+  background:#080808;
+  overflow:hidden;
+}
+.rp-site-proof-visual img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  transform:scale(1.015);
+  filter:saturate(.94) contrast(1.03);
+}
+.rp-site-proof-visual::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,transparent 50%,rgba(5,5,5,.72));
+  pointer-events:none;
+}
+.rp-site-proof-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:13px 16px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  color:#bdb8ac;
+  font-size:11px;
+  letter-spacing:.03em;
+}
+.rp-site-proof-bar strong{color:#f5f2ea;font-size:12px}
+.rp-site-proof-badge{
+  color:#080808;
+  background:#ffe06a;
+  border-radius:999px;
+  padding:6px 9px;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.rp-site-proof-caption{
+  position:absolute;
+  z-index:2;
+  left:18px;right:18px;bottom:16px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.rp-site-proof-caption span{
+  border:1px solid rgba(255,224,106,.20);
+  background:rgba(5,5,5,.72);
+  backdrop-filter:blur(10px);
+  color:#d5d0c5;
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:10px;
+}
+
+/* --------------------------- promotion proof --------------------------- */
+.rp-creative-condensed .v4-carousel{display:none!important}
+.rp-creative-intro{max-width:650px;color:var(--text-2);margin:14px 0 24px;font-size:15px}
+.rp-promo-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(12px,1.5vw,20px);
+  margin-top:28px;
+}
+.rp-promo-card{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px;
+  background:#090909;
+  min-height:420px;
+  box-shadow:0 28px 70px -50px rgba(240,197,58,.5);
+}
+.rp-promo-card video{
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:420px;
+  aspect-ratio:9/16;
+  object-fit:cover;
+  background:#090909;
+}
+.rp-promo-card figcaption{
+  position:absolute;
+  left:12px;right:12px;bottom:12px;
+  z-index:2;
+  margin:0;
+  padding:9px 11px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:11px;
+  background:rgba(5,5,5,.76);
+  backdrop-filter:blur(10px);
+  color:#f5f2ea;
+  font-size:11px;
+  font-weight:700;
+}
+.rp-promo-card::after{
+  content:"";
+  position:absolute;
+  inset:45% 0 0;
+  pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(5,5,5,.38));
+}
+
+/* ------------------------- existing autonomy styles ------------------------- */
+.rp-pilot-card{border-color:rgba(232,190,50,.34)!important;background:linear-gradient(180deg,rgba(232,190,50,.075),rgba(255,255,255,.015))!important}
+.rp-price-ladder{margin:34px 0 0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rp-price-ladder div{border:1px solid var(--line);background:#090909;border-radius:14px;padding:15px}
+.rp-price-ladder small{display:block;color:var(--text-3);font-size:9px;text-transform:uppercase;letter-spacing:.14em}
+.rp-price-ladder strong{display:block;font-size:15px;margin-top:5px}
+.rp-price-ladder span{display:block;color:var(--text-3);font-size:12px;margin-top:4px}
+
 /* ------------------------------ mobile ------------------------------ */
+@media (max-width:980px){
+  .rp-promo-grid{grid-template-columns:repeat(3,minmax(190px,1fr));overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory}
+  .rp-promo-card{scroll-snap-align:start}
+}
+
 @media (max-width:760px){
   .rp-hero-scroll{ height:170svh; }
   .rp-hero-film{ object-position:62% center; }
@@ -127,6 +298,9 @@
   .rp-hero-copy{ justify-content:flex-end; padding-bottom:9svh; }
   .rp-hero-copy>*{ max-width:92%; }
   .rp-h1{ font-size:clamp(34px,9.5vw,48px); }
+  #positioning{margin-top:-10svh;padding-top:clamp(140px,20svh,210px)}
+  .rp-site-proof-visual{min-height:330px}
+  .rp-promo-grid{grid-template-columns:repeat(3,minmax(220px,78vw))}
 }
 
 /* --------------------------- static fallback ---------------------------
@@ -139,6 +313,7 @@
   .rp-hero-film{ display:none; }
   .rp-hero-sticky{ background:var(--rp-bg) url('../assets/hero/rp-hero-poster.webp') center/cover no-repeat; }
   .rp-hero-copy{ transform:none !important; opacity:1 !important; }
+  #positioning{margin-top:0;padding-top:clamp(80px,10vw,130px)}
 }
 .rp-hero-scroll.rp-hero-static{ height:auto; }
 .rp-hero-scroll.rp-hero-static .rp-hero-sticky{
@@ -147,3 +322,4 @@
 }
 .rp-hero-scroll.rp-hero-static .rp-hero-film{ display:none; }
 .rp-hero-scroll.rp-hero-static .rp-hero-copy{ transform:none !important; opacity:1 !important; }
+.rp-hero-scroll.rp-hero-static + #positioning{margin-top:0;padding-top:clamp(80px,10vw,130px)}
