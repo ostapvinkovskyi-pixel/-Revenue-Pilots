@@ -115,11 +115,11 @@
 <!-- ===================== 1. HERO — Website + Autopilot (cinematic) ===================== -->
 <section class="rp-hero-scroll" id="hero">
   <div class="rp-hero-sticky">
-    <video class="rp-hero-film" id="rpHeroFilm" muted loop playsinline preload="metadata"
-      poster="assets/hero/rp-hero-poster.webp" aria-hidden="true">
-      <source media="(max-width: 760px)" src="assets/hero/rp-hero-loop-mobile.mp4" type="video/mp4">
-      <source src="assets/hero/rp-hero-loop-desktop.mp4" type="video/mp4">
-    </video>
+    <!-- Scroll-controlled frame sequence. The poster paints instantly and
+         stays underneath as the reduced-motion / no-JS / slow-network
+         fallback; js/hero-autopilot.js draws frames over it on scroll. -->
+    <div class="rp-hero-poster" aria-hidden="true"></div>
+    <canvas class="rp-hero-film" id="rpHeroFilm" aria-hidden="true"></canvas>
     <div class="rp-hero-shade" aria-hidden="true"></div>
     <div class="shell rp-hero-copy">
       <p class="rp-eyebrow">Websites &times; Autopilot &times; Real growth</p>
@@ -127,7 +127,7 @@
       <p class="rp-sub">We build the customer-facing website and the operating layer behind it — capturing enquiries, moving follow-up, booking/payment handoffs and pipeline updates so routine work does not wait on you.</p>
       <div class="rp-hero-actions">
         <a class="btn btn-gold" href="#contact">Start with a $500 pilot →</a>
-        <a class="btn btn-ghost" href="#work">See interactive website demo ↗</a>
+        <a class="btn btn-ghost" href="#autopilot">See the system unfold ↓</a>
       </div>
       <div class="rp-hero-flow" aria-label="Customer journey">
         <span>Lead</span><i aria-hidden="true">→</i><span>Follow-up</span><i aria-hidden="true">→</i><span>Booking</span><i aria-hidden="true">→</i><span>Payment</span>
