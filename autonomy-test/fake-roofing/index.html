@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<!--
+  Synthetic, non-production demo page for autonomy testing (BUILD_JOB JOB-AUTO-20260911-001).
+  "Northline Roofing" is a fictional business. Fully self-contained HTML/CSS, no external
+  requests, no forms, no analytics, and no production integrations.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northline Roofing | Roofing Done Right</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{
+    --ink:#131a22;
+    --ink-soft:#4a5561;
+    --paper:#f7f5f0;
+    --panel:#ffffff;
+    --line:rgba(19,26,34,.10);
+    --brand:#1f3b5c;
+    --brand-dark:#132a45;
+    --accent:#d9772e;
+    --accent-dark:#b95f1f;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.5;
+  }
+  img,svg{display:block;max-width:100%;}
+  a{color:inherit;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
+
+  /* Header */
+  .site-header{
+    position:sticky;top:0;z-index:20;
+    background:rgba(247,245,240,.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .site-header .wrap{
+    display:flex;align-items:center;justify-content:space-between;
+    min-height:76px;gap:16px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;letter-spacing:-.01em;text-decoration:none;color:var(--ink);}
+  .brand-mark{
+    width:36px;height:36px;border-radius:9px;flex:none;
+    background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand-mark svg{width:20px;height:20px;}
+  .main-nav{display:flex;align-items:center;gap:28px;}
+  .main-nav a{
+    font-size:.94rem;font-weight:600;text-decoration:none;color:var(--ink-soft);
+  }
+  .main-nav a:hover{color:var(--ink);}
+  .header-cta{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:0 20px;min-height:44px;border-radius:999px;
+    background:var(--accent);color:#fff;font-weight:700;font-size:.9rem;
+    text-decoration:none;white-space:nowrap;
+    transition:background .15s ease;
+  }
+  .header-cta:hover{background:var(--accent-dark);}
+  .nav-links{display:flex;align-items:center;gap:28px;}
+
+  /* Hero */
+  .hero{
+    position:relative;
+    padding:clamp(64px,9vw,120px) 0 clamp(56px,8vw,96px);
+    background:
+      radial-gradient(1100px 500px at 85% -10%, rgba(217,119,46,.16), transparent 60%),
+      linear-gradient(180deg,#101b28,var(--brand-dark) 60%,var(--brand));
+    color:#f4f1ea;
+    overflow:hidden;
+  }
+  .hero .wrap{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(32px,6vw,64px);align-items:center;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:.78rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:#f2c896;margin:0 0 20px;
+  }
+  .eyebrow::before{content:"";width:26px;height:2px;background:#f2c896;border-radius:2px;}
+  .hero h1{
+    margin:0 0 20px;font-size:clamp(2.3rem,4.6vw,3.6rem);line-height:1.06;letter-spacing:-.02em;font-weight:800;
+  }
+  .hero h1 em{font-style:normal;color:#f2c896;}
+  .hero p.lede{
+    margin:0 0 32px;font-size:1.08rem;color:#d7dee6;max-width:52ch;
+  }
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:36px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:0 26px;min-height:52px;border-radius:999px;
+    font-weight:700;font-size:.98rem;text-decoration:none;cursor:pointer;
+    border:1px solid transparent;transition:transform .12s ease,background .15s ease,border-color .15s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-outline{background:transparent;color:#f4f1ea;border-color:rgba(244,241,234,.4);}
+  .btn-outline:hover{border-color:rgba(244,241,234,.85);}
+  .hero-stats{display:flex;flex-wrap:wrap;gap:28px;}
+  .hero-stat{min-width:120px;}
+  .hero-stat strong{display:block;font-size:1.5rem;font-weight:800;color:#fff;}
+  .hero-stat span{font-size:.82rem;color:#c3cbd4;}
+
+  .hero-card{
+    background:var(--panel);color:var(--ink);border-radius:20px;
+    padding:28px;box-shadow:0 30px 60px rgba(0,0,0,.35);
+  }
+  .hero-card h3{margin:0 0 6px;font-size:1.15rem;}
+  .hero-card p{margin:0 0 18px;color:var(--ink-soft);font-size:.92rem;}
+  .hero-card ul{list-style:none;margin:0 0 22px;padding:0;display:grid;gap:12px;}
+  .hero-card li{display:flex;align-items:flex-start;gap:10px;font-size:.92rem;}
+  .check{
+    flex:none;width:20px;height:20px;border-radius:50%;background:#e8f3ec;color:#1f7a4c;
+    display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;
+  }
+  .hero-card .btn{width:100%;}
+  .demo-badge{
+    margin-top:14px;text-align:center;font-size:.72rem;color:var(--ink-soft);
+  }
+
+  section{padding:clamp(56px,8vw,96px) 0;}
+  .section-head{max-width:640px;margin:0 auto 44px;text-align:center;}
+  .section-head .eyebrow{color:var(--accent-dark);}
+  .section-head h2{margin:0 0 14px;font-size:clamp(1.8rem,3.4vw,2.5rem);letter-spacing:-.015em;}
+  .section-head p{margin:0;color:var(--ink-soft);font-size:1.02rem;}
+
+  /* Services */
+  .services{background:var(--panel);}
+  .service-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;}
+  .service-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 26px;
+  }
+  .service-icon{
+    width:52px;height:52px;border-radius:12px;background:rgba(31,59,92,.08);
+    display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+  }
+  .service-icon svg{width:26px;height:26px;color:var(--brand);}
+  .service-card h3{margin:0 0 10px;font-size:1.15rem;}
+  .service-card p{margin:0 0 16px;color:var(--ink-soft);font-size:.95rem;}
+  .service-card a{font-weight:700;font-size:.9rem;color:var(--brand);text-decoration:none;}
+  .service-card a:hover{text-decoration:underline;}
+
+  /* Trust */
+  .trust{background:var(--brand-dark);color:#f4f1ea;}
+  .trust .section-head p{color:#c3cbd4;}
+  .trust .section-head .eyebrow{color:#f2c896;}
+  .trust-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;}
+  .trust-item{
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+    border-radius:var(--radius);padding:26px 20px;text-align:center;
+  }
+  .trust-item strong{display:block;font-size:1.7rem;font-weight:800;margin-bottom:6px;color:#fff;}
+  .trust-item span{font-size:.86rem;color:#c3cbd4;}
+  .trust-strip{
+    margin-top:36px;display:flex;flex-wrap:wrap;justify-content:center;gap:14px 32px;
+    font-size:.88rem;color:#dfe4e9;
+  }
+  .trust-strip li{display:flex;align-items:center;gap:8px;list-style:none;}
+
+  /* CTA / contact */
+  .cta{
+    background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+    color:#f4f1ea;text-align:center;
+  }
+  .cta h2{margin:0 0 14px;font-size:clamp(1.8rem,3.6vw,2.6rem);letter-spacing:-.015em;}
+  .cta p{margin:0 auto 30px;max-width:56ch;color:#d7dee6;font-size:1.02rem;}
+  .cta-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-bottom:18px;}
+  .cta .demo-badge{color:#c3cbd4;}
+
+  footer{
+    background:#0f1822;color:#95a1ac;padding:32px 0;font-size:.85rem;
+  }
+  footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center;}
+
+  @media (max-width:860px){
+    .main-nav{display:none;}
+    .hero .wrap{grid-template-columns:1fr;}
+    .service-grid{grid-template-columns:1fr;}
+    .trust-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M3 12L12 4L21 12" stroke="#f4f1ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 11V19.5C6 19.7761 6.22386 20 6.5 20H17.5C17.7761 20 18 19.7761 18 19.5V11" stroke="#f4f1ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      Northline Roofing
+    </a>
+    <nav class="main-nav" aria-label="Primary">
+      <div class="nav-links">
+        <a href="#services">Services</a>
+        <a href="#trust">Why Us</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <a class="header-cta" href="#contact">Get a Free Estimate</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Residential &amp; Commercial Roofing</p>
+        <h1>Roofing built to <em>outlast the storm.</em></h1>
+        <p class="lede">
+          Northline Roofing helps homeowners protect what matters most with durable
+          installations, fast storm-damage response, and workmanship backed by a
+          written warranty.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#contact">Get a Free Estimate</a>
+          <a class="btn btn-outline" href="#services">View Our Services</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><strong>20+ yrs</strong><span>Regional experience</span></div>
+          <div class="hero-stat"><strong>3,400+</strong><span>Roofs completed</span></div>
+          <div class="hero-stat"><strong>4.9★</strong><span>Average customer rating</span></div>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <h3>Request a free roof inspection</h3>
+        <p>See what a Northline roof looks like before you commit to anything.</p>
+        <ul>
+          <li><span class="check">✓</span> No-obligation on-site inspection</li>
+          <li><span class="check">✓</span> Same-week scheduling</li>
+          <li><span class="check">✓</span> Licensed, insured crews</li>
+        </ul>
+        <a class="btn btn-primary" href="#contact">Get My Free Estimate</a>
+        <p class="demo-badge">Demo page — button links to the contact section below.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">What We Do</p>
+        <h2>Roofing services for every situation</h2>
+        <p>From full replacements to emergency repairs, our crews handle every job with the same attention to detail.</p>
+      </div>
+      <div class="service-grid">
+
+        <article class="service-card">
+          <div class="service-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M3 11L12 4L21 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 10V20H19V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9.5 20V14.5H14.5V20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Roof Replacement</h3>
+          <p>Full tear-off and re-roofing with premium shingle, metal, or tile systems matched to your home and climate.</p>
+          <a href="#contact">Learn more &rarr;</a>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M13 2L4 14H12L11 22L20 10H12L13 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Storm Damage Repair</h3>
+          <p>Rapid tarping and repair after hail or wind damage, plus support navigating your insurance claim.</p>
+          <a href="#contact">Learn more &rarr;</a>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+              <path d="M8.5 12.5L11 15L16 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Inspections &amp; Maintenance</h3>
+          <p>Seasonal tune-ups and detailed inspection reports that catch small issues before they become big ones.</p>
+          <a href="#contact">Learn more &rarr;</a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="trust" id="trust">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Why Homeowners Choose Us</p>
+        <h2>Trusted by neighborhoods across the region</h2>
+        <p>Every project is backed by licensed crews, transparent pricing, and a workmanship warranty.</p>
+      </div>
+      <div class="trust-grid">
+        <div class="trust-item"><strong>20+</strong><span>Years in business</span></div>
+        <div class="trust-item"><strong>3,400+</strong><span>Roofs completed</span></div>
+        <div class="trust-item"><strong>4.9 / 5</strong><span>Average review score</span></div>
+        <div class="trust-item"><strong>10-yr</strong><span>Workmanship warranty</span></div>
+      </div>
+      <ul class="trust-strip">
+        <li>✔ Licensed &amp; Insured</li>
+        <li>✔ Locally Owned</li>
+        <li>✔ Free Written Estimates</li>
+        <li>✔ Financing Available</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cta" id="contact">
+    <div class="wrap">
+      <h2>Ready to protect your roof?</h2>
+      <p>Get a free, no-obligation estimate from a Northline Roofing specialist. This demo page does not submit any data.</p>
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="#contact">Get a Free Estimate</a>
+        <a class="btn btn-outline" href="#top">Back to Top</a>
+      </div>
+      <p class="demo-badge">Synthetic demo content — Northline Roofing is a fictional business used for testing.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 Northline Roofing. Demo content for testing purposes only.</span>
+    <span>Not a real business — no data is collected on this page.</span>
+  </div>
+</footer>
+
+</body>
+</html>
