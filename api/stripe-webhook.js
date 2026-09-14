@@ -1,35 +1,48 @@
 import Stripe from "stripe";
-import { createHash } from "node:crypto";
 
-const DEFAULT_MAKE_WEBHOOK_URL = "https://hook.us2.make.com/qbvey2ub4psm3u7gg1mswes2g2hog19h";
-const MAKE_TOKEN_CONTEXT = "revenue-pilots-make-v1";
-
-function safe(value) {
-  return value == null ? "" : String(value);
+function configuredN8nUrl() {
+  const value = process.env.N8N_PAYMENT_WEBHOOK_URL;
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:") return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
 }
 
-function makeToken(secret) {
-  return createHash("sha256")
-    .update(`${secret}|${MAKE_TOKEN_CONTEXT}`)
-    .digest("hex");
+function upstreamHeaders() {
+  const headers = { "Content-Type": "application/json" };
+  const token = process.env.N8N_WEBHOOK_TOKEN;
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
 }
 
-async function notifyMake(payload, internalSecret) {
-  const makeUrl = process.env.MAKE_WEBHOOK_URL || DEFAULT_MAKE_WEBHOOK_URL;
+async function forwardVerifiedEvent(event) {
+  const n8nUrl = configuredN8nUrl();
+  if (!n8nUrl) {
+    throw new Error("N8N_PAYMENT_WEBHOOK_URL is unavailable or invalid");
+  }
 
-  const response = await fetch(makeUrl, {
+  const response = await fetch(n8nUrl, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ...payload,
-      make_token: makeToken(internalSecret)
-    })
+    headers: upstreamHeaders(),
+    body: JSON.stringify(event),
+    signal: AbortSignal.timeout(10000)
   });
 
   if (!response.ok) {
-    throw new Error(`Make returned ${response.status}`);
+    throw new Error(`n8n payment webhook returned ${response.status}`);
   }
 }
+
+const FORWARDED_EVENTS = new Set([
+  "checkout.session.completed",
+  "invoice.paid",
+  "invoice.payment_failed",
+  "customer.subscription.deleted"
+]);
 
 export default {
   async fetch(request) {
@@ -55,88 +68,23 @@ export default {
       return new Response("Invalid signature", { status: 400 });
     }
 
+    // Preview deployments are test-only. Never let a live Stripe event enter
+    // the controlled integration test path.
+    if (process.env.VERCEL_ENV === "preview" && event.livemode) {
+      console.error("Blocked live Stripe event in preview", event.id);
+      return new Response("Live events are not accepted in preview", { status: 409 });
+    }
+
+    if (!FORWARDED_EVENTS.has(event.type)) {
+      return new Response("ok", { status: 200 });
+    }
+
     try {
-      if (event.type === "checkout.session.completed") {
-        const session = event.data.object;
-        const email = session.customer_details?.email || session.customer_email || "";
-        const name = session.customer_details?.name || "";
-        const phone = session.customer_details?.phone || "";
-        const paymentStatus = safe(session.payment_status || session.status);
-
-        if (session.payment_status !== "paid") {
-          await notifyMake({
-            event_type: "payment_issue",
-            stripe_event_id: event.id,
-            stripe_event_type: event.type,
-            session_id: safe(session.id),
-            payment_status: paymentStatus || "not_paid",
-            mode: safe(session.mode),
-            plan: safe(session.metadata?.plan),
-            amount: typeof session.amount_total === "number" ? session.amount_total / 100 : "",
-            currency: safe(session.currency || "usd"),
-            customer_name: safe(name),
-            customer_email: safe(email),
-            phone: safe(phone),
-            stripe_customer_id: safe(session.customer),
-            subscription_id: safe(session.subscription),
-            verified: true
-          }, webhookSecret);
-          return new Response("ok", { status: 200 });
-        }
-
-        await notifyMake({
-          event_type: "payment",
-          stripe_event_id: event.id,
-          stripe_event_type: event.type,
-          session_id: safe(session.id),
-          payment_status: paymentStatus,
-          mode: safe(session.mode),
-          plan: safe(session.metadata?.plan),
-          amount: typeof session.amount_total === "number" ? session.amount_total / 100 : "",
-          currency: safe(session.currency || "usd"),
-          customer_name: safe(name),
-          customer_email: safe(email),
-          phone: safe(phone),
-          business_name: "",
-          website: "",
-          service_area: "",
-          stripe_customer_id: safe(session.customer),
-          subscription_id: safe(session.subscription),
-          verified: true
-        }, webhookSecret);
-      } else if (event.type === "invoice.paid") {
-        const invoice = event.data.object;
-        // checkout.session.completed already records the first subscription payment.
-        // Only send a separate revenue event for later successful renewals.
-        if (invoice.billing_reason !== "subscription_create" && invoice.subscription) {
-          await notifyMake({
-            event_type: "subscription_renewal",
-            stripe_event_id: event.id,
-            stripe_event_type: event.type,
-            payment_status: safe(invoice.status || "paid"),
-            amount: typeof invoice.amount_paid === "number" ? invoice.amount_paid / 100 : "",
-            currency: safe(invoice.currency || "usd"),
-            customer_email: safe(invoice.customer_email),
-            stripe_customer_id: safe(invoice.customer),
-            subscription_id: safe(invoice.subscription),
-            verified: true
-          }, webhookSecret);
-        }
-      } else if (event.type === "invoice.payment_failed" || event.type === "customer.subscription.deleted") {
-        const object = event.data.object;
-        await notifyMake({
-          event_type: "payment_issue",
-          stripe_event_id: event.id,
-          stripe_event_type: event.type,
-          payment_status: safe(object.status || "failed"),
-          customer_email: safe(object.customer_email),
-          stripe_customer_id: safe(object.customer),
-          subscription_id: safe(object.subscription || object.id),
-          verified: true
-        }, webhookSecret);
-      }
+      // Forward the verified Stripe event object, not an untrusted request body.
+      // n8n remains downstream of the signature-verification boundary.
+      await forwardVerifiedEvent(event);
     } catch (error) {
-      console.error("Webhook processing error", error);
+      console.error("Webhook forwarding error", error);
       return new Response("Webhook processing failed", { status: 500 });
     }
 
