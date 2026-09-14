@@ -49,8 +49,8 @@ function tooManyRequests(ip) {
 
 function upstreamHeaders() {
   const headers = { "Content-Type": "application/json" };
-  const token = process.env.N8N_WEBHOOK_TOKEN;
-  if (token) headers.Authorization = `Bearer ${token}`;
+  const token = (process.env.N8N_WEBHOOK_TOKEN || "").trim();
+  if (token) headers.Authorization = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
   return headers;
 }
 
