@@ -1,8 +1,4 @@
-import { createHash } from "node:crypto";
-
 const REQUIRED = ["name", "business_name", "email"];
-const DEFAULT_MAKE_WEBHOOK_URL = "https://hook.us2.make.com/qbvey2ub4psm3u7gg1mswes2g2hog19h";
-const MAKE_TOKEN_CONTEXT = "revenue-pilots-make-v1";
 const MAX_BODY_BYTES = 8192;
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 5;
@@ -14,10 +10,6 @@ function clean(value, max = 1000, multiline = false) {
   out = multiline
     ? out.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
     : out.replace(/[\u0000-\u001F\u007F]/g, " ");
-
-  // Lead values are interpolated into raw-HTML notification emails downstream.
-  // Angle brackets are not needed for a business enquiry and removing their
-  // markup meaning prevents HTML injection without changing normal text.
   return out.replace(/</g, "‹").replace(/>/g, "›");
 }
 
@@ -27,12 +19,6 @@ function validEmail(value) {
 
 function json(data, status = 200) {
   return Response.json(data, { status });
-}
-
-function makeToken(secret) {
-  return createHash("sha256")
-    .update(`${secret}|${MAKE_TOKEN_CONTEXT}`)
-    .digest("hex");
 }
 
 function clientIp(request) {
@@ -59,6 +45,25 @@ function tooManyRequests(ip) {
   }
 
   return current.count > RATE_MAX;
+}
+
+function upstreamHeaders() {
+  const headers = { "Content-Type": "application/json" };
+  const token = process.env.N8N_WEBHOOK_TOKEN;
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+function configuredN8nUrl(name) {
+  const value = process.env[name];
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:") return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
 }
 
 export default {
@@ -101,8 +106,6 @@ export default {
       return json({ error: "Invalid JSON" }, 400);
     }
 
-    // Honeypot: bots commonly fill every field. Pretend success but create
-    // no Make/Gmail/Sheets side effects.
     if (clean(body.company_url, 200)) {
       return json({ ok: true });
     }
@@ -111,10 +114,9 @@ export default {
       return json({ error: "Too many requests. Please try again shortly." }, 429);
     }
 
-    const makeUrl = process.env.MAKE_WEBHOOK_URL || DEFAULT_MAKE_WEBHOOK_URL;
-    const internalSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    if (!internalSecret) {
-      console.error("Internal Make authentication secret is unavailable");
+    const n8nUrl = configuredN8nUrl("N8N_LEAD_WEBHOOK_URL");
+    if (!n8nUrl) {
+      console.error("N8N_LEAD_WEBHOOK_URL is unavailable or invalid");
       return json({ error: "Lead intake unavailable" }, 503);
     }
 
@@ -140,8 +142,7 @@ export default {
       package_interest: KNOWN_PACKAGES.has(packageInterest) ? packageInterest : "not_sure",
       message: clean(body.message, 3000, true),
       source: "revenue-pilots-website",
-      page_url: clean(request.headers.get("referer") || requestUrl.origin, 500),
-      make_token: makeToken(internalSecret)
+      page_url: clean(request.headers.get("referer") || requestUrl.origin, 500)
     };
 
     if (REQUIRED.some((key) => !lead[key]) || !validEmail(lead.email)) {
@@ -149,20 +150,21 @@ export default {
     }
 
     try {
-      const upstream = await fetch(makeUrl, {
+      const upstream = await fetch(n8nUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(lead)
+        headers: upstreamHeaders(),
+        body: JSON.stringify(lead),
+        signal: AbortSignal.timeout(8000)
       });
 
       if (!upstream.ok) {
-        console.error("Make lead webhook returned", upstream.status);
+        console.error("n8n lead webhook returned", upstream.status);
         return json({ error: "Lead intake unavailable" }, 502);
       }
 
       return json({ ok: true });
     } catch (error) {
-      console.error("Make lead webhook error", error);
+      console.error("n8n lead webhook error", error);
       return json({ error: "Lead intake unavailable" }, 502);
     }
   }
