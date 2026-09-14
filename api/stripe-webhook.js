@@ -14,8 +14,8 @@ function configuredN8nUrl() {
 
 function upstreamHeaders() {
   const headers = { "Content-Type": "application/json" };
-  const token = process.env.N8N_WEBHOOK_TOKEN;
-  if (token) headers.Authorization = `Bearer ${token}`;
+  const token = (process.env.N8N_WEBHOOK_TOKEN || "").trim();
+  if (token) headers.Authorization = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
   return headers;
 }
 
@@ -68,8 +68,6 @@ export default {
       return new Response("Invalid signature", { status: 400 });
     }
 
-    // Preview deployments are test-only. Never let a live Stripe event enter
-    // the controlled integration test path.
     if (process.env.VERCEL_ENV === "preview" && event.livemode) {
       console.error("Blocked live Stripe event in preview", event.id);
       return new Response("Live events are not accepted in preview", { status: 409 });
@@ -80,8 +78,6 @@ export default {
     }
 
     try {
-      // Forward the verified Stripe event object, not an untrusted request body.
-      // n8n remains downstream of the signature-verification boundary.
       await forwardVerifiedEvent(event);
     } catch (error) {
       console.error("Webhook forwarding error", error);
