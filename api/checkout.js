@@ -120,6 +120,7 @@ export default {
       source: "revenue-pilots-website",
       offer_version: "clarified-revenue-builds-2026-09",
       offer: offer.slug,
+      plan_total: String(offer.amount / 100),
       total_project_amount: String(offer.amount),
       checkout_amount: String(checkoutAmount),
       remaining_balance: String(remainingBalance)
