@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mill Town Handyman | Fort Mill, SC</title>
+  <meta name="description" content="Reliable handyman services in Fort Mill and surrounding communities. Home repairs, installations, deck work, carpentry and more." />
+  <style>
+    :root{
+      --bg:#f5f1e8;
+      --ink:#142019;
+      --muted:#617066;
+      --card:#fffdf7;
+      --green:#214c3a;
+      --green2:#18392c;
+      --gold:#e3a52f;
+      --line:#d9ded6;
+      --shadow:0 24px 60px rgba(18,39,29,.12);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;line-height:1.5}
+    a{color:inherit;text-decoration:none}
+    img{display:block;max-width:100%}
+    .wrap{width:min(1160px,calc(100% - 40px));margin:0 auto}
+    .nav{position:sticky;top:0;z-index:20;background:rgba(245,241,232,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(33,76,58,.08)}
+    .nav-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:-.03em}
+    .brand-mark{width:42px;height:42px;border-radius:13px;background:var(--green);display:grid;place-items:center;color:white;font-weight:950;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+    .brand span{font-size:19px}
+    .nav-links{display:flex;gap:28px;color:#536057;font-size:14px;font-weight:700}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 19px;border-radius:999px;font-weight:800;transition:.2s ease;border:1px solid transparent}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--green);color:white;box-shadow:0 10px 30px rgba(33,76,58,.2)}
+    .btn-secondary{background:transparent;border-color:#c7cfc8;color:var(--green2)}
+    .hero{padding:74px 0 56px}
+    .hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;background:#e7efe7;color:var(--green);padding:8px 12px;border-radius:999px;font-size:13px;font-weight:900;letter-spacing:.02em;margin-bottom:20px}
+    .eyebrow .dot{width:8px;height:8px;background:var(--gold);border-radius:50%}
+    h1{font-size:clamp(48px,6.5vw,88px);line-height:.95;letter-spacing:-.065em;margin:0 0 22px;max-width:780px}
+    .hero p{font-size:20px;color:var(--muted);max-width:610px;margin:0 0 28px}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:32px}
+    .proof{display:flex;align-items:center;gap:18px;flex-wrap:wrap;color:#536057;font-size:14px;font-weight:700}
+    .stars{color:#e3a52f;letter-spacing:2px;font-size:19px}
+    .hero-card{position:relative;border-radius:36px;overflow:hidden;min-height:610px;background:#213d31;box-shadow:var(--shadow)}
+    .hero-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .hero-card:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,29,22,.04) 30%,rgba(13,29,22,.82) 100%)}
+    .hero-badge{position:absolute;z-index:2;left:26px;right:26px;bottom:26px;background:rgba(255,253,247,.93);backdrop-filter:blur(12px);padding:18px 20px;border-radius:22px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .hero-badge strong{font-size:17px;display:block}
+    .hero-badge small{color:#67756b}
+    .hero-badge .circle{width:46px;height:46px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:20px}
+    .section{padding:86px 0}
+    .section.white{background:#fffdf8}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:28px;margin-bottom:34px}
+    .kicker{color:var(--green);font-weight:900;text-transform:uppercase;letter-spacing:.1em;font-size:12px;margin-bottom:10px}
+    h2{font-size:clamp(36px,4.5vw,58px);line-height:1;letter-spacing:-.045em;margin:0;max-width:760px}
+    .section-head p{max-width:430px;color:var(--muted);margin:0}
+    .services{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .service{background:var(--card);border:1px solid #e4e2da;padding:26px;border-radius:24px;min-height:240px;display:flex;flex-direction:column;justify-content:space-between}
+    .service-num{font-size:12px;font-weight:900;color:#88958b;letter-spacing:.08em}
+    .service h3{font-size:23px;line-height:1.05;letter-spacing:-.03em;margin:28px 0 12px}
+    .service p{margin:0;color:var(--muted);font-size:15px}
+    .work-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:18px}
+    .photo{overflow:hidden;border-radius:28px;background:#ddd;min-height:430px;position:relative}
+    .photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+    .photo:hover img{transform:scale(1.03)}
+    .photo.small{min-height:205px}
+    .stack{display:grid;grid-template-rows:1fr 1fr;gap:18px}
+    .review-band{background:var(--green);color:white;border-radius:34px;padding:42px;display:grid;grid-template-columns:.7fr 1.3fr;gap:48px;align-items:center}
+    .score{font-size:86px;line-height:.8;font-weight:950;letter-spacing:-.08em}
+    .score-label{opacity:.8;margin-top:18px;font-weight:700}
+    .quote{font-size:clamp(25px,3vw,38px);line-height:1.17;letter-spacing:-.03em;margin:0 0 18px}
+    .quote-by{opacity:.75;font-weight:700}
+    .trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+    .trust{border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:18px;color:rgba(255,255,255,.86);font-size:14px}
+    .trust strong{display:block;color:white;margin-bottom:4px;font-size:16px}
+    .about-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:center}
+    .about-card{background:var(--green2);color:white;border-radius:32px;padding:40px;box-shadow:var(--shadow)}
+    .about-card .mini{color:#d4e3da;font-size:14px;font-weight:800;margin-bottom:70px}
+    .about-card h3{font-size:42px;letter-spacing:-.045em;line-height:1;margin:0 0 16px}
+    .about-card p{color:#d8e2dc;margin:0}
+    .facts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:28px}
+    .fact{background:#eef0e8;border-radius:20px;padding:22px}
+    .fact strong{font-size:26px;letter-spacing:-.04em;display:block}
+    .fact span{color:var(--muted);font-size:14px}
+    .cta{padding:86px 0 100px}
+    .cta-box{background:#151d18;color:white;border-radius:38px;padding:58px;display:flex;justify-content:space-between;gap:40px;align-items:center;overflow:hidden;position:relative}
+    .cta-box:before{content:"";position:absolute;width:330px;height:330px;border:70px solid rgba(227,165,47,.14);border-radius:50%;right:-90px;top:-130px}
+    .cta-box h2{max-width:680px;position:relative}
+    .cta-box p{color:#b9c4bd;max-width:560px;position:relative}
+    .cta-actions{display:flex;flex-direction:column;gap:12px;position:relative;min-width:190px}
+    .cta .btn-primary{background:var(--gold);color:#182019}
+    footer{padding:28px 0 44px;color:#718077;font-size:14px}
+    .footer{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid #d9ded6;padding-top:28px}
+    @media (max-width:900px){
+      .nav-links{display:none}
+      .hero{padding-top:42px}
+      .hero-grid,.about-grid{grid-template-columns:1fr}
+      .hero-card{min-height:500px}
+      .services{grid-template-columns:1fr 1fr}
+      .work-grid{grid-template-columns:1fr}
+      .stack{grid-template-columns:1fr 1fr;grid-template-rows:none}
+      .review-band{grid-template-columns:1fr;gap:28px}
+      .cta-box{display:block}
+      .cta-actions{margin-top:28px;flex-direction:row;flex-wrap:wrap}
+    }
+    @media (max-width:600px){
+      .wrap{width:min(100% - 24px,1160px)}
+      .nav-inner{height:66px}
+      .brand span{font-size:16px}
+      .nav .btn{padding:11px 14px;font-size:13px}
+      h1{font-size:52px}
+      .hero p{font-size:17px}
+      .hero-card{min-height:420px;border-radius:26px}
+      .section{padding:64px 0}
+      .section-head{display:block}
+      .section-head p{margin-top:16px}
+      .services{grid-template-columns:1fr}
+      .service{min-height:190px}
+      .stack{grid-template-columns:1fr}
+      .photo.small{min-height:260px}
+      .review-band{padding:28px;border-radius:26px}
+      .score{font-size:70px}
+      .trust-grid{grid-template-columns:1fr}
+      .facts{grid-template-columns:1fr}
+      .cta-box{padding:34px 26px;border-radius:28px}
+      .cta-actions{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="Mill Town Handyman home">
+        <div class="brand-mark">MT</div>
+        <span>Mill Town Handyman</span>
+      </a>
+      <div class="nav-links">
+        <a href="#services">Services</a>
+        <a href="#work">Our Work</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#about">About</a>
+      </div>
+      <a class="btn btn-primary" href="tel:+18034126378">Call 803-412-6378</a>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> Fort Mill's local handyman</div>
+          <h1>Small projects. Done right.</h1>
+          <p>Dependable handyman help for repairs, installs, deck work, carpentry and the projects that keep your home working the way it should.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="tel:+18034126378">Get a free quote</a>
+            <a class="btn btn-secondary" href="#services">See services</a>
+          </div>
+          <div class="proof">
+            <span class="stars">★★★★★</span>
+            <span><strong>5.0 Google rating</strong> · 27 local reviews</span>
+          </div>
+        </div>
+        <div class="hero-card" aria-label="Handyman project">
+          <img src="https://images.pexels.com/photos/12172496/pexels-photo-12172496.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Deck repair and carpentry work" />
+          <div class="hero-badge">
+            <div><strong>Local, responsive, reliable.</strong><small>Serving Fort Mill & surrounding communities</small></div>
+            <div class="circle">✓</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section white" id="services">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="kicker">What we do</div><h2>One call for the projects on your list.</h2></div>
+          <p>From quick fixes to bigger punch-list projects, Mill Town Handyman helps homeowners get the job finished without the runaround.</p>
+        </div>
+        <div class="services">
+          <article class="service"><div class="service-num">01</div><div><h3>Home Repairs</h3><p>Everyday repairs, adjustments and fixes throughout the home.</p></div></article>
+          <article class="service"><div class="service-num">02</div><div><h3>Deck & Exterior</h3><p>Deck-board replacement, lattice work, exterior repairs and upkeep.</p></div></article>
+          <article class="service"><div class="service-num">03</div><div><h3>Installations</h3><p>Fans, fixtures, blinds, doors, shelving and other household installs.</p></div></article>
+          <article class="service"><div class="service-num">04</div><div><h3>Carpentry & Finish</h3><p>Trim, shiplap, custom fixes and detail work that makes a space feel complete.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="work">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="kicker">Craftsmanship</div><h2>Practical work with a clean finish.</h2></div>
+          <p>Built around clear communication, careful workmanship and treating your home with respect.</p>
+        </div>
+        <div class="work-grid">
+          <div class="photo"><img src="https://images.pexels.com/photos/5691608/pexels-photo-5691608.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Home repair work" /></div>
+          <div class="stack">
+            <div class="photo small"><img src="https://images.pexels.com/photos/5691544/pexels-photo-5691544.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Handyman installation project" /></div>
+            <div class="photo small"><img src="https://images.pexels.com/photos/6474460/pexels-photo-6474460.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Handyman with tools" /></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section white" id="reviews">
+      <div class="wrap">
+        <div class="review-band">
+          <div>
+            <div class="score">5.0</div>
+            <div class="stars">★★★★★</div>
+            <div class="score-label">27 Google reviews</div>
+          </div>
+          <div>
+            <p class="quote">“Friendly, professional, and high-quality service at a fair price.”</p>
+            <div class="quote-by">Local customer review</div>
+            <div class="trust-grid">
+              <div class="trust"><strong>Responsive</strong>Customers praise fast replies and easy scheduling.</div>
+              <div class="trust"><strong>Professional</strong>Clear communication from start to finish.</div>
+              <div class="trust"><strong>Quality work</strong>Detail-focused work homeowners recommend.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="wrap about-grid">
+        <div class="about-card">
+          <div class="mini">MILL TOWN HANDYMAN · FORT MILL, SC</div>
+          <h3>Neighbor-first service.</h3>
+          <p>Local handyman support built on word of mouth, dependable communication and work customers are happy to recommend.</p>
+        </div>
+        <div>
+          <div class="kicker">About</div>
+          <h2>Local help from people who care about the result.</h2>
+          <p style="color:var(--muted);font-size:18px;margin:20px 0 0;max-width:650px">Mill Town Handyman serves Fort Mill and surrounding communities with residential repair, maintenance and improvement work. Bill Gardner and the team have built a strong local reputation through responsive service and repeat customers.</p>
+          <div class="facts">
+            <div class="fact"><strong>Fort Mill</strong><span>Locally based and serving nearby communities</span></div>
+            <div class="fact"><strong>Mon–Fri</strong><span>8:00 AM – 5:00 PM</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="wrap">
+        <div class="cta-box">
+          <div>
+            <div class="kicker" style="color:#f0bd57">Have a project in mind?</div>
+            <h2>Tell us what needs fixing. We’ll help you get it done.</h2>
+            <p>Call Mill Town Handyman to talk through your project and get a quote.</p>
+          </div>
+          <div class="cta-actions">
+            <a class="btn btn-primary" href="tel:+18034126378">Call now</a>
+            <a class="btn btn-secondary" style="border-color:#5d675f;color:white" href="https://facebook.com/milltownhandyman" target="_blank" rel="noopener">Facebook</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer">
+      <div>© Mill Town Handyman · Fort Mill, South Carolina</div>
+      <div>803-412-6378 · Monday–Friday, 8 AM–5 PM</div>
+    </div>
+  </footer>
+</body>
+</html>
