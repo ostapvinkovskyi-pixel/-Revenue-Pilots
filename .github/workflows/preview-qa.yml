@@ -53,6 +53,75 @@ jobs:
           echo "deploy_sha=$DEPLOY_SHA" >> "$GITHUB_OUTPUT"
           echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve Vercel preview URL
+        id: preview
+        shell: bash
+        env:
+          TARGET_URL: ${{ github.event.deployment_status.target_url }}
+          ENVIRONMENT_URL: ${{ github.event.deployment_status.environment_url }}
+        run: |
+          set -euo pipefail
+          # Runs for every successful Preview deployment, Builder or not: the
+          # deployment boundary belongs to the project, not to one PR type.
+          PREVIEW_URL="${TARGET_URL:-}"
+          if [ -z "$PREVIEW_URL" ]; then PREVIEW_URL="${ENVIRONMENT_URL:-}"; fi
+          if [ -z "$PREVIEW_URL" ]; then
+            echo "Vercel deployment succeeded but no preview URL was provided."
+            exit 1
+          fi
+          echo "url=${PREVIEW_URL%/}" >> "$GITHUB_OUTPUT"
+
+      - name: Deployment boundary check (internal files must not be public)
+        shell: bash
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]; then
+            echo "VERCEL_AUTOMATION_BYPASS_SECRET is not configured."
+            exit 1
+          fi
+          BASE="${PREVIEW_URL%/}"
+          status() {
+            curl -sS -o /dev/null -w '%{http_code}' --max-time 30 \
+              -H "x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}" "$BASE$1"
+          }
+
+          # Controls: public runtime files must be reachable. This also proves the
+          # bypass header worked, so a 404/401 below cannot be a false pass.
+          for p in / /config/site-config.js /robots.txt; do
+            s=$(status "$p")
+            if [ "$s" != "200" ]; then
+              echo "Control path $p returned HTTP $s (expected 200); boundary check is not trustworthy."
+              exit 1
+            fi
+          done
+
+          # Repository/internal files that must never be served as static files.
+          LEAKS=0
+          for p in \
+            /AGENTS.md /CLAUDE.md /CONTEXT.md /README.md /DEPLOY_TOMORROW.md \
+            /docs/agents/domain.md \
+            /assets/engine/PROVENANCE.md \
+            /.github/workflows/preview-qa.yml /.github/workflows/production-gate.yml \
+            /.revenue-pilots/README.md /.revenue-pilots/OWNER_APPROVAL_POLICY.md \
+            /.revenue-pilots/SECURITY_NOTES.md \
+            /.deploy-trigger-website-pricing /deploy-refresh.html \
+            /config/site-config.example.js /.env.example \
+            /.vercelignore /.git/config
+          do
+            s=$(status "$p")
+            case "$s" in
+              2??) echo "LEAK: $p is publicly served (HTTP $s)"; LEAKS=$((LEAKS + 1)) ;;
+              *)   echo "ok:   $p -> HTTP $s" ;;
+            esac
+          done
+          if [ "$LEAKS" -ne 0 ]; then
+            echo "$LEAKS internal path(s) are publicly served. Add them to .vercelignore."
+            exit 1
+          fi
+
       - name: Verify preview URL exists
         if: steps.context.outputs.is_builder == 'true'
         shell: bash
