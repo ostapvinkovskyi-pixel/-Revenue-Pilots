@@ -1,0 +1,24 @@
+# Deployment boundary: files listed here are NOT deployed, so they can never be
+# requested from the public site. This project has no build step, so Vercel
+# serves the repository root as static output; anything not listed is public.
+#
+# Still deployed on purpose (do not add here): package.json, vercel.json,
+# api/, config/site-config.js, and the website pages and assets.
+
+# CI, automation policy and agent/repo documentation
+.github
+.revenue-pilots
+docs
+.scratch
+*.md
+
+# Deploy-refresh markers and other operational files
+.deploy-trigger-*
+deploy-refresh.html
+
+# Environment templates and stale example config
+.env.example
+config/site-config.example.js
+
+# This file itself
+.vercelignore
